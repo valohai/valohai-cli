@@ -1,6 +1,7 @@
 import click
 
 from valohai_cli.api import APISession
+from valohai_cli.consts import yes_option
 from valohai_cli.settings import settings
 
 
@@ -8,7 +9,7 @@ from valohai_cli.settings import settings
 @click.option('--username', '-u', prompt=True)
 @click.option('--password', '-p', prompt=True, hide_input=True, confirmation_prompt=True)
 @click.option('--host', '-h', default='https://app.valohai.com/')
-@click.option('--yes/-y')
+@yes_option
 def login(username, password, host, yes):
     """Log in into Valohai."""
     if settings.get('user') and settings.get('token') and not yes:
