@@ -19,5 +19,6 @@ def walk_directory_parents(dir):
         dir = new_dir
 
 
-def get_current_directory():
-    return os.path.realpath(os.getcwd())
+def get_project_directory():
+    dir = os.environ.get('VALOHAI_PROJECT_DIR') or os.getcwd()
+    return os.path.realpath(dir)

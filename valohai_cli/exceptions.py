@@ -14,3 +14,7 @@ class APIError(ClickException):
 
 class ConfigurationError(RuntimeError):
     pass
+
+
+class NoProject(ClickException):
+    pass

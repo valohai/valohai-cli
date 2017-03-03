@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from click.testing import CliRunner
 
@@ -9,7 +7,9 @@ def runner():
     return CliRunner()
 
 
-@pytest.mark.trylast
-def pytest_configure(config):
-    config_dir = config._tmpdirhandler.mktemp('valohai-cli-cfg', numbered=True)
-    os.environ.setdefault('VALOHAI_CONFIG_DIR', str(config_dir))
+@pytest.fixture(autouse=True)
+def isolate_cli(tmpdir, monkeypatch):
+    config_dir = str(tmpdir.mkdir('cfg'))
+    project_dir = str(tmpdir.mkdir('proj'))
+    monkeypatch.setenv('VALOHAI_CONFIG_DIR', config_dir)
+    monkeypatch.setenv('VALOHAI_PROJECT_DIR', project_dir)
