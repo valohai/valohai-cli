@@ -1,4 +1,6 @@
 import os
+import random
+import string
 
 
 def walk_directory_parents(dir):
@@ -22,3 +24,7 @@ def walk_directory_parents(dir):
 def get_project_directory():
     dir = os.environ.get('VALOHAI_PROJECT_DIR') or os.getcwd()
     return os.path.realpath(dir)
+
+
+def get_random_string(length=12, keyspace=(string.ascii_letters + string.digits)):
+    return ''.join(random.choice(keyspace) for x in range(length))
