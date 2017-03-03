@@ -13,7 +13,8 @@ setup(
     install_requires=[
         'click>=6.0',
         'six>=1.10.0',
-        'valohai-yaml>=0.4',
+        'valohai-yaml>=0.5',
+        'requests[security]>=2.0.0',
     ],
     packages=find_packages(include=('valohai_cli*',)),
 )
