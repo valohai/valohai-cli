@@ -46,3 +46,11 @@ class APISession(requests.Session):
         if handle_errors and resp.status_code >= 400:
             raise APIError(resp)
         return resp
+
+    @classmethod
+    def from_settings(cls):
+        host = settings.get('host')
+        token = settings.get('token')
+        if not (host and token):
+            raise ConfigurationError('You\'re not logged in; try `vh login` first.')
+        return APISession(host, token)

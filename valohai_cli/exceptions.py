@@ -10,3 +10,7 @@ class APIError(ClickException):
 
     def show(self, file=None):
         click.secho('Error: %s' % self.format_message(), file=file, err=True, fg='red')
+
+
+class ConfigurationError(RuntimeError):
+    pass
