@@ -1,0 +1,14 @@
+machine:
+  python:
+    version: 3.5.2
+  environment:
+    PIP_EXISTS_ACTION: w
+dependencies:
+  pre:
+    - pip install -U pip setuptools wheel
+    - pip install -r requirements-dev.txt -e .
+test:
+  override:
+    - "py.test --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra"
+  post:
+    - bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
