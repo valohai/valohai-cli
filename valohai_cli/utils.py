@@ -61,3 +61,7 @@ def match_prefix(choices, value, return_unique=True):
     if return_unique:
         return (choices[0] if len(choices) == 1 else None)
     return choices
+
+
+def humanize_identifier(identifier):
+    return re.sub('[-_]+', ' ', force_text(identifier)).strip()

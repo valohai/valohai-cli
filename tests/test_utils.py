@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from valohai_cli.messages import format_table
-from valohai_cli.utils import force_bytes, force_text, walk_directory_parents, match_prefix
+from valohai_cli.utils import force_bytes, force_text, humanize_identifier, match_prefix, walk_directory_parents
 
 
 def test_dir_parents():
@@ -35,6 +35,7 @@ hello $ 100000 $  10
   300 $   1000 $ fee
     '''.strip()
 
+
 def test_force_text_and_bytes():
     assert force_text(b'f\xc3\xb6\xc3\xb6') == 'föö'
     assert force_bytes('föö', encoding='iso-8859-1') == b'f\xf6\xf6'
@@ -46,3 +47,7 @@ def test_match_prefix():
     assert match_prefix(['FOO', 'BAR'], 'foo') == 'FOO'
     assert match_prefix(['FOO', 'FEE'], 'f') is None
     assert match_prefix(['FOO', 'FEE'], 'f', return_unique=False) == ['FOO', 'FEE']
+
+
+def test_humanize_identifier():
+    assert humanize_identifier('_____Foo-Bar_______') == 'Foo Bar'
