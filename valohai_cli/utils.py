@@ -28,3 +28,17 @@ def get_project_directory():
 
 def get_random_string(length=12, keyspace=(string.ascii_letters + string.digits)):
     return ''.join(random.choice(keyspace) for x in range(length))
+
+
+def force_text(v, encoding='UTF-8', errors='strict'):
+    if isinstance(v, str):
+        return v
+    elif isinstance(v, bytes):
+        return v.decode(encoding, errors)
+    return str(v)
+
+
+def force_bytes(v, encoding='UTF-8', errors='strict'):
+    if isinstance(v, bytes):
+        return v
+    return str(v).encode(encoding, errors)
