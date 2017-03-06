@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import string
 
 
@@ -42,3 +43,21 @@ def force_bytes(v, encoding='UTF-8', errors='strict'):
     if isinstance(v, bytes):
         return v
     return str(v).encode(encoding, errors)
+
+
+def match_prefix(choices, value, return_unique=True):
+    """
+    Match `value` in `choices` by case-insensitive prefix matching.
+
+    :param choices: Choices to match in. May be non-string; `str()` is called on them if not.
+    :param value: The value to use for matching.
+    :param return_unique: If only one option was found, return it; otherwise return None.
+                          If this is not true, all of the filtered choices are returned.
+    :return: list, object or none; see the `return_unique` option.
+    :rtype: list[object]|object|None
+    """
+    value_re = re.compile('^' + re.escape(value), re.I)
+    choices = [choice for choice in choices if value_re.match(force_text(choice))]
+    if return_unique:
+        return (choices[0] if len(choices) == 1 else None)
+    return choices
