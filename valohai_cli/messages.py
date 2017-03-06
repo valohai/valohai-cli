@@ -1,4 +1,5 @@
 import random
+from itertools import chain
 
 import click
 
@@ -35,3 +36,47 @@ def success(message):
 def warn(message):
     message = random.choice(WARN_EMOJI) + '  ' + message
     click.secho(message, fg='yellow')
+
+
+def format_table(data, columns=(), headers=None, sep=' | '):
+    if not columns:
+        columns = sorted(data[0].keys())
+    if not headers:
+        headers = columns
+    assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
+
+    n_str = lambda s: ('' if s is None else str(s))
+
+    # Pick the requested data and their types from the input
+    printable_data = [
+        [(n_str(datum), type(datum)) for datum in (datum.get(column) for column in columns)]
+        for datum in data
+    ]
+
+    # Transpose `printable_data` and count maximum length of data in each column
+    column_widths = [max(len(s) for (s, t) in col) for col in zip(*printable_data)]
+
+    # Take header lengths into account
+    column_widths = [max(len(header), col_w) for (header, col_w) in zip(headers, column_widths)]
+
+    for row in chain([headers], printable_data):
+        cells = []
+        for datum, width in zip(row, column_widths):
+            if isinstance(datum, tuple):
+                datum, tp = datum
+            else:
+                tp = str
+            if tp in (int, float):
+                datum = datum.rjust(width)
+            else:
+                datum = datum.ljust(width)
+            cells.append(datum[:width])
+        row = sep.join(cells)
+        yield row.rstrip()
+
+
+def print_table(data, columns=(), **kwargs):
+    for y, row in enumerate(format_table(data, columns, **kwargs)):
+        click.secho(row, bold=(y == 0))
+        if y == 0:
+            click.secho('-' * len(row), bold=True)
