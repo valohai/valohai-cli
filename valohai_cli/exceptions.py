@@ -12,7 +12,7 @@ class APIError(ClickException):
         click.secho('Error: %s' % self.format_message(), file=file, err=True, fg='red')
 
 
-class ConfigurationError(RuntimeError):
+class ConfigurationError(ClickException, RuntimeError):
     pass
 
 
