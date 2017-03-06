@@ -18,3 +18,7 @@ class ConfigurationError(ClickException, RuntimeError):
 
 class NoProject(ClickException):
     pass
+
+
+class InvalidConfig(ClickException):
+    pass
