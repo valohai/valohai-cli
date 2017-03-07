@@ -1,5 +1,6 @@
 import click
 from click.exceptions import BadParameter
+from click.globals import get_current_context
 from valohai_yaml.objs.parameter import Parameter
 from valohai_yaml.objs.step import Step
 from valohai_yaml.objs.input import Input
@@ -22,7 +23,7 @@ class RunCommand(click.Command):
         'float': click.FLOAT,
     }
 
-    def __init__(self, project, step, commit, environment):
+    def __init__(self, project, step, commit, environment, watch):
         """
         Initialize the dynamic run command.
 
@@ -34,12 +35,15 @@ class RunCommand(click.Command):
         :type commit: str
         :param environment: Environment name
         :type environment: str
+        :param watch: Whether to chain to `exec watch` afterwards
+        :type watch: bool
         """
         assert isinstance(step, Step)
         self.project = project
         self.step = step
         self.commit = commit
         self.environment = environment
+        self.watch = bool(watch)
         super(RunCommand, self).__init__(
             name=step.name.lower().replace(' ', '-'),
             callback=self.execute,
@@ -115,6 +119,10 @@ class RunCommand(click.Command):
             counter=resp['counter'],
             link=resp['link'],
         ))
+        if self.watch:
+            ctx = get_current_context()
+            from valohai_cli.commands.execution.watch import watch
+            ctx.invoke(watch, counter=resp['counter'])
 
     def _sift_kwargs(self, kwargs):
         # Sift kwargs into params, options, and inputs
@@ -147,9 +155,10 @@ class RunCommand(click.Command):
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment/--env', '-e', default=None, help='The environment name/ID to use.')
+@click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, args):
+def run(ctx, step, commit, environment, watch, args):
     """
     Start an execution of a step.
     """
@@ -166,6 +175,6 @@ def run(ctx, step, commit, environment, args):
                 steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps))
             ))
     step = config.steps[step]
-    rc = RunCommand(project, step, commit=commit, environment=environment)
+    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
