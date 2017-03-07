@@ -27,7 +27,7 @@ class RunCommand(click.Command):
         Initialize the dynamic run command.
 
         :param project: Project object
-        :type project: valohai_cli.ctx.Project
+        :type project: valohai_cli.models.project.Project
         :param step: YAML step object
         :type step: valohai_yaml.objs.Step
         :param commit: Commit identifier
