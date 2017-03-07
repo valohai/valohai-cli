@@ -1,4 +1,5 @@
 import pkgutil
+from collections import defaultdict
 from importlib import import_module
 
 import click
@@ -46,3 +47,26 @@ class PluginCLI(click.MultiCommand):
     def _get_command(self, name):
         module = import_module('%s.%s' % (self.commands_module.__name__, name))
         return getattr(module, name)
+
+
+class RecursiveHelpPluginCLI(PluginCLI):
+    def format_commands(self, ctx, formatter):
+        rows_by_prefix = defaultdict(list)
+
+        def add_commands(multicommand, prefix=''):
+            for subcommand in multicommand.list_commands(ctx):
+                cmd = multicommand.get_command(ctx, subcommand)
+                assert cmd is not None
+                rows_by_prefix[prefix.strip()].append((prefix + subcommand, (cmd.short_help or '')))
+                if isinstance(cmd, click.MultiCommand):
+                    add_commands(cmd, prefix + '%s ' % cmd.name)
+
+        add_commands(self)
+        for prefix, rows in sorted(rows_by_prefix.items()):
+            title = (
+                'Commands (%s ...)' % prefix
+                if prefix
+                else 'Commands'
+            )
+            with formatter.section(title):
+                formatter.write_dl(rows)
