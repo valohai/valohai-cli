@@ -28,14 +28,20 @@ WARN_EMOJI = [
 ]
 
 
+def _format_message(message, emoji=None, color=None):
+    return '{emoji}  {prefix} {message}'.format(
+        emoji=random.choice(emoji or ['']),
+        prefix=click.style('Success!', fg=color, bold=True),
+        message=click.style(message, fg=color)
+    )
+
+
 def success(message):
-    message = random.choice(SUCCESS_EMOJI) + '  ' + message
-    click.secho(message, fg='green')
+    click.echo(_format_message(message, SUCCESS_EMOJI, 'green'))
 
 
 def warn(message):
-    message = random.choice(WARN_EMOJI) + '  ' + message
-    click.secho(message, fg='yellow')
+    click.echo(_format_message(message, WARN_EMOJI, 'yellow'))
 
 
 def format_table(data, columns=(), headers=None, sep=' | '):
