@@ -1,10 +1,11 @@
 import click
 
+from valohai_cli.consts import yes_option
 from valohai_cli.settings import settings
 
 
 @click.command()
-@click.option('--yes/-y')
+@yes_option
 def logout(yes):
     """Remove local authentication token."""
     user = settings.get('user')
