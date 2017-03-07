@@ -82,6 +82,10 @@ def format_table(data, columns=(), headers=None, sep=' | '):
 
 
 def print_table(data, columns=(), **kwargs):
+    if isinstance(data, dict) and not columns:
+        data = [{'key': key, 'value': value} for (key, value) in sorted(data.items())]
+        columns = ('key', 'value')
+
     for y, row in enumerate(format_table(data, columns, **kwargs)):
         click.secho(row, bold=(y == 0))
         if y == 0:
