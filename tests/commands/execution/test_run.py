@@ -5,7 +5,7 @@ import requests_mock
 
 from tests.fixture_data import PROJECT_DATA, CONFIG_YAML
 from valohai_cli import git
-from valohai_cli.commands.run import run
+from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
 
 
