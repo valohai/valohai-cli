@@ -2,7 +2,7 @@ import datetime
 import time
 
 import click
-from click import UsageError, get_current_context
+from click import get_current_context
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
@@ -21,6 +21,7 @@ class WatchTUI:
         'stderr': {'fg': 'red'},
         'stdout': {'fg': 'white'},
     }
+
     def __init__(self, exec_detail_url):
         self.exec_detail_url = exec_detail_url
 
@@ -34,21 +35,21 @@ class WatchTUI:
         l = Layout()
         l.add(
             Flex(style={'bg': 'blue', 'fg': 'white'})
-                .add(
+            .add(
                 content='({project}) #{counter}'.format(project=exec['project']['name'], counter=exec['counter']),
                 style={'bold': True},
             )
-                .add(
+            .add(
                 content=datetime.datetime.now().isoformat(),
                 align='right',
             )
         )
         l.add(
             Flex()
-                .add('Status: {status}'.format(status=exec['status']), style=self.status_styles.get(exec['status'], {}))
-                .add('Step: {step}'.format(step=exec['step']))
-                .add('Commit: {commit}'.format(commit=exec['commit']['identifier']))
-                .add('{n} events'.format(n=len(events)), align='right')
+            .add('Status: {status}'.format(status=exec['status']), style=self.status_styles.get(exec['status'], {}))
+            .add('Step: {step}'.format(step=exec['step']))
+            .add('Commit: {commit}'.format(commit=exec['commit']['identifier']))
+            .add('{n} events'.format(n=len(events)), align='right')
         )
         l.add(Divider('='))
 

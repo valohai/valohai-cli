@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from valohai_cli.settings import settings, get_settings_file_name
+from valohai_cli.settings import get_settings_file_name, settings
 
 
 @pytest.fixture
@@ -23,9 +23,7 @@ def test_settings(temp_settings):
     assert settings['baz'] == 'quux'
 
 
-
 def test_get_settings_file_name():
     path = get_settings_file_name('.valohai-test.json')
     assert os.path.isdir(os.path.dirname(path))  # In a valid path
     assert path.endswith('.valohai-test.json')
-

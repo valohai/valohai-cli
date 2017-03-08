@@ -1,17 +1,18 @@
 import platform
 from urllib.parse import urljoin, urlparse
 
-import requests
 import click
+import requests
 from requests.auth import AuthBase
 
 from valohai_cli import __version__ as VERSION
-from valohai_cli.exceptions import APIError, ConfigurationError, CLIException
+from valohai_cli.exceptions import APIError, CLIException, ConfigurationError
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
 
 class TokenAuth(AuthBase):
+
     def __init__(self, netloc, token):
         super(TokenAuth, self).__init__()
         self.netloc = netloc
@@ -25,6 +26,7 @@ class TokenAuth(AuthBase):
 
 
 class APISession(requests.Session):
+
     def __init__(self, base_url, token=None):
         super(APISession, self).__init__()
         self.base_url = base_url

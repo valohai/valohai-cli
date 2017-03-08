@@ -3,7 +3,7 @@ import json
 import pytest
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA, CONFIG_YAML
+from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project

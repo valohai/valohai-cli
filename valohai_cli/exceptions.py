@@ -16,6 +16,7 @@ class CLIException(ClickException):
 
 
 class APIError(CLIException):
+
     def __init__(self, response):
         super(APIError, self).__init__(response.text)
         self.response = response

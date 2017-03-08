@@ -1,5 +1,6 @@
-import click
 import logging
+
+import click
 
 from valohai_cli.plugin_cli import RecursiveHelpPluginCLI
 

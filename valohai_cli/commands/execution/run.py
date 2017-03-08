@@ -1,15 +1,15 @@
 import click
 from click.exceptions import BadParameter
 from click.globals import get_current_context
+from valohai_yaml.objs.input import Input
 from valohai_yaml.objs.parameter import Parameter
 from valohai_yaml.objs.step import Step
-from valohai_yaml.objs.input import Input
 
+import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-import valohai_cli.git as git  # this import style required for tests
-from valohai_cli.messages import warn, success
-from valohai_cli.utils import match_prefix, humanize_identifier
+from valohai_cli.messages import success, warn
+from valohai_cli.utils import humanize_identifier, match_prefix
 
 
 # TODO: this should use the step config from an overridden commit

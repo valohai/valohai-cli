@@ -1,8 +1,8 @@
 import os
+import time
 
 import click
 import requests
-import time
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import print_table, success, warn
@@ -11,7 +11,8 @@ from valohai_cli.utils import ensure_absolute_url, force_text
 
 @click.command()
 @click.argument('counter')
-@click.option('--download', '-d', type=click.Path(file_okay=False), help='download files to this directory', default=None)
+@click.option('--download', '-d', type=click.Path(file_okay=False),
+              help='download files to this directory', default=None)
 def outputs(counter, download):
     """
     List and download execution outputs.
@@ -31,8 +32,8 @@ def download_outputs(outputs, output_path):
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
     with \
-        click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
-        requests.Session() as dl_sess:
+            click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
+            requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
             url = ensure_absolute_url(output['url'])
             out_path = os.path.join(output_path, output['name'])
