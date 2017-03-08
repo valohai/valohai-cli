@@ -79,3 +79,21 @@ CONFIG_YAML = """
         default: 300
 
 """
+
+INVALID_CONFIG_YAML = """
+---
+
+- step:
+    image: 8
+    command:
+      foo: 6
+      bar: n
+    outputs: yes
+    parameters:
+      - name: a
+        type: integer
+      - 38
+
+"""
+
+BROKEN_CONFIG_YAML = """'"""
