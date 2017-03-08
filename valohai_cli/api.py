@@ -2,11 +2,11 @@ import platform
 from urllib.parse import urljoin, urlparse
 
 import requests
-from click.globals import get_current_context
+import click
 from requests.auth import AuthBase
 
 from valohai_cli import __version__ as VERSION
-from valohai_cli.exceptions import APIError, ConfigurationError
+from valohai_cli.exceptions import APIError, ConfigurationError, CLIException
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
@@ -44,7 +44,16 @@ class APISession(requests.Session):
 
     def request(self, method, url, **kwargs):
         handle_errors = bool(kwargs.pop('handle_errors', True))
-        resp = super(APISession, self).request(method, url, **kwargs)
+        try:
+            resp = super(APISession, self).request(method, url, **kwargs)
+        except requests.ConnectionError as ce:
+            host = urlparse(ce.request.url).netloc
+            if 'Connection refused' in str(ce):
+                raise CLIException(
+                    'Unable to connect to {host} (connection refused); try again soon.'.format(host=host)
+                ) from ce
+            raise
+
         if handle_errors and resp.status_code >= 400:
             raise APIError(resp)
         return resp
@@ -61,7 +70,7 @@ def _get_current_api_session():
     token = settings.get('token')
     if not (host and token):
         raise ConfigurationError('You\'re not logged in; try `vh login` first.')
-    ctx = get_current_context(silent=True) or object()
+    ctx = click.get_current_context(silent=True) or object()
     cache_key = force_text('_api_session_%s_%s' % (host, token))
     session = getattr(ctx, cache_key, None)
     if not session:
