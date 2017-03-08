@@ -3,7 +3,7 @@ import json
 import pytest
 import requests_mock
 
-from tests.conftest import TEST_PROJECT_DATA
+from tests.fixture_data import PROJECT_DATA
 from valohai_cli import git
 from valohai_cli.commands.run import run
 from valohai_cli.ctx import get_project
@@ -62,7 +62,7 @@ def test_run_requires_step(runner, logged_in_and_linked):
 @pytest.mark.parametrize('pass_param', (False, True))
 @pytest.mark.parametrize('pass_input', (False, True))
 def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
-    project_id = TEST_PROJECT_DATA['id']
+    project_id = PROJECT_DATA['id']
     commit_id = 'f' * 40
     monkeypatch.setattr(git, 'get_current_commit', lambda dir: commit_id)
 

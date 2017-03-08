@@ -1,13 +1,13 @@
 import requests_mock
 
-from tests.conftest import TEST_PROJECT_DATA
+from tests.fixture_data import PROJECT_DATA
 from valohai_cli.commands.status import status
 
 
 def test_status(runner, logged_in_and_linked):
     with requests_mock.mock() as m:
         project_data = dict(
-            TEST_PROJECT_DATA,
+            PROJECT_DATA,
             execution_summary={
                 'count': 10,
             }

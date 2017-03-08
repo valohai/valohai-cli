@@ -28,20 +28,20 @@ WARN_EMOJI = [
 ]
 
 
-def _format_message(message, emoji=None, color=None):
+def _format_message(message, emoji=None, prefix=None, color=None):
     return '{emoji}  {prefix} {message}'.format(
         emoji=random.choice(emoji or ['']),
-        prefix=click.style('Success!', fg=color, bold=True),
+        prefix=click.style(prefix, fg=color, bold=True),
         message=click.style(message, fg=color)
     )
 
 
 def success(message):
-    click.echo(_format_message(message, SUCCESS_EMOJI, 'green'))
+    click.echo(_format_message(message, SUCCESS_EMOJI, 'Success!', 'green'))
 
 
 def warn(message):
-    click.echo(_format_message(message, WARN_EMOJI, 'yellow'))
+    click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'))
 
 
 def format_table(data, columns=(), headers=None, sep=' | '):
@@ -82,6 +82,10 @@ def format_table(data, columns=(), headers=None, sep=' | '):
 
 
 def print_table(data, columns=(), **kwargs):
+    if isinstance(data, dict) and not columns:
+        data = [{'key': key, 'value': value} for (key, value) in sorted(data.items())]
+        columns = ('key', 'value')
+
     for y, row in enumerate(format_table(data, columns, **kwargs)):
         click.secho(row, bold=(y == 0))
         if y == 0:
