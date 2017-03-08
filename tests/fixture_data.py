@@ -59,3 +59,23 @@ EXECUTION_DATA = {
         },
     ],
 }
+
+
+CONFIG_YAML = """
+---
+
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+    inputs:
+      - name: in1
+        default: http://example.com/
+    parameters:
+      - name: max_steps
+        pass-as: --max_steps={v}
+        description: Number of steps to run the trainer
+        type: integer
+        default: 300
+
+"""

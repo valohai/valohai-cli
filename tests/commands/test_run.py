@@ -3,29 +3,10 @@ import json
 import pytest
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA
+from tests.fixture_data import PROJECT_DATA, CONFIG_YAML
 from valohai_cli import git
 from valohai_cli.commands.run import run
 from valohai_cli.ctx import get_project
-
-CONFIG_YAML = """
----
-
-- step:
-    name: Train model
-    image: busybox
-    command: "false"
-    inputs:
-      - name: in1
-        default: http://example.com/
-    parameters:
-      - name: max_steps
-        pass-as: --max_steps={v}
-        description: Number of steps to run the trainer
-        type: integer
-        default: 300
-
-"""
 
 
 def get_test_run_requests_mock(project_id, commit_id, additional_payload_values):
