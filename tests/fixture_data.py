@@ -26,6 +26,7 @@ EXECUTION_DATA = {
         'url': 'https://app.valohai.com/api/v0/commits/7/'
     },
     'task': None,
+    'duration': 777,
     'status': 'complete',
     'step': 'run training',
     'url': 'https://app.valohai.com/api/v0/executions/34/',
