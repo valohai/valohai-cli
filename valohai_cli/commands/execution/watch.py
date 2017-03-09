@@ -5,6 +5,7 @@ import click
 from click import get_current_context
 
 from valohai_cli.api import request
+from valohai_cli.consts import stream_styles
 from valohai_cli.ctx import get_project
 from valohai_cli.tui import Divider, Flex, Layout
 
@@ -15,11 +16,6 @@ class WatchTUI:
         'crashed': {'fg': 'white', 'bg': 'red'},
         'stopped': {'fg': 'red'},
         'completed': {'fg': 'green', 'bold': True},
-    }
-    stream_styles = {
-        'status': {'fg': 'blue'},
-        'stderr': {'fg': 'red'},
-        'stdout': {'fg': 'white'},
     }
 
     def __init__(self, exec_detail_url):
@@ -57,7 +53,7 @@ class WatchTUI:
         if available_height > 0:
             for event in events[-available_height:]:
                 l.add(
-                    Flex(style=self.stream_styles.get(event['stream']))
+                    Flex(style=stream_styles.get(event['stream']))
                     .add(event['time'].split('T')[1][:-4] + '  ', flex=0)
                     .add(event['message'], flex=4)
                 )
