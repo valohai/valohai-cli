@@ -3,7 +3,7 @@ import json
 import pytest
 import requests_mock
 
-from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
+from tests.fixture_data import CONFIG_YAML, PROJECT_DATA, EXECUTION_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -25,11 +25,7 @@ def get_test_run_requests_mock(project_id, commit_id, additional_payload_values)
         for key, value in additional_payload_values.items():
             assert body_json[key] == value
         context.status_code = 201
-        return {
-            'id': 1337,
-            'counter': 1337,
-            'link': '/',
-        }
+        return EXECUTION_DATA.copy()
 
     m.post('https://app.valohai.com/api/v0/executions/', json=handle_create_execution)
 
@@ -62,7 +58,7 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
 
     with get_test_run_requests_mock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
-        assert '#1337' in output
+        assert '#7' in output
 
 
 def test_param_type_validation(runner, logged_in_and_linked):

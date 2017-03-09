@@ -117,7 +117,7 @@ class RunCommand(click.Command):
         resp = request('post', '/api/v0/executions/', json=payload).json()
         success('Execution #{counter} created. See {link}'.format(
             counter=resp['counter'],
-            link=resp['link'],
+            link=resp['urls']['display'],
         ))
         if self.watch:
             ctx = get_current_context()

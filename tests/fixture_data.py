@@ -17,7 +17,6 @@ EXECUTION_DATA = {
     'counter': 7,
     'ctime': '2017-02-08T11:09:16.120102Z',
     'id': 34,
-    'link': '/p/test/mnist/execution/34/',
     'project': PROJECT_DATA,
     'commit': {
         'repository': 666,
@@ -30,8 +29,11 @@ EXECUTION_DATA = {
     'status': 'complete',
     'step': 'run training',
     'url': 'https://app.valohai.com/api/v0/executions/34/',
-    'stop_url': '/api/v0/executions/34/stop/',
-    'copy_url': '/api/v0/executions/34/copy/',
+    'urls': {
+        'copy': '/api/v0/executions/34/copy/',
+        'display': '/p/test/mnist/execution/34/',
+        'stop': '/api/v0/executions/34/stop/',
+    },
     'events': [
         {
             'time': '2017-02-16T15:25:33.037000',
@@ -58,8 +60,13 @@ EXECUTION_DATA = {
             'url': 'http://filestash.example.com/foo/b.txt'
         },
     ],
+    'environment': {
+        'id': '88888888-8888-8888-8888-888888888888',
+        'name': 'local',
+        'owner': None,
+        'unfinished_job_count': 0,
+    },
 }
-
 
 CONFIG_YAML = """
 ---

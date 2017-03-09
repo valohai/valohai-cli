@@ -6,7 +6,7 @@ import requests
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import print_table, success, warn
-from valohai_cli.utils import ensure_absolute_url, force_text
+from valohai_cli.utils import force_text
 
 
 @click.command()
@@ -35,7 +35,7 @@ def download_outputs(outputs, output_path):
             click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
             requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
-            url = ensure_absolute_url(output['url'])
+            url = output['url']
             out_path = os.path.join(output_path, output['name'])
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
             resp = dl_sess.get(url, stream=True)

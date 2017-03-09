@@ -2,10 +2,6 @@ import os
 import random
 import re
 import string
-import warnings
-from urllib.parse import urljoin
-
-from valohai_cli.settings import settings
 
 
 def walk_directory_parents(dir):
@@ -88,11 +84,3 @@ class cached_property(object):
             return self
         value = obj.__dict__[self.func.__name__] = self.func(obj)
         return value
-
-
-def ensure_absolute_url(url):
-    # TODO: this really shouldn't be necessary!
-    if url.startswith('/'):
-        warnings.warn('Had to absolutize URL {} :('.format(url))
-        url = urljoin(settings['host'], url)
-    return url

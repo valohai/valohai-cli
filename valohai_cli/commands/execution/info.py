@@ -6,19 +6,18 @@ from valohai_cli.utils import humanize_identifier
 
 ignored_keys = {
     'commit',
-    'copy_url',
     'counter',
     'ctime',
     'events',
     'id',
     'inputs',
-    'link',
     'metadata',
     'outputs',
     'parameters',
     'project',
-    'stop_url',
     'url',
+    'urls',
+    'environment',
 }
 
 
@@ -31,6 +30,7 @@ def info(counter):
     exec = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
     data = dict((humanize_identifier(key), str(value)) for (key, value) in exec.items() if key not in ignored_keys)
     data['project name'] = exec['project']['name']
+    data['environment name'] = exec['environment']['name']
     print_table(data)
     print()
     print_table(
