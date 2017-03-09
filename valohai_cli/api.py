@@ -72,12 +72,13 @@ def _get_current_api_session():
     token = settings.get('token')
     if not (host and token):
         raise ConfigurationError('You\'re not logged in; try `vh login` first.')
-    ctx = click.get_current_context(silent=True) or object()
+    ctx = click.get_current_context(silent=True) or None
     cache_key = force_text('_api_session_%s_%s' % (host, token))
-    session = getattr(ctx, cache_key, None)
+    session = (getattr(ctx, cache_key, None) if ctx else None)
     if not session:
         session = APISession(host, token)
-        setattr(ctx, cache_key, session)
+        if ctx:
+            setattr(ctx, cache_key, session)
     return session
 
 
