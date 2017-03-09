@@ -15,6 +15,7 @@ setup(
         'six>=1.10.0',
         'valohai-yaml>=0.5',
         'requests[security]>=2.0.0',
+        'requests-toolbelt>=0.7.1',
     ],
     packages=find_packages(include=('valohai_cli*',)),
 )

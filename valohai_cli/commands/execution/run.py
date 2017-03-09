@@ -6,6 +6,7 @@ from valohai_yaml.objs.parameter import Parameter
 from valohai_yaml.objs.step import Step
 
 import valohai_cli.git as git  # this import style required for tests
+from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success, warn
@@ -156,17 +157,20 @@ class RunCommand(click.Command):
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment/--env', '-e', default=None, help='The environment name/ID to use.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
+@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, args):
+def run(ctx, step, commit, environment, watch, adhoc, args):
     """
     Start an execution of a step.
     """
-    project = get_project(require=True)
-    config = project.get_config()
     if step == '--help':  # This is slightly weird, but it's because of the nested command thing
         click.echo(ctx.get_help(), color=ctx.color)
         ctx.exit()
+    project = get_project(require=True)
+    if adhoc:
+        commit = create_adhoc_commit(project)['identifier']
+    config = project.get_config()
     step = match_prefix(config.steps, step)
     if not step:
         raise BadParameter(
@@ -178,3 +182,5 @@ def run(ctx, step, commit, environment, watch, args):
     rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
+
+
