@@ -8,6 +8,7 @@ from valohai_cli.exceptions import InvalidConfig
 
 
 class Project:
+
     def __init__(self, data, directory=None):
         self.data = data
         self.directory = directory

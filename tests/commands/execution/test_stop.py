@@ -2,7 +2,7 @@ import random
 
 import requests_mock
 
-from valohai_cli.commands.stop import stop
+from valohai_cli.commands.execution.stop import stop
 
 
 def test_stop(runner, logged_in_and_linked):

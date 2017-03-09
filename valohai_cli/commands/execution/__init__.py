@@ -1,4 +1,5 @@
 import click
+
 from valohai_cli.plugin_cli import PluginCLI
 
 
@@ -7,4 +8,3 @@ def execution():
     """
     Execution-related commands.
     """
-    pass

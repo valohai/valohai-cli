@@ -1,3 +1,5 @@
+import logging
+
 import click
 
 from valohai_cli.plugin_cli import RecursiveHelpPluginCLI
@@ -7,4 +9,6 @@ from valohai_cli.plugin_cli import RecursiveHelpPluginCLI
 @click.option('--debug/--no-debug', default=False, envvar='VALOHAI_DEBUG')
 @click.pass_context
 def cli(ctx, debug):
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
     ctx.debug = debug

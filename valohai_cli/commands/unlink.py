@@ -2,9 +2,9 @@ import click
 
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project
+from valohai_cli.messages import success
 from valohai_cli.settings import settings
 from valohai_cli.utils import get_project_directory
-from valohai_cli.messages import success
 
 
 @click.command()

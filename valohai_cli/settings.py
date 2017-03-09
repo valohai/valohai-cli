@@ -1,6 +1,5 @@
 import json
 import os
-
 import sys
 
 
@@ -25,6 +24,7 @@ def get_settings_file_name(name):
 
 
 class BaseSettings:
+
     def __init__(self):
         self._data = None
 
@@ -54,6 +54,7 @@ class BaseSettings:
 
 
 class Settings(BaseSettings):
+
     def get_filename(self):  # pragma: no cover
         return get_settings_file_name('config.json')
 

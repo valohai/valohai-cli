@@ -1,6 +1,6 @@
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA, EXECUTION_DATA
+from tests.fixture_data import EXECUTION_DATA, PROJECT_DATA
 
 
 def get_execution_data_mock():

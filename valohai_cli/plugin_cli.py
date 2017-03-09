@@ -8,6 +8,7 @@ from valohai_cli.utils import cached_property, match_prefix
 
 
 class PluginCLI(click.MultiCommand):
+
     def __init__(self, **kwargs):
         self._commands_module = kwargs.pop('commands_module')
         super(PluginCLI, self).__init__(**kwargs)
@@ -50,6 +51,7 @@ class PluginCLI(click.MultiCommand):
 
 
 class RecursiveHelpPluginCLI(PluginCLI):
+
     def format_commands(self, ctx, formatter):
         rows_by_prefix = defaultdict(list)
 
