@@ -58,7 +58,7 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
 
     with get_test_run_requests_mock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
-        assert '#7' in output
+        assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
 
 
 def test_param_type_validation(runner, logged_in_and_linked):

@@ -1,3 +1,6 @@
+import random
+import uuid
+
 LOGGED_IN_DATA = {
     'host': 'https://app.valohai.com/',
     'user': {'id': 'x'},
@@ -13,10 +16,11 @@ PROJECT_DATA = {
     'mtime': '2017-01-20T14:35:02.196871Z',
 }
 
+execution_id = str(uuid.uuid4())
 EXECUTION_DATA = {
-    'counter': 7,
+    'counter': random.randint(1, 100),
     'ctime': '2017-02-08T11:09:16.120102Z',
-    'id': 34,
+    'id': execution_id,
     'project': PROJECT_DATA,
     'commit': {
         'repository': 666,
@@ -29,7 +33,7 @@ EXECUTION_DATA = {
     'duration': 777,
     'status': 'complete',
     'step': 'run training',
-    'url': 'https://app.valohai.com/api/v0/executions/34/',
+    'url': 'https://app.valohai.com/api/v0/executions/{id}/'.format(id=execution_id),
     'urls': {
         'copy': '/api/v0/executions/34/copy/',
         'display': '/p/test/mnist/execution/34/',
@@ -40,6 +44,11 @@ EXECUTION_DATA = {
             'time': '2017-02-16T15:25:33.037000',
             'stream': 'status',
             'message': 'hOI!!! I\'m temmie!'
+        },
+        {
+            'time': '2017-02-16T15:25:33.037000',
+            'stream': 'stderr',
+            'message': 'oh no',
         },
     ],
     'parameters': {
