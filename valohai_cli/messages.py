@@ -1,31 +1,38 @@
+# -- encoding: UTF-8 --
 import random
 from itertools import chain
 
 import click
+import six
 
-SUCCESS_EMOJI = [
-    chr(0x1F600),  # GRINNING FACE (So) 😀
-    chr(0x1F601),  # GRINNING FACE WITH SMILING EYES (So) 😁
-    chr(0x1F603),  # SMILING FACE WITH OPEN MOUTH (So) 😃
-    chr(0x1F604),  # SMILING FACE WITH OPEN MOUTH AND SMILING EYES (So) 😄
-    chr(0x1F60A),  # SMILING FACE WITH SMILING EYES (So) 😊
-    chr(0x1F60E),  # SMILING FACE WITH SUNGLASSES (So) 😎
-    chr(0x1F638),  # GRINNING CAT FACE WITH SMILING EYES (So) 😸
-    chr(0x1F638),  # GRINNING CAT FACE WITH SMILING EYES (So) 😸
-    chr(0x1F63A),  # SMILING CAT FACE WITH OPEN MOUTH (So) 😺
-    chr(0x1F63B),  # SMILING CAT FACE WITH HEART-SHAPED EYES (So) 😻
-    chr(0x1F63C),  # CAT FACE WITH WRY SMILE (So) 😼
-    chr(0x1F642),  # SLIGHTLY SMILING FACE (So) 🙂
-]
+if six.PY3:
+    SUCCESS_EMOJI = [
+        chr(0x1F600),  # GRINNING FACE (So) 😀
+        chr(0x1F601),  # GRINNING FACE WITH SMILING EYES (So) 😁
+        chr(0x1F603),  # SMILING FACE WITH OPEN MOUTH (So) 😃
+        chr(0x1F604),  # SMILING FACE WITH OPEN MOUTH AND SMILING EYES (So) 😄
+        chr(0x1F60A),  # SMILING FACE WITH SMILING EYES (So) 😊
+        chr(0x1F60E),  # SMILING FACE WITH SUNGLASSES (So) 😎
+        chr(0x1F638),  # GRINNING CAT FACE WITH SMILING EYES (So) 😸
+        chr(0x1F638),  # GRINNING CAT FACE WITH SMILING EYES (So) 😸
+        chr(0x1F63A),  # SMILING CAT FACE WITH OPEN MOUTH (So) 😺
+        chr(0x1F63B),  # SMILING CAT FACE WITH HEART-SHAPED EYES (So) 😻
+        chr(0x1F63C),  # CAT FACE WITH WRY SMILE (So) 😼
+        chr(0x1F642),  # SLIGHTLY SMILING FACE (So) 🙂
+    ]
 
-WARN_EMOJI = [
-    chr(0x1F61F),  # WORRIED FACE
-    chr(0x1F629),  # WEARY FACE
-    chr(0x1F631),  # FACE SCREAMING IN FEAR
-    chr(0x1F63E),  # POUTING CAT FACE
-    chr(0x1F63F),  # CRYING CAT FACE
-    chr(0x1F640),  # WEARY CAT FACE
-]
+    WARN_EMOJI = [
+        chr(0x1F61F),  # WORRIED FACE
+        chr(0x1F629),  # WEARY FACE
+        chr(0x1F631),  # FACE SCREAMING IN FEAR
+        chr(0x1F63E),  # POUTING CAT FACE
+        chr(0x1F63F),  # CRYING CAT FACE
+        chr(0x1F640),  # WEARY CAT FACE
+    ]
+else:
+    # Can't trust the Py2 build to be wide-Unicode, so...
+    SUCCESS_EMOJI = [':)', '^_^']
+    WARN_EMOJI = [':(', 'o_o', '-_-']
 
 
 def _format_message(message, emoji=None, prefix=None, color=None):
@@ -51,11 +58,11 @@ def format_table(data, columns=(), headers=None, sep=' | '):
         headers = columns
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
-    n_str = lambda s: ('' if s is None else str(s))
+    n_str = lambda s: ('' if s is None else six.text_type(s))
 
     # Pick the requested data and their types from the input
     printable_data = [
-        [(n_str(datum), type(datum)) for datum in (datum.get(column) for column in columns)]
+        [(n_str(col_val), type(col_val)) for col_val in (datum.get(column) for column in columns)]
         for datum in data
     ]
 
@@ -71,7 +78,7 @@ def format_table(data, columns=(), headers=None, sep=' | '):
             if isinstance(datum, tuple):
                 datum, tp = datum
             else:
-                tp = str
+                tp = six.text_type
             if tp in (int, float):
                 datum = datum.rjust(width)
             else:

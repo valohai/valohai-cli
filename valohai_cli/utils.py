@@ -3,6 +3,8 @@ import random
 import re
 import string
 
+import six
+
 
 def walk_directory_parents(dir):
     """
@@ -32,17 +34,17 @@ def get_random_string(length=12, keyspace=(string.ascii_letters + string.digits)
 
 
 def force_text(v, encoding='UTF-8', errors='strict'):
-    if isinstance(v, str):
+    if isinstance(v, six.text_type):
         return v
-    elif isinstance(v, bytes):
+    elif isinstance(v, six.binary_type):
         return v.decode(encoding, errors)
-    return str(v)
+    return six.text_type(v)
 
 
 def force_bytes(v, encoding='UTF-8', errors='strict'):
-    if isinstance(v, bytes):
+    if isinstance(v, six.binary_type):
         return v
-    return str(v).encode(encoding, errors)
+    return six.text_type(v).encode(encoding, errors)
 
 
 def match_prefix(choices, value, return_unique=True):

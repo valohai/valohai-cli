@@ -24,8 +24,8 @@ def stop(counters, all=False):
         warn('Nothing to stop (pass #s or `--all`)')
         return 1
 
-    for exec in request('get', '/api/v0/executions/', params=params).json()['results']:
-        click.echo('Stopping #{counter}... '.format(counter=exec['counter']), nl=False)
-        resp = request('post', exec['urls']['stop'])
+    for execution in request('get', '/api/v0/executions/', params=params).json()['results']:
+        click.echo('Stopping #{counter}... '.format(counter=execution['counter']), nl=False)
+        resp = request('post', execution['urls']['stop'])
         click.echo(resp.text)
     success('Done.')

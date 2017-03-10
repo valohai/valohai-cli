@@ -1,6 +1,10 @@
+import codecs
 import json
 import os
 import sys
+from errno import ENOENT
+
+import six
 
 
 def get_settings_root_path():  # pragma: no cover
@@ -19,7 +23,8 @@ def get_settings_file_name(name):
             raise ValueError('Directory %s does not exist' % path)
     else:
         path = os.path.join(get_settings_root_path(), 'valohai-cli')
-        os.makedirs(path, 0o700, exist_ok=True)
+        if not os.path.isdir(path):
+            os.makedirs(path, 0o700)
     return os.path.join(path, name)
 
 
@@ -40,16 +45,18 @@ class BaseSettings:
     def _load(self):
         filename = self.get_filename()
         try:
-            with open(filename, 'r', encoding='UTF-8') as infp:
+            with codecs.open(filename, 'r', encoding='UTF-8') as infp:
                 self._data = json.load(infp)
-        except FileNotFoundError:
+        except EnvironmentError as ee:
+            if ee.errno != ENOENT:
+                raise
             self._data = {}
         except Exception as exc:  # pragma: no cover
-            raise RuntimeError('could not read configuration file %s' % filename) from exc
+            six.raise_from(RuntimeError('could not read configuration file %s' % filename), exc)
 
     def save(self):
         filename = self.get_filename()
-        with open(filename, 'w', encoding='UTF-8') as outfp:
+        with codecs.open(filename, 'w', encoding='UTF-8') as outfp:
             json.dump(self.data, outfp, ensure_ascii=False, indent=2, sort_keys=True)
 
 

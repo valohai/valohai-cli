@@ -40,7 +40,7 @@ def create_adhoc_commit(project):
                 data=monitor,
                 headers={'Content-Type': monitor.content_type},
             ).json()
-        success('Uploaded ad-hoc code {identifier}'.format_map(resp))
+        success('Uploaded ad-hoc code {identifier}'.format(identifier=resp['identifier']))
     finally:
         if tarball:
             os.unlink(tarball)

@@ -17,8 +17,8 @@ def outputs(counter, download):
     """
     List and download execution outputs.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
-    outputs = exec.get('outputs', ())
+    execution = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
+    outputs = execution.get('outputs', ())
     if not outputs:
         warn('The execution has no outputs.')
         return
@@ -37,7 +37,9 @@ def download_outputs(outputs, output_path):
         for i, output in enumerate(outputs, 1):
             url = output['url']
             out_path = os.path.join(output_path, output['name'])
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            out_dir = os.path.dirname(out_path)
+            if not os.path.isdir(out_dir):
+                os.makedirs(out_dir)
             resp = dl_sess.get(url, stream=True)
             resp.raise_for_status()
             prog.current_item = '(%*d/%-*d) %s' % (num_width, i, num_width, len(outputs), output['name'])

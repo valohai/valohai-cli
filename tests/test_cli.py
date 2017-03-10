@@ -17,7 +17,7 @@ def test_recursive_command_list(runner):
 
 
 def test_prefix_match(runner):
-    output = runner.invoke(cli, ['exec']).output
+    output = runner.invoke(cli, ['exec'], catch_exceptions=False).output
     # Matched by prefix, mapped to `execution`'s help
     assert 'cli execution' in output
 

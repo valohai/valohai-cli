@@ -1,5 +1,6 @@
 [run]
 branch = True
 omit =
+	*.tox*
 	*site-packages*
 	setup.py

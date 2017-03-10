@@ -42,7 +42,7 @@ class PluginCLI(click.MultiCommand):
         return self._get_command(matches[0])
 
     def resolve_command(self, ctx, args):
-        cmd_name, cmd, rest_args = super().resolve_command(ctx, args)
+        cmd_name, cmd, rest_args = super(PluginCLI, self).resolve_command(ctx, args)
         return (cmd.name, cmd, rest_args)  # Always use the canonical name of the command
 
     def _get_command(self, name):

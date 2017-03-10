@@ -27,9 +27,13 @@ def list(status):
     if status:
         params['status'] = set(status)
     executions = request('get', '/api/v0/executions/', params=params).json()['results']
-    for exec in executions:
-        exec['url'] = exec['urls']['display']
-        exec['duration'] = str(timedelta(seconds=round(exec['duration'])) if exec['duration'] else '').rjust(10)
+    for execution in executions:
+        execution['url'] = execution['urls']['display']
+        execution['duration'] = str(
+            timedelta(seconds=round(execution['duration']))
+            if execution['duration']
+            else ''
+        ).rjust(10)
 
     print_table(
         executions,

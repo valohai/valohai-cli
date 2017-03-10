@@ -17,8 +17,8 @@ def logs(counter, status, stderr, stdout, stream):
     """
     Show or stream execution event log.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter)
-    detail_url = exec['url']
+    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    detail_url = execution['url']
 
     accepted_streams = set(v for v in [
         'status' if status else None,
@@ -27,8 +27,8 @@ def logs(counter, status, stderr, stdout, stream):
     ] if v)
     seen_events = set()
     while True:
-        exec = request('get', detail_url, params={'exclude': 'metadata'}).json()
-        events = exec.get('events', ())
+        execution = request('get', detail_url, params={'exclude': 'metadata'}).json()
+        events = execution.get('events', ())
         for event in events:
             event_id = (event['stream'], event['time'])
             if event_id in seen_events:
@@ -43,8 +43,13 @@ def logs(counter, status, stderr, stdout, stream):
             style = stream_styles.get(event['stream'], {})
             click.echo(click.style(message, **style))
         if stream:
-            if exec['status'] in complete_execution_statuses:
-                click.echo('The execution has finished (status {status}); stopping stream.'.format_map(exec), err=True)
+            if execution['status'] in complete_execution_statuses:
+                click.echo(
+                    'The execution has finished (status {status}); stopping stream.'.format(
+                        status=execution['status'],
+                    ),
+                    err=True
+                )
                 break
             time.sleep(1)
         else:

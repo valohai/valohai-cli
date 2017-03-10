@@ -26,13 +26,13 @@ class WatchTUI:
         self.draw()
 
     def draw(self):
-        exec = self.data
-        events = exec.get('events', ())
+        execution = self.data
+        events = execution.get('events', ())
         l = Layout()
         l.add(
             Flex(style={'bg': 'blue', 'fg': 'white'})
             .add(
-                content='({project}) #{counter}'.format(project=exec['project']['name'], counter=exec['counter']),
+                content='({project}) #{counter}'.format(project=execution['project']['name'], counter=execution['counter']),
                 style={'bold': True},
             )
             .add(
@@ -42,9 +42,12 @@ class WatchTUI:
         )
         l.add(
             Flex()
-            .add('Status: {status}'.format(status=exec['status']), style=self.status_styles.get(exec['status'], {}))
-            .add('Step: {step}'.format(step=exec['step']))
-            .add('Commit: {commit}'.format(commit=exec['commit']['identifier']))
+            .add(
+                'Status: {status}'.format(status=execution['status']),
+                style=self.status_styles.get(execution['status'], {}),
+            )
+            .add('Step: {step}'.format(step=execution['step']))
+            .add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
             .add('{n} events'.format(n=len(events)), align='right')
         )
         l.add(Divider('='))
@@ -67,8 +70,8 @@ def watch(counter):
     """
     Watch execution progress in a console UI.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter)
-    tui = WatchTUI(exec['url'])
+    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    tui = WatchTUI(execution['url'])
     try:
         while True:
             tui.refresh()

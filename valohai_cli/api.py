@@ -1,8 +1,9 @@
 import platform
-from urllib.parse import urljoin, urlparse
+from six.moves.urllib_parse import urljoin, urlparse
 
 import click
 import requests
+import six
 from requests.auth import AuthBase
 
 from valohai_cli import __version__ as VERSION
@@ -51,9 +52,9 @@ class APISession(requests.Session):
         except requests.ConnectionError as ce:
             host = urlparse(ce.request.url).netloc
             if 'Connection refused' in str(ce):
-                raise CLIException(
+                six.raise_from(CLIException(
                     'Unable to connect to {host} (connection refused); try again soon.'.format(host=host)
-                ) from ce
+                ), ce)
             raise
 
         if handle_errors and resp.status_code >= 400:
