@@ -6,7 +6,7 @@ import requests
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import print_table, success, warn
-from valohai_cli.utils import ensure_absolute_url, force_text
+from valohai_cli.utils import force_text
 
 
 @click.command()
@@ -17,8 +17,8 @@ def outputs(counter, download):
     """
     List and download execution outputs.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
-    outputs = exec.get('outputs', ())
+    execution = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
+    outputs = execution.get('outputs', ())
     if not outputs:
         warn('The execution has no outputs.')
         return
@@ -35,9 +35,11 @@ def download_outputs(outputs, output_path):
             click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
             requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
-            url = ensure_absolute_url(output['url'])
+            url = output['url']
             out_path = os.path.join(output_path, output['name'])
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            out_dir = os.path.dirname(out_path)
+            if not os.path.isdir(out_dir):
+                os.makedirs(out_dir)
             resp = dl_sess.get(url, stream=True)
             resp.raise_for_status()
             prog.current_item = '(%*d/%-*d) %s' % (num_width, i, num_width, len(outputs), output['name'])

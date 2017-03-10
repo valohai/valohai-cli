@@ -5,6 +5,7 @@ import click
 from click import get_current_context
 
 from valohai_cli.api import request
+from valohai_cli.consts import stream_styles
 from valohai_cli.ctx import get_project
 from valohai_cli.tui import Divider, Flex, Layout
 
@@ -16,11 +17,6 @@ class WatchTUI:
         'stopped': {'fg': 'red'},
         'completed': {'fg': 'green', 'bold': True},
     }
-    stream_styles = {
-        'status': {'fg': 'blue'},
-        'stderr': {'fg': 'red'},
-        'stdout': {'fg': 'white'},
-    }
 
     def __init__(self, exec_detail_url):
         self.exec_detail_url = exec_detail_url
@@ -30,13 +26,13 @@ class WatchTUI:
         self.draw()
 
     def draw(self):
-        exec = self.data
-        events = exec.get('events', ())
+        execution = self.data
+        events = execution.get('events', ())
         l = Layout()
         l.add(
             Flex(style={'bg': 'blue', 'fg': 'white'})
             .add(
-                content='({project}) #{counter}'.format(project=exec['project']['name'], counter=exec['counter']),
+                content='({project}) #{counter}'.format(project=execution['project']['name'], counter=execution['counter']),
                 style={'bold': True},
             )
             .add(
@@ -46,9 +42,12 @@ class WatchTUI:
         )
         l.add(
             Flex()
-            .add('Status: {status}'.format(status=exec['status']), style=self.status_styles.get(exec['status'], {}))
-            .add('Step: {step}'.format(step=exec['step']))
-            .add('Commit: {commit}'.format(commit=exec['commit']['identifier']))
+            .add(
+                'Status: {status}'.format(status=execution['status']),
+                style=self.status_styles.get(execution['status'], {}),
+            )
+            .add('Step: {step}'.format(step=execution['step']))
+            .add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
             .add('{n} events'.format(n=len(events)), align='right')
         )
         l.add(Divider('='))
@@ -57,7 +56,7 @@ class WatchTUI:
         if available_height > 0:
             for event in events[-available_height:]:
                 l.add(
-                    Flex(style=self.stream_styles.get(event['stream']))
+                    Flex(style=stream_styles.get(event['stream']))
                     .add(event['time'].split('T')[1][:-4] + '  ', flex=0)
                     .add(event['message'], flex=4)
                 )
@@ -71,8 +70,8 @@ def watch(counter):
     """
     Watch execution progress in a console UI.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter)
-    tui = WatchTUI(exec['url'])
+    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    tui = WatchTUI(execution['url'])
     try:
         while True:
             tui.refresh()

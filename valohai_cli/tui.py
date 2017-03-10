@@ -25,7 +25,7 @@ class Divider(LayoutElement):
         self.style = (style or {})
 
     def draw(self):
-        chs = (self.ch * math.ceil(self.layout.width / len(self.ch)))[:self.layout.width]
+        chs = (self.ch * int(math.ceil(self.layout.width / len(self.ch))))[:self.layout.width]
         click.echo(click.style(chs, **self.style))
 
 

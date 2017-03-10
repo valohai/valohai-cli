@@ -6,8 +6,9 @@ class CLIException(ClickException):
     kind = 'Error'
     color = 'red'
 
-    def __init__(self, *args, kind=None):
-        super(CLIException, self).__init__(*args)
+    def __init__(self, *args, **kwargs):
+        kind = kwargs.pop('kind', None)
+        super(CLIException, self).__init__(*args, **kwargs)
         self.kind = (kind or self.kind)
 
     def show(self, file=None):

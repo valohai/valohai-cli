@@ -1,5 +1,6 @@
 import os
 
+import six
 import valohai_yaml
 from valohai_yaml import ValidationErrors
 
@@ -24,7 +25,7 @@ class Project:
                 config.project = self
                 return config
         except IOError as ioe:
-            raise InvalidConfig('Could not read %s' % filename) from ioe
+            six.raise_from(InvalidConfig('Could not read %s' % filename), ioe)
         except ValidationErrors as ves:
             raise InvalidConfig('{filename} is invalid ({n} errors); see `vh lint`'.format(
                 filename=filename,

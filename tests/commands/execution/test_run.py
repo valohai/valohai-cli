@@ -3,37 +3,56 @@ import json
 import pytest
 import requests_mock
 
-from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
+from tests.fixture_data import CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
+from valohai_cli.utils import get_random_string
 
 
-def get_test_run_requests_mock(project_id, commit_id, additional_payload_values):
-    m = requests_mock.mock()
-    m.get('https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id), json=[
-        {
-            'identifier': commit_id,
-        },
-    ])
+class RunAPIMock(requests_mock.Mocker):
+    def __init__(self, project_id, commit_id, additional_payload_values):
+        super(RunAPIMock, self).__init__()
+        self.project_id = project_id
+        self.commit_id = commit_id
+        self.additional_payload_values = additional_payload_values
+        self.get(
+            'https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id),
+            json=self.handle_commits,
+        )
+        self.post(
+            'https://app.valohai.com/api/v0/executions/',
+            json=self.handle_create_execution,
+        )
+        self.post(
+            'https://app.valohai.com/api/v0/projects/{}/import-package/'.format(project_id),
+            json=self.handle_create_commit,
+        )
 
-    def handle_create_execution(request, context):
+    def handle_commits(self, request, context):
+        return [{'identifier': self.commit_id}]
+
+    def handle_create_execution(self, request, context):
         body_json = json.loads(request.body.decode('utf-8'))
-        assert body_json['project'] == project_id
+        assert body_json['project'] == self.project_id
         assert body_json['step'] == 'Train model'
-        assert body_json['commit'] == commit_id
-        for key, value in additional_payload_values.items():
+        assert body_json['commit'] == self.commit_id
+        for key, value in self.additional_payload_values.items():
             assert body_json[key] == value
         context.status_code = 201
+        return EXECUTION_DATA.copy()
+
+    def handle_create_commit(self, request, context):
+        assert request.body
+        commit_id = "~%s" % get_random_string()
+        self.commit_id = commit_id  # Only accept the new commit
         return {
-            'id': 1337,
-            'counter': 1337,
-            'link': '/',
+            'repository': '8',
+            'identifier': commit_id,
+            'ref': 'adhoc',
+            'ctime': '2017-03-09T14:56:53.875721Z',
+            'commit_time': '2017-03-09T14:56:53.875475Z',
         }
-
-    m.post('https://app.valohai.com/api/v0/executions/', json=handle_create_execution)
-
-    return m
 
 
 def test_run_requires_step(runner, logged_in_and_linked):
@@ -42,7 +61,8 @@ def test_run_requires_step(runner, logged_in_and_linked):
 
 @pytest.mark.parametrize('pass_param', (False, True))
 @pytest.mark.parametrize('pass_input', (False, True))
-def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
+@pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'adhoc'))
+def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, adhoc):
     project_id = PROJECT_DATA['id']
     commit_id = 'f' * 40
     monkeypatch.setattr(git, 'get_current_commit', lambda dir: commit_id)
@@ -51,6 +71,9 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
         yaml_fp.write(CONFIG_YAML)
 
     args = ['train']
+    if adhoc:
+        args.insert(0, '--adhoc')
+
     values = {}
     if pass_param:
         args.append('--max-steps=1801')
@@ -60,9 +83,11 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input):
         args.append('--in1=http://url')
         values['inputs'] = {'in1': 'http://url'}
 
-    with get_test_run_requests_mock(project_id, commit_id, values):
+    with RunAPIMock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
-        assert '#1337' in output
+        if adhoc:
+            assert 'Uploaded ad-hoc code' in output
+        assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
 
 
 def test_param_type_validation(runner, logged_in_and_linked):

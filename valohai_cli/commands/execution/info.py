@@ -6,19 +6,18 @@ from valohai_cli.utils import humanize_identifier
 
 ignored_keys = {
     'commit',
-    'copy_url',
     'counter',
     'ctime',
     'events',
     'id',
     'inputs',
-    'link',
     'metadata',
     'outputs',
     'parameters',
     'project',
-    'stop_url',
     'url',
+    'urls',
+    'environment',
 }
 
 
@@ -28,18 +27,19 @@ def info(counter):
     """
     Show execution info.
     """
-    exec = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
-    data = dict((humanize_identifier(key), str(value)) for (key, value) in exec.items() if key not in ignored_keys)
-    data['project name'] = exec['project']['name']
+    execution = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
+    data = dict((humanize_identifier(key), str(value)) for (key, value) in execution.items() if key not in ignored_keys)
+    data['project name'] = execution['project']['name']
+    data['environment name'] = execution['environment']['name']
     print_table(data)
     print()
     print_table(
-        {input['name']: '; '.join(input['urls']) for input in exec.get('inputs', ())},
+        {input['name']: '; '.join(input['urls']) for input in execution.get('inputs', ())},
         headers=('input', 'URLs'),
     )
     print()
     print_table(
-        exec.get('parameters', {}),
+        execution.get('parameters', {}),
         headers=('parameter', 'value'),
     )
     print()
