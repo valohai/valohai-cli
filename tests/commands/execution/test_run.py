@@ -11,6 +11,7 @@ from valohai_cli.utils import get_random_string
 
 
 class RunAPIMock(requests_mock.Mocker):
+
     def __init__(self, project_id, commit_id, additional_payload_values):
         super(RunAPIMock, self).__init__()
         self.project_id = project_id
@@ -95,3 +96,16 @@ def test_param_type_validation(runner, logged_in_and_linked):
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)
     assert 'plonk is not a valid integer' in rv.output
+
+
+def test_run_no_git(runner, logged_in_and_linked):
+    project_id = PROJECT_DATA['id']
+
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    args = ['train']
+
+    with RunAPIMock(project_id, None, {}):
+        output = runner.invoke(run, args, catch_exceptions=False).output
+        assert 'is not a Git repository' in output
