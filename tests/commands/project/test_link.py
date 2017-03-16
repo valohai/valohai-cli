@@ -2,8 +2,8 @@ import pytest
 import requests_mock
 
 from tests.utils import get_project_data
-from valohai_cli.commands.link import link
-from valohai_cli.commands.unlink import unlink
+from valohai_cli.commands.project.link import link
+from valohai_cli.commands.project.unlink import unlink
 from valohai_cli.ctx import get_project
 
 

@@ -1,7 +1,7 @@
 import requests_mock
 
 from tests.fixture_data import PROJECT_DATA
-from valohai_cli.commands.status import status
+from valohai_cli.commands.project.status import status
 
 
 def test_status(runner, logged_in_and_linked):
