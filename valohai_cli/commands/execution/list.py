@@ -1,5 +1,6 @@
-import click
 from datetime import timedelta
+
+import click
 
 from valohai_cli.api import request
 from valohai_cli.consts import execution_statuses

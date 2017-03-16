@@ -29,29 +29,9 @@ class WatchTUI:
         execution = self.data
         events = execution.get('events', ())
         l = Layout()
-        l.add(
-            Flex(style={'bg': 'blue', 'fg': 'white'})
-            .add(
-                content='({project}) #{counter}'.format(project=execution['project']['name'], counter=execution['counter']),
-                style={'bold': True},
-            )
-            .add(
-                content=datetime.datetime.now().isoformat(),
-                align='right',
-            )
-        )
-        l.add(
-            Flex()
-            .add(
-                'Status: {status}'.format(status=execution['status']),
-                style=self.status_styles.get(execution['status'], {}),
-            )
-            .add('Step: {step}'.format(step=execution['step']))
-            .add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
-            .add('{n} events'.format(n=len(events)), align='right')
-        )
+        l.add(self.get_header_flex(execution))
+        l.add(self.get_stat_flex(execution))
         l.add(Divider('='))
-
         available_height = l.height - len(l.rows) - 2
         if available_height > 0:
             for event in events[-available_height:]:
@@ -62,6 +42,33 @@ class WatchTUI:
                 )
         click.clear()
         l.draw()
+
+    def get_stat_flex(self, execution):
+        events = execution.get('events', ())
+        stat_flex = Flex()
+        stat_flex.add(
+            'Status: {status}'.format(status=execution['status']),
+            style=self.status_styles.get(execution['status'], {}),
+        )
+        stat_flex.add('Step: {step}'.format(step=execution['step']))
+        stat_flex.add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
+        stat_flex.add('{n} events'.format(n=len(events)), align='right')
+        return stat_flex
+
+    def get_header_flex(self, execution):
+        header_flex = Flex(style={'bg': 'blue', 'fg': 'white'})
+        header_flex.add(
+            content='({project}) #{counter}'.format(
+                project=execution['project']['name'],
+                counter=execution['counter'],
+            ),
+            style={'bold': True},
+        )
+        header_flex.add(
+            content=datetime.datetime.now().isoformat(),
+            align='right',
+        )
+        return header_flex
 
 
 @click.command()

@@ -58,7 +58,7 @@ def format_table(data, columns=(), headers=None, sep=' | '):
         headers = columns
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
-    n_str = lambda s: ('' if s is None else six.text_type(s))
+    def n_str(s): return ('' if s is None else six.text_type(s))
 
     # Pick the requested data and their types from the input
     printable_data = [

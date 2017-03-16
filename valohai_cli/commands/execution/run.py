@@ -157,7 +157,11 @@ class RunCommand(click.Command):
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment/--env', '-e', default=None, help='The environment name/ID to use.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
-@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution')
+@click.option(
+    '--adhoc',
+    '-a',
+    is_flag=True,
+    help='Upload the current state of the working directory, then run it as an ad-hoc execution')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
 def run(ctx, step, commit, environment, watch, adhoc, args):
@@ -182,5 +186,3 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
     rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
-
-
