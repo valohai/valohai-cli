@@ -34,3 +34,11 @@ class NoProject(CLIException):
 
 class InvalidConfig(CLIException):
     pass
+
+
+class NoGitRepo(CLIException):
+    color = 'yellow'
+
+    def __init__(self, directory):
+        self.directory = directory
+        super(NoGitRepo, self).__init__('{} is not a Git repository'.format(directory))

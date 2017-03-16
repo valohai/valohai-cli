@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 from subprocess import check_call
 
 from valohai_cli.git import get_current_commit

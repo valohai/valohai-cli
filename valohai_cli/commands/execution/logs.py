@@ -3,7 +3,7 @@ import time
 import click
 
 from valohai_cli.api import request
-from valohai_cli.consts import stream_styles, complete_execution_statuses
+from valohai_cli.consts import complete_execution_statuses, stream_styles
 from valohai_cli.ctx import get_project
 
 

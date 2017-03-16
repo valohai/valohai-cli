@@ -1,10 +1,10 @@
 import platform
-from six.moves.urllib_parse import urljoin, urlparse
 
 import click
 import requests
 import six
 from requests.auth import AuthBase
+from six.moves.urllib_parse import urljoin, urlparse
 
 from valohai_cli import __version__ as VERSION
 from valohai_cli.exceptions import APIError, CLIException, ConfigurationError
