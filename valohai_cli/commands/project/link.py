@@ -1,11 +1,15 @@
 import click
 
 from valohai_cli.api import request
+from valohai_cli.commands.project.create import create_project
 from valohai_cli.consts import yes_option
-from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn
-from valohai_cli.settings import settings
+from valohai_cli.ctx import get_project, set_project_link
+from valohai_cli.messages import warn
 from valohai_cli.utils import get_project_directory
+
+
+class NewProjectInstead(Exception):
+    pass
 
 
 def filter_projects(projects, spec):
@@ -49,9 +53,13 @@ def choose_project(dir, spec=None):
             ),
         ))
     while True:
-        answer = click.prompt('Which project would you like to link with {dir}?'.format(
-            dir=click.style(dir, bold=True)
-        ))
+        answer = click.prompt(
+            'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
+                dir=click.style(dir, bold=True)
+            )
+        )
+        if answer.startswith('n'):
+            raise NewProjectInstead()
         if not answer.isdigit() or not (1 <= int(answer) <= len(projects)):
             click.secho('Sorry, try again.')
             continue
@@ -76,15 +84,12 @@ def link(project, yes):
             ),
             abort=True,
         )
-    project = choose_project(dir, spec=project)
-    if not project:
-        return 1
-    links = settings.get('links', {})
-    links[dir] = project
-    settings['links'] = links
-    assert get_project(dir).id == project['id']
-    settings.save()
-    success('Linked {dir} to {name}.'.format(
-        dir=click.style(dir, bold=True),
-        name=click.style(project['name'], bold=True)
-    ))
+    try:
+        project = choose_project(dir, spec=project)
+        if not project:
+            return 1
+        set_project_link(dir, project, inform=True)
+    except NewProjectInstead:
+        name = click.prompt('Name the new project')
+        if name:
+            create_project(dir, name, yes=yes)

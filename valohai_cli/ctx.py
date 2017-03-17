@@ -1,4 +1,7 @@
+import click
+
 from valohai_cli.exceptions import NoProject
+from valohai_cli.messages import success
 from valohai_cli.models.project import Project
 from valohai_cli.settings import settings
 from valohai_cli.utils import get_project_directory, walk_directory_parents
@@ -28,3 +31,16 @@ def get_project(dir=None, require=False):
     if require:
         raise NoProject('No project is linked to %s' % orig_dir)
     return None
+
+
+def set_project_link(dir, project, inform=False):
+    links = settings.get('links', {})
+    links[dir] = project
+    settings['links'] = links
+    assert get_project(dir).id == project['id']
+    settings.save()
+    if inform:
+        success('Linked {dir} to {name}.'.format(
+            dir=click.style(dir, bold=True),
+            name=click.style(project['name'], bold=True)
+        ))

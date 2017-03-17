@@ -29,6 +29,8 @@ def print_incomplete_executions(project):
         'status': 'incomplete',
         'ordering': 'counter',
     }).json().get('results', ())
+    if not incomplete_executions:
+        return
 
     click.secho('## %d Incomplete Executions\n' % len(incomplete_executions), bold=True)
 

@@ -8,9 +8,14 @@ from valohai_cli.utils import cached_property, match_prefix
 
 
 class PluginCLI(click.MultiCommand):
+    aliases = {
+        'new': 'create',
+        'start': 'run',
+    }
 
     def __init__(self, **kwargs):
         self._commands_module = kwargs.pop('commands_module')
+        self.aliases = dict(self.aliases, **kwargs.get('aliases', {}))  # instance level copy
         super(PluginCLI, self).__init__(**kwargs)
 
     @cached_property
@@ -23,14 +28,23 @@ class PluginCLI(click.MultiCommand):
     def command_modules(self):
         return sorted(c[1] for c in pkgutil.iter_modules(self.commands_module.__path__))
 
+    @cached_property
+    def command_to_canonical_map(self):
+        command_map = dict((command, command) for command in self.command_modules)
+        for alias_from, alias_to in self.aliases.items():
+            if alias_to in command_map:
+                command_map[alias_from] = command_map.get(alias_to, alias_to)  # resolve aliases
+        return command_map
+
     def list_commands(self, ctx):
         return self.command_modules
 
     def get_command(self, ctx, name):
-        if name in self.command_modules:
-            return self._get_command(name)
+        command_map = self.command_to_canonical_map
+        if name in command_map:
+            return self._get_command(command_map[name])
 
-        matches = match_prefix(self.command_modules, name, return_unique=False)
+        matches = match_prefix(command_map.keys(), name, return_unique=False)
         if not matches:
             return None
         if len(matches) > 1:
@@ -39,7 +53,7 @@ class PluginCLI(click.MultiCommand):
                 matches=', '.join(click.style(match, bold=True) for match in sorted(matches))
             ))
             return
-        return self._get_command(matches[0])
+        return self._get_command(command_map[matches[0]])
 
     def resolve_command(self, ctx, args):
         cmd_name, cmd, rest_args = super(PluginCLI, self).resolve_command(ctx, args)
