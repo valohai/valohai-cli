@@ -2,9 +2,8 @@ import click
 
 from valohai_cli.api import request
 from valohai_cli.consts import yes_option
-from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn
-from valohai_cli.settings import settings
+from valohai_cli.ctx import get_project, set_project_link
+from valohai_cli.messages import warn
 from valohai_cli.utils import get_project_directory
 
 
@@ -79,12 +78,4 @@ def link(project, yes):
     project = choose_project(dir, spec=project)
     if not project:
         return 1
-    links = settings.get('links', {})
-    links[dir] = project
-    settings['links'] = links
-    assert get_project(dir).id == project['id']
-    settings.save()
-    success('Linked {dir} to {name}.'.format(
-        dir=click.style(dir, bold=True),
-        name=click.style(project['name'], bold=True)
-    ))
+    set_project_link(dir, project, inform=True)
