@@ -25,3 +25,7 @@ def test_auth(runner):
 
     result = runner.invoke(logout, input='y')
     assert not settings.get('token')
+
+    # And again.
+
+    assert 'not logged in' in runner.invoke(logout).output

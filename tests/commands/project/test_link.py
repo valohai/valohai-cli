@@ -21,10 +21,21 @@ def test_link(runner, logged_in, with_arg):
         assert get_project().name == name
 
 
-def test_unlink(runner, logged_in_and_linked):
-    result = runner.invoke(unlink, input='y', catch_exceptions=False)
+@pytest.mark.parametrize('yes_param', (False, True))
+def test_unlink(runner, logged_in_and_linked, yes_param):
+    result = runner.invoke(
+        unlink,
+        ['-y'] if yes_param else [],
+        input=('y' if not yes_param else ''),
+        catch_exceptions=False,
+    )
     assert 'Unlinked' in result.output
     assert not get_project()
+
+
+def test_unlink_not_linked(runner):
+    result = runner.invoke(unlink, catch_exceptions=False)
+    assert 'do not seem linked' in result.output
 
 
 def test_link_no_projs(runner, logged_in):
