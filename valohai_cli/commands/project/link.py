@@ -1,6 +1,7 @@
 import click
 
 from valohai_cli.api import request
+from valohai_cli.cli_utils import prompt_from_list
 from valohai_cli.commands.project.create import create_project
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
@@ -42,29 +43,14 @@ def choose_project(dir, spec=None):
         if len(projects) == 1:
             return projects[0]
 
-    for i, project in enumerate(projects, 1):
-        click.echo('{number} {name} {description}'.format(
-            number=click.style('[%3d]' % i, fg='cyan'),
-            name=project['name'],
-            description=(
-                click.style('(%s)' % project['description'], dim=True)
-                if project.get('description')
-                else ''
-            ),
-        ))
-    while True:
-        answer = click.prompt(
-            'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
-                dir=click.style(dir, bold=True)
-            )
-        )
+    def nonlist_validator(answer):
         if answer.startswith('n'):
             raise NewProjectInstead()
-        if not answer.isdigit() or not (1 <= int(answer) <= len(projects)):
-            click.secho('Sorry, try again.')
-            continue
-        break
-    return projects[int(answer) - 1]
+
+    prompt = 'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
+        dir=click.style(dir, bold=True),
+    )
+    return prompt_from_list(projects, prompt, nonlist_validator)
 
 
 @click.command()
