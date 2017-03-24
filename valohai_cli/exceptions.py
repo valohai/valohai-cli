@@ -28,6 +28,10 @@ class ConfigurationError(CLIException, RuntimeError):
     pass
 
 
+class NotLoggedIn(ConfigurationError):
+    pass
+
+
 class NoProject(CLIException):
     color = 'yellow'
 
