@@ -32,7 +32,8 @@ def choose_project(dir, spec=None):
     """
     projects = request('get', '/api/v0/projects/', params={'count': '1000'}).json()['results']
     if not projects:
-        click.echo('Please create a project first.')
+        if click.confirm('You don\'t have any projects. Create one instead?'):
+            raise NewProjectInstead()
         return None
 
     if spec:

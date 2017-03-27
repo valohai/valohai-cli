@@ -1,10 +1,11 @@
 import pytest
 
-from .utils import get_project_mock
 from tests.utils import get_project_data
 from valohai_cli.commands.project.link import link
 from valohai_cli.commands.project.unlink import unlink
 from valohai_cli.ctx import get_project
+from valohai_cli.utils import get_random_string
+from .utils import get_project_mock
 
 
 @pytest.mark.parametrize('with_arg', (False, True))
@@ -37,13 +38,25 @@ def test_unlink_not_linked(runner):
     assert 'do not seem linked' in result.output
 
 
-def test_link_no_projs(runner, logged_in):
-    with get_project_mock(existing_projects=0):
-        result = runner.invoke(link)
-        assert 'Please create' in result.output
+@pytest.mark.parametrize('create', (False, True))
+def test_link_no_projs(runner, logged_in, create):
+    name = get_random_string()
+    with get_project_mock(existing_projects=0, create_project_name=(name if create else None)):
+        result = runner.invoke(link, input=('y\n%s\n' % name if create else 'n\n'))
+        assert 'Create one instead?' in result.output
+        if create:
+            assert ('%s created' % name) in result.output
 
 
 def test_link_no_match(runner, logged_in):
     with get_project_mock(existing_projects=1):
         result = runner.invoke(link, ['fffffffffffffffffffffffffffffff'])
         assert 'No projects match' in result.output
+
+
+def test_link_projs_create_one_instead(runner, logged_in):
+    name = get_random_string()
+    with get_project_mock(existing_projects=1, create_project_name=name):
+        result = runner.invoke(link, input='n\n%s\n' % name)
+        assert 'Name the new project:' in result.output
+        assert ('%s created' % name) in result.output
