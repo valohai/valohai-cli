@@ -7,7 +7,7 @@ from requests.auth import AuthBase
 from six.moves.urllib_parse import urljoin, urlparse
 
 from valohai_cli import __version__ as VERSION
-from valohai_cli.exceptions import APIError, CLIException, ConfigurationError
+from valohai_cli.exceptions import APIError, CLIException, ConfigurationError, NotLoggedIn
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
@@ -69,10 +69,7 @@ def _get_current_api_session():
     :return: API session
     :rtype: APISession
     """
-    host = settings.get('host')
-    token = settings.get('token')
-    if not (host and token):
-        raise ConfigurationError('You\'re not logged in; try `vh login` first.')
+    host, token = get_host_and_token()
     ctx = click.get_current_context(silent=True) or None
     cache_key = force_text('_api_session_%s_%s' % (host, token))
     session = (getattr(ctx, cache_key, None) if ctx else None)
@@ -81,6 +78,14 @@ def _get_current_api_session():
         if ctx:
             setattr(ctx, cache_key, session)
     return session
+
+
+def get_host_and_token():
+    host = settings.get('host')
+    token = settings.get('token')
+    if not (host and token):
+        raise NotLoggedIn('You\'re not logged in; try `vh login` first.')
+    return (host, token)
 
 
 def request(method, url, **kwargs):

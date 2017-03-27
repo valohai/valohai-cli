@@ -1,3 +1,4 @@
+import glob
 import os
 import random
 import re
@@ -86,3 +87,25 @@ class cached_property(object):
             return self
         value = obj.__dict__[self.func.__name__] = self.func(obj)
         return value
+
+
+extension_to_interpreter = {
+    '.lua': 'lua',
+    '.py': 'python',
+    '.rb': 'ruby',
+    '.sh': 'bash',
+}
+
+
+def find_scripts(directory):
+    """
+    Yield pairs of (interpreter, filename) for scripts found in `directory`.
+
+    :param directory: Directory to look in
+    :return: Pairs of interpreter and filename
+    :rtype: Iterable[tuple[str, str]]
+    """
+    for filename in glob.glob(os.path.join(directory, '*.*')):
+        interpreter = extension_to_interpreter.get(os.path.splitext(filename.lower())[1])
+        if interpreter:
+            yield (interpreter, os.path.basename(filename))

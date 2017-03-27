@@ -29,10 +29,21 @@ if six.PY3:
         chr(0x1F63F),  # CRYING CAT FACE
         chr(0x1F640),  # WEARY CAT FACE
     ]
+
+    ERROR_EMOJI = [
+        chr(0x1F434),  # HORSE FACE
+        chr(0x1F616),  # CONFOUNDED FACE
+        chr(0x1F621),  # POUTING FACE
+        chr(0x1F622),  # CRYING FACE
+        chr(0x1F62D),  # LOUDLY CRYING FACE
+        chr(0x1F62D),  # LOUDLY CRYING FACE
+        chr(0x1F631),  # SCREAMY FACE
+    ]
 else:
     # Can't trust the Py2 build to be wide-Unicode, so...
     SUCCESS_EMOJI = [':)', '^_^']
     WARN_EMOJI = [':(', 'o_o', '-_-']
+    ERROR_EMOJI = ['x_x', '._.', ':[']
 
 
 def _format_message(message, emoji=None, prefix=None, color=None):
@@ -49,6 +60,10 @@ def success(message):
 
 def warn(message):
     click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'))
+
+
+def error(message):
+    click.echo(_format_message(message, ERROR_EMOJI, 'ERROR:', 'red'))
 
 
 def format_table(data, columns=(), headers=None, sep=' | '):

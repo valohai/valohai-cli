@@ -5,6 +5,7 @@ from jsonschema.exceptions import relevance
 from valohai_yaml.utils import read_yaml
 from valohai_yaml.validation import get_validator
 
+from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import CLIException
 from valohai_cli.messages import success, warn
 from valohai_cli.utils import get_project_directory
@@ -62,7 +63,9 @@ def lint(filenames):
     The return code of this command will be the total number of errors found in all the files.
     """
     if not filenames:
-        config_file = os.path.join(get_project_directory(), 'valohai.yaml')
+        project = get_project()
+        directory = (project.directory if project else get_project_directory())
+        config_file = os.path.join(directory, 'valohai.yaml')
         if not os.path.exists(config_file):
             raise CLIException('There is no %s file. Pass in the names of configuration files to lint?' % config_file)
         filenames = [config_file]
