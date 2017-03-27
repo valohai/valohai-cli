@@ -1,6 +1,6 @@
 import pytest
-import requests_mock
 
+from .utils import get_project_mock
 from tests.utils import get_project_data
 from valohai_cli.commands.project.link import link
 from valohai_cli.commands.project.unlink import unlink
@@ -11,8 +11,7 @@ from valohai_cli.ctx import get_project
 def test_link(runner, logged_in, with_arg):
     project_data = get_project_data(2)
     name = project_data['results'][0]['name']
-    with requests_mock.mock() as m:
-        m.get('https://app.valohai.com/api/v0/projects/', json=project_data)
+    with get_project_mock(existing_projects=project_data):
         if with_arg:
             result = runner.invoke(link, [name])  # Parameter on command line
         else:
@@ -39,14 +38,12 @@ def test_unlink_not_linked(runner):
 
 
 def test_link_no_projs(runner, logged_in):
-    with requests_mock.mock() as m:
-        m.get('https://app.valohai.com/api/v0/projects/', json=get_project_data(0))
+    with get_project_mock(existing_projects=0):
         result = runner.invoke(link)
         assert 'Please create' in result.output
 
 
 def test_link_no_match(runner, logged_in):
-    with requests_mock.mock() as m:
-        m.get('https://app.valohai.com/api/v0/projects/', json=get_project_data(1))
+    with get_project_mock(existing_projects=1):
         result = runner.invoke(link, ['fffffffffffffffffffffffffffffff'])
         assert 'No projects match' in result.output
