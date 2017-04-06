@@ -33,20 +33,28 @@ IMAGE_SUGGESTIONS = [
         'description': 'Tensorflow 1.0.1 with GPU support on Python 2',
     },
     {
+        'name': 'gcr.io/tensorflow/tensorflow:0.12.1-devel-gpu-py3',
+        'description': 'Tensorflow 0.12.1 with GPU support on Python 3',
+    },
+    {
         'name': 'gcr.io/tensorflow/tensorflow:0.12.1-devel-gpu',
-        'description': 'Tensorflow 0.12 with GPU support on Python 2',
+        'description': 'Tensorflow 0.12.1 with GPU support on Python 2',
     },
     {
         'name': 'valohai/keras:2.0.0-tensorflow1.0.1-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
-        'description': 'Keras 2.0, Tensorflow 1.0.1 with GPU support on Python 3.6',
+        'description': 'Keras 2.0.0 with TensorFlow 1.0.1 backend and GPU support on Python 3',
+    },
+    {
+        'name': 'valohai/keras:2.0.0-theano0.9.0rc4-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
+        'description': 'Keras 2.0.0 with Theano 0.9.0rc4 backend and GPU support on Python 3',
+    },
+    {
+        'name': 'valohai/keras:2.0.0-theano0.8.2-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
+        'description': 'Keras 2.0.0 with Theano 0.8.2 backend and GPU support on Python 3',
     },
     {
         'name': 'valohai/darknet:b61bcf5-cuda8.0-cudnn5-devel-ubuntu16.04',
         'description': 'Darknet with GPU support',
-    },
-    {
-        'name': 'kaixhin/cuda-torch:7.0',
-        'description': 'Torch 7.0 with CUDA support',
     },
 ]
 
