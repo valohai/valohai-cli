@@ -1,3 +1,4 @@
+import hashlib
 import time
 
 import click
@@ -5,6 +6,7 @@ import click
 from valohai_cli.api import request
 from valohai_cli.consts import complete_execution_statuses, stream_styles
 from valohai_cli.ctx import get_project
+from valohai_cli.utils import force_bytes
 
 
 @click.command()
@@ -30,7 +32,9 @@ def logs(counter, status, stderr, stdout, stream):
         execution = request('get', detail_url, params={'exclude': 'metadata'}).json()
         events = execution.get('events', ())
         for event in events:
-            event_id = (event['stream'], event['time'])
+            event_id = hashlib.md5(
+                force_bytes('+'.join((event['stream'], event['time'], event['message'])))
+            ).hexdigest()
             if event_id in seen_events:
                 continue
             seen_events.add(event_id)
