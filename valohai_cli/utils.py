@@ -3,7 +3,9 @@ import os
 import random
 import re
 import string
+import webbrowser
 
+import click
 import six
 
 
@@ -109,3 +111,12 @@ def find_scripts(directory):
         interpreter = extension_to_interpreter.get(os.path.splitext(filename.lower())[1])
         if interpreter:
             yield (interpreter, os.path.basename(filename))
+
+
+def open_browser(object, url_name='display'):
+    if 'urls' not in object:
+        return False
+    url = object['urls'][url_name]
+    click.echo('Opening {} ...'.format(click.style(url, bold=True)))
+    webbrowser.open(url)
+    return True

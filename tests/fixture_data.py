@@ -14,6 +14,9 @@ PROJECT_DATA = {
     'owner': 1,
     'ctime': '2016-12-16T12:25:52.718310Z',
     'mtime': '2017-01-20T14:35:02.196871Z',
+    'urls': {
+        'display': 'https://app.valohai.com/p/nyan/nyan/',
+    }
 }
 
 execution_id = str(uuid.uuid4())
@@ -35,9 +38,9 @@ EXECUTION_DATA = {
     'step': 'run training',
     'url': 'https://app.valohai.com/api/v0/executions/{id}/'.format(id=execution_id),
     'urls': {
-        'copy': '/api/v0/executions/34/copy/',
-        'display': '/p/test/mnist/execution/34/',
-        'stop': '/api/v0/executions/34/stop/',
+        'copy': 'https://app.valohai.com/api/v0/executions/34/copy/',
+        'display': 'https://app.valohai.com/p/test/mnist/execution/34/',
+        'stop': 'https://app.valohai.com/api/v0/executions/34/stop/',
     },
     'events': [
         {
