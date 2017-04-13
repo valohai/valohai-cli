@@ -101,4 +101,6 @@ def request(method, url, **kwargs):
     :rtype: requests.Response
     """
     session = _get_current_api_session()
+    if url.startswith(session.base_url):
+        url = url[len(session.base_url):]
     return session.request(method, url, **kwargs)
