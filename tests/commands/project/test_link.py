@@ -8,15 +8,15 @@ from valohai_cli.utils import get_random_string
 from .utils import get_project_mock
 
 
-@pytest.mark.parametrize('with_arg', (False, True))
-def test_link(runner, logged_in, with_arg):
+@pytest.mark.parametrize('method', ('number', 'arg', 'name'))
+def test_link(runner, logged_in, method):
     project_data = get_project_data(2)
     name = project_data['results'][0]['name']
     with get_project_mock(existing_projects=project_data):
-        if with_arg:
+        if method == 'arg':
             result = runner.invoke(link, [name])  # Parameter on command line
         else:
-            result = runner.invoke(link, input='1')  # Interactive choice
+            result = runner.invoke(link, input=('1' if method == 'number' else name))  # Interactive choice
         assert 'Linked' in result.output
         assert get_project().name == name
 
