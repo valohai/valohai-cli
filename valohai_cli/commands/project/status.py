@@ -15,7 +15,10 @@ def status(summary, incomplete):
     project = get_project(require=True)
     project_data = request('get', '/api/v0/projects/{id}/'.format(id=project.id)).json()
 
-    click.secho('# Project %s\n' % click.style(project.name, underline=True), bold=True)
+    click.secho('# Project %s' % click.style(project.name, underline=True), bold=True)
+    if 'urls' in project_data:
+        click.secho('  %s' % project_data['urls']['display'])
+    click.secho('')
 
     if summary:
         print_execution_summary(project_data)
