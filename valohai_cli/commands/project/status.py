@@ -45,6 +45,9 @@ def print_execution_summary(project_data):
     if not execution_summary:
         return
     total = execution_summary.pop('count')
+    if not total:
+        click.secho('No executions yet.', fg='cyan')
+        return
     click.secho('## Summary of %d executions\n' % total, bold=True)
     print_table(
         [
