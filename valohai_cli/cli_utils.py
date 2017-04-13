@@ -20,5 +20,8 @@ def prompt_from_list(options, prompt, nonlist_validator=None):
             retval = nonlist_validator(answer)
             if retval:
                 return retval
+        for option in options:
+            if answer == option['name']:
+                return option
         click.secho('Sorry, try again.')
         continue
