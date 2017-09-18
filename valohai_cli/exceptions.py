@@ -36,6 +36,10 @@ class NoProject(CLIException):
     color = 'yellow'
 
 
+class NoExecution(CLIException):
+    color = 'yellow'
+
+
 class InvalidConfig(CLIException):
     pass
 

@@ -5,7 +5,7 @@ import valohai_yaml
 from valohai_yaml import ValidationErrors
 
 from valohai_cli.api import request
-from valohai_cli.exceptions import InvalidConfig
+from valohai_cli.exceptions import InvalidConfig, NoExecution
 
 
 class Project:
@@ -43,7 +43,7 @@ class Project:
         ).json()['results']
         assert len(results) <= 1
         if not results:
-            raise ValueError('Execution #{counter} does not exist'.format(counter=counter))
+            raise NoExecution('Execution #{counter} does not exist'.format(counter=counter))
         obj = results[0]
         if detail:
             obj = request('get', obj['url']).json()
