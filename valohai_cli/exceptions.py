@@ -17,9 +17,13 @@ class CLIException(ClickException):
 
 
 class APIError(CLIException):
-
     def __init__(self, response):
-        super(APIError, self).__init__(response.text)
+        if '<!DOCTYPE html>' in response.text:
+            # Don't shower the user with a blob of HTML
+            text = 'Internal error'
+        else:
+            text = response.text
+        super(APIError, self).__init__(text)
         self.response = response
         self.request = response.request
 
