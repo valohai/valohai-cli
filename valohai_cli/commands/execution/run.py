@@ -155,7 +155,7 @@ class RunCommand(click.Command):
 @click.command(context_settings=dict(ignore_unknown_options=True), add_help_option=False)
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment/--env', '-e', default=None, help='The environment name/ID to use.')
+@click.option('--environment', '-e', default=None, help='The environment UUID to use.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
 @click.option(
     '--adhoc',
