@@ -88,6 +88,9 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         output = runner.invoke(run, args, catch_exceptions=False).output
         if adhoc:
             assert 'Uploaded ad-hoc code' in output
+        else:
+            # Making sure that non-adhoc executions don't turn adhoc.
+            assert 'Uploaded ad-hoc code' not in output
         assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
 
 
