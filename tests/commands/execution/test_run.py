@@ -57,7 +57,7 @@ class RunAPIMock(requests_mock.Mocker):
 
 
 def test_run_requires_step(runner, logged_in_and_linked):
-    assert 'Missing argument' in runner.invoke(run, catch_exceptions=False).output
+    assert 'Missing option "--step"' in runner.invoke(run, catch_exceptions=False).output
 
 
 @pytest.mark.parametrize('pass_param', (False, True))
@@ -72,7 +72,7 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
-    args = ['train']
+    args = ['--step=train']
     if adhoc:
         args.insert(0, '--adhoc')
 
@@ -109,14 +109,14 @@ def test_run_wrong_step_name(runner, logged_in_and_linked, monkeypatch, step):
         yaml_fp.write(CONFIG_YAML)
 
     with RunAPIMock(project_id, commit_id, {}):
-        output = runner.invoke(run, [step], catch_exceptions=False).output
+        output = runner.invoke(run, ['--step={step}'.format(step=step)], catch_exceptions=False).output
         assert '{step} is not a known unique step name'.format(step=step) in output
 
 
 def test_param_type_validation(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
-    rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)
+    rv = runner.invoke(run, ['--step=train', '--max-steps=plonk'], catch_exceptions=False)
     assert 'plonk is not a valid integer' in rv.output
 
 
@@ -126,8 +126,6 @@ def test_run_no_git(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
-    args = ['train']
-
     with RunAPIMock(project_id, None, {}):
-        output = runner.invoke(run, args, catch_exceptions=False).output
+        output = runner.invoke(run, ['--step=train'], catch_exceptions=False).output
         assert 'is not a Git repository' in output
