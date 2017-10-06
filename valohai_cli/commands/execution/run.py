@@ -171,9 +171,9 @@ def print_help(ctx, param, value):
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the working directory, then run it as an ad-hoc execution')
 @click.option('--help', '-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
-@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+@click.argument('step_parameters', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, adhoc, args):
+def run(ctx, step, commit, environment, watch, adhoc, step_parameters):
     """
     Start an execution of a step.
     """
@@ -192,5 +192,5 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
 
     actual_step = config.steps[validated_step_name]
     rc = RunCommand(project, actual_step, commit=commit, environment=environment, watch=watch)
-    with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
+    with rc.make_context(rc.name, list(step_parameters), parent=ctx) as ctx:
         return rc.invoke(ctx)
