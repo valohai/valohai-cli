@@ -176,6 +176,8 @@ def print_help(ctx, param, value):
 def run(ctx, step, commit, environment, watch, adhoc, step_parameters):
     """
     Start an execution of a step.
+
+    Required and allowed step parameters are defined in the YAML file that defines the step.
     """
     project = get_project(require=True)
     if adhoc:
