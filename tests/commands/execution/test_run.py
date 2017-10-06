@@ -99,6 +99,20 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
 
 
+@pytest.mark.parametrize('step', ('traim', 'Train nodel'))
+def test_run_wrong_step_name(runner, logged_in_and_linked, monkeypatch, step):
+    project_id = PROJECT_DATA['id']
+    commit_id = 'f' * 40
+    monkeypatch.setattr(git, 'get_current_commit', lambda dir: commit_id)
+
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    with RunAPIMock(project_id, commit_id, {}):
+        output = runner.invoke(run, [step], catch_exceptions=False).output
+        assert '{step} is not a known unique step name'.format(step=step) in output
+
+
 def test_param_type_validation(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)

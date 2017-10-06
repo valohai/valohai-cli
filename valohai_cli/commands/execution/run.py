@@ -175,14 +175,14 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
     if adhoc:
         commit = create_adhoc_commit(project)['identifier']
     config = project.get_config()
-    step = match_prefix(config.steps, step)
-    if not step:
+    validated_step_name = match_prefix(config.steps, step)
+    if not validated_step_name:
         raise BadParameter(
-            '{step} is not a known step (try one of {steps})'.format(
+            '{step} is not a known unique step name (try one of: {steps})'.format(
                 step=step,
                 steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps))
             ))
-    step = config.steps[step]
-    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
+    actual_step = config.steps[validated_step_name]
+    rc = RunCommand(project, actual_step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
