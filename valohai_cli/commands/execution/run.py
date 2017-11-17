@@ -152,37 +152,47 @@ class RunCommand(click.Command):
         return commit
 
 
+def print_help(ctx, param, value):
+    """
+    Prints help message and exits.
+
+    This is slightly weird, but it's because of the nested command thing
+    """
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo(ctx.get_help(), color=ctx.color)
+    ctx.exit()
+
+
 @click.command(context_settings=dict(ignore_unknown_options=True), add_help_option=False)
-@click.argument('step')
+@click.option('--step', '-s', required=True, metavar='NAME', help='Name of the step to run.')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment', '-e', default=None, help='The environment UUID to use.')
+@click.option('--environment', '-e', default=None, help='The runtime environment UUID to use.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
-@click.option(
-    '--adhoc',
-    '-a',
-    is_flag=True,
-    help='Upload the current state of the working directory, then run it as an ad-hoc execution')
-@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+@click.option('--adhoc', '-a', is_flag=True, help='Upload the working directory, then run it as an ad-hoc execution')
+@click.option('--help', '-h', is_flag=True, callback=print_help, expose_value=False, is_eager=True)
+@click.argument('step_parameters', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, adhoc, args):
+def run(ctx, step, commit, environment, watch, adhoc, step_parameters):
     """
     Start an execution of a step.
+
+    Required and allowed step parameters are defined in the YAML file that defines the step.
     """
-    if step == '--help':  # This is slightly weird, but it's because of the nested command thing
-        click.echo(ctx.get_help(), color=ctx.color)
-        ctx.exit()
     project = get_project(require=True)
     if adhoc:
         commit = create_adhoc_commit(project)['identifier']
+
     config = project.get_config()
-    step = match_prefix(config.steps, step)
-    if not step:
+    validated_step_name = match_prefix(config.steps, step)
+    if not validated_step_name:
         raise BadParameter(
-            '{step} is not a known step (try one of {steps})'.format(
+            '{step} is not a known unique step name (try one of: {steps})'.format(
                 step=step,
                 steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps))
             ))
-    step = config.steps[step]
-    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
-    with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
+
+    actual_step = config.steps[validated_step_name]
+    rc = RunCommand(project, actual_step, commit=commit, environment=environment, watch=watch)
+    with rc.make_context(rc.name, list(step_parameters), parent=ctx) as ctx:
         return rc.invoke(ctx)
