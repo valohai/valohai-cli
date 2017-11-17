@@ -1,9 +1,11 @@
 import click
+import sys
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import APIError
 from valohai_cli.messages import success, warn
+from valohai_cli.range import IntegerRange
 
 
 @click.argument('counters', required=False, nargs=-1)
@@ -14,9 +16,17 @@ def delete(counters, purge_outputs=False):
     Delete one or more executions, optionally purging their outputs as well.
     """
     project = get_project(require=True)
-    for counter in counters:
-        delete_execution(project, counter, purge_outputs)
-    success('Done.')
+    counters = IntegerRange.parse(counters).as_set()
+
+    n = 0
+    for counter in sorted(counters):
+        if delete_execution(project, counter, purge_outputs):
+            n += 1
+    if n:
+        success('Deleted {n} executions.'.format(n=n))
+    else:
+        warn('Nothing was deleted.')
+        sys.exit(1)
 
 
 def delete_execution(project, counter, purge_outputs=False):
