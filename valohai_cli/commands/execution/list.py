@@ -28,6 +28,9 @@ def list(status):
     if status:
         params['status'] = set(status)
     executions = request('get', '/api/v0/executions/', params=params).json()['results']
+    if not executions:
+        print('{project}: No executions.'.format(project=project))
+        return
     for execution in executions:
         execution['url'] = execution['urls']['display']
         execution['duration'] = str(

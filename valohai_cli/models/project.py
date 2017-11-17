@@ -48,3 +48,6 @@ class Project:
         if detail:
             obj = request('get', obj['url']).json()
         return obj
+
+    def __str__(self):
+        return self.name
