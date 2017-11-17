@@ -1,6 +1,11 @@
+import re
 import requests_mock
 
 from tests.fixture_data import EXECUTION_DATA, PROJECT_DATA, EVENT_RESPONSE_DATA
+
+
+def startswith(text):
+    return re.compile('^' + re.escape(text))
 
 
 def get_execution_data_mock():
@@ -9,4 +14,8 @@ def get_execution_data_mock():
     m.get('https://app.valohai.com/api/v0/executions/', json={'results': [EXECUTION_DATA]})
     m.get('https://app.valohai.com/api/v0/executions/{id}/'.format(id=EXECUTION_DATA['id']), json=EXECUTION_DATA)
     m.get('https://app.valohai.com/api/v0/executions/{id}/events/'.format(id=EXECUTION_DATA['id']), json=EVENT_RESPONSE_DATA)
+    m.get(url=startswith('https://app.valohai.com/api/v0/executions/{project_id}:{counter}/'.format(
+        project_id=PROJECT_DATA['id'],
+        counter=EXECUTION_DATA['counter'],
+    )), json=EXECUTION_DATA)
     return m

@@ -14,7 +14,7 @@ def test_execution_outputs(runner, logged_in_and_linked, tmpdir, download):
     with get_execution_data_mock() as m:
         for output in EXECUTION_DATA['outputs']:
             m.get(output['url'], content=b'0' * 100)
-        params = ['7']
+        params = [str(EXECUTION_DATA['counter'])]
         if download:
             params.append('--download=%s' % tmpdir)
         output = runner.invoke(outputs, params, catch_exceptions=False).output

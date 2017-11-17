@@ -19,7 +19,7 @@ def outputs(counter, download, filter_download):
     """
     List and download execution outputs.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
+    execution = get_project(require=True).get_execution_from_counter(counter=counter)
     outputs = execution.get('outputs', ())
     if not outputs:
         warn('The execution has no outputs.')
