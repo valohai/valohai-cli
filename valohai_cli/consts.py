@@ -12,6 +12,7 @@ incomplete_execution_statuses = {
     'created',
     'queued',
     'started',
+    'stopping',
 }
 
 complete_execution_statuses = {
