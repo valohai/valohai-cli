@@ -49,12 +49,14 @@ EXECUTION_DATA = {
     },
     'outputs': [
         {
+            'id': '123',
             'name': 'a.txt',
             'ctime': '2017-02-16T15:25:59.304888Z',
             'size': 120500,
             'url': 'http://filestash.example.com/foo/a.txt',
         },
         {
+            'id': '456',
             'name': 'b.txt',
             'ctime': '2017-02-16T15:25:59.420535Z',
             'size': 25000,

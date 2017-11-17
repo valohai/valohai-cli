@@ -96,7 +96,7 @@ def request(method, url, **kwargs):
 
     :param method: HTTP Method
     :param url: URL
-    :param kwargs: Other kwargs, see `requests.Session.request()`
+    :param kwargs: Other kwargs, see `APISession.request()`
     :return: requests.Response
     :rtype: requests.Response
     """
