@@ -6,7 +6,8 @@ import click
 import requests
 
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import print_table, success, warn
+from valohai_cli.messages import success, warn
+from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
 
 

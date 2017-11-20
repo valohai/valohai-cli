@@ -3,7 +3,7 @@ from operator import itemgetter
 import click
 
 from valohai_cli.api import request
-from valohai_cli.messages import print_table
+from valohai_cli.table import print_table
 
 
 @click.command()
