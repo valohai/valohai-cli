@@ -69,6 +69,9 @@ EXECUTION_DATA = {
         'owner': None,
         'unfinished_job_count': 0,
     },
+    'cumulative_metadata': {
+        'oispa': 'beer',
+    },
 }
 
 EVENT_RESPONSE_DATA = {

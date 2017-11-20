@@ -125,3 +125,7 @@ def open_browser(object, url_name='display'):
     click.echo('Opening {} ...'.format(click.style(url, bold=True)))
     webbrowser.open(url)
     return True
+
+
+def subset_keys(dict, keys):
+    return {key: dict[key] for key in dict if key in keys}
