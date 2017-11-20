@@ -8,6 +8,7 @@ ignored_keys = {
     'commit',
     'counter',
     'ctime',
+    'environment',
     'events',
     'id',
     'inputs',
@@ -15,9 +16,9 @@ ignored_keys = {
     'outputs',
     'parameters',
     'project',
+    'tags',
     'url',
     'urls',
-    'environment',
 }
 
 
@@ -27,7 +28,12 @@ def info(counter):
     """
     Show execution info.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    execution = get_project(require=True).get_execution_from_counter(
+        counter=counter,
+        params={
+            'exclude': 'metadata,events',
+        },
+    )
     data = dict((humanize_identifier(key), str(value)) for (key, value) in execution.items() if key not in ignored_keys)
     data['project name'] = execution['project']['name']
     data['environment name'] = execution['environment']['name']
