@@ -1,8 +1,15 @@
+import json
 from itertools import chain
 
 import click
 import sys
 import six
+
+TABLE_FORMATS = ('human', 'csv', 'tsv', 'scsv', 'psv', 'json')
+SV_SEPARATORS = {'csv': ',', 'tsv': '\t', 'scsv': ';', 'psv': '|'}
+TABLE_FORMAT_META_KEY = __name__ + '.table_format'
+
+
 def n_str(s):
     return ('' if s is None else six.text_type(s))
 
@@ -38,7 +45,7 @@ def pluck_printable_data(data, columns, col_formatter):
         yield [col_formatter(col_val) for col_val in (datum.get(column) for column in columns)]
 
 
-def print_table(data, columns=(), headers=None, format='human', **kwargs):
+def print_table(data, columns=(), headers=None, format=None, **kwargs):
     if isinstance(data, dict) and not columns:
         data = [{'key': key, 'value': value} for (key, value) in sorted(data.items())]
         columns = ('key', 'value')
@@ -48,10 +55,23 @@ def print_table(data, columns=(), headers=None, format='human', **kwargs):
         headers = columns
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
+    if not format:  # Auto-determine format from current context
+        format = 'human'
+        ctx = click.get_current_context(silent=True)
+        if ctx and TABLE_FORMAT_META_KEY in ctx.meta:
+            format = ctx.meta[TABLE_FORMAT_META_KEY]
+
     if format == 'human':
         for y, row in enumerate(format_table(data, columns, headers, **kwargs)):
             click.secho(row, bold=(y == 0))
             if y == 0:
                 click.secho('-' * len(row), bold=True)
+    elif format == 'json':
+        json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)
+    elif format in SV_SEPARATORS:
+        import csv
+        writer = csv.writer(sys.stdout, delimiter=SV_SEPARATORS[format], quoting=csv.QUOTE_MINIMAL)
+        writer.writerow(headers)
+        writer.writerows(pluck_printable_data(data, columns, lambda col_val: n_str(col_val)))
     else:
         raise RuntimeError('Unknown print_table format: {}'.format(format))
