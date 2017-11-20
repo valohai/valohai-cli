@@ -54,6 +54,9 @@ def match_prefix(choices, value, return_unique=True):
     """
     Match `value` in `choices` by case-insensitive prefix matching.
 
+    If the exact `value` is in `choices` (and `return_unique` is set),
+    that exact value is returned as-is.
+
     :param choices: Choices to match in. May be non-string; `str()` is called on them if not.
     :param value: The value to use for matching.
     :param return_unique: If only one option was found, return it; otherwise return None.
@@ -61,6 +64,8 @@ def match_prefix(choices, value, return_unique=True):
     :return: list, object or none; see the `return_unique` option.
     :rtype: list[object]|object|None
     """
+    if return_unique and value in choices:
+        return value
     value_re = re.compile('^' + re.escape(value), re.I)
     choices = [choice for choice in choices if value_re.match(force_text(choice))]
     if return_unique:

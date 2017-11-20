@@ -175,14 +175,28 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
     if adhoc:
         commit = create_adhoc_commit(project)['identifier']
     config = project.get_config()
-    step = match_prefix(config.steps, step)
-    if not step:
-        raise BadParameter(
-            '{step} is not a known step (try one of {steps})'.format(
-                step=step,
-                steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps))
-            ))
-    step = config.steps[step]
+    matched_step = match_step(config, step)
+    step = config.steps[matched_step]
     rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
+
+
+def match_step(config, step):
+    if step in config.steps:
+        return step
+    step_matches = match_prefix(config.steps, step, return_unique=False)
+    if not step_matches:
+        raise BadParameter(
+            '"{step}" is not a known step (try one of {steps})'.format(
+                step=step,
+                steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps))
+            ), param_hint='step')
+    if len(step_matches) > 1:
+        raise BadParameter(
+            '"{step}" is ambiguous.\nIt matches {matches}.\nKnown steps are {steps}.'.format(
+                step=step,
+                matches=', '.join(click.style(t, bold=True) for t in sorted(step_matches)),
+                steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps)),
+            ), param_hint='step')
+    return step_matches[0]
