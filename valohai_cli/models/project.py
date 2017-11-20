@@ -35,11 +35,12 @@ class Project:
     def get_config_filename(self):
         return os.path.join(self.directory, 'valohai.yaml')
 
-    def get_execution_from_counter(self, counter):
+    def get_execution_from_counter(self, counter, params=None):
         try:
             return request(
-                'get',
-                '/api/v0/executions/{project_id}:{counter}/'.format(project_id=self.id, counter=counter),
+                method='get',
+                url='/api/v0/executions/{project_id}:{counter}/'.format(project_id=self.id, counter=counter),
+                params=(params or {}),
             ).json()
         except APIError as ae:
             if ae.response.status_code == 404:
