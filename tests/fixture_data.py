@@ -42,18 +42,6 @@ EXECUTION_DATA = {
         'display': 'https://app.valohai.com/p/test/mnist/execution/34/',
         'stop': 'https://app.valohai.com/api/v0/executions/34/stop/',
     },
-    'events': [
-        {
-            'time': '2017-02-16T15:25:33.037000',
-            'stream': 'status',
-            'message': 'hOI!!! I\'m temmie!'
-        },
-        {
-            'time': '2017-02-16T15:25:33.037000',
-            'stream': 'stderr',
-            'message': 'oh no',
-        },
-    ],
     'parameters': {
         'dropout': 0.9,
         'learning_rate': 0.001,
@@ -79,6 +67,23 @@ EXECUTION_DATA = {
         'owner': None,
         'unfinished_job_count': 0,
     },
+}
+
+EVENT_RESPONSE_DATA = {
+    'total': 5,
+    'truncated': False,
+    'events': [
+        {
+            'time': '2017-02-16T15:25:33.037000',
+            'stream': 'status',
+            'message': 'hOI!!! I\'m temmie!'
+        },
+        {
+            'time': '2017-02-16T15:25:33.037000',
+            'stream': 'stderr',
+            'message': 'oh no',
+        },
+    ],
 }
 
 CONFIG_YAML = """
