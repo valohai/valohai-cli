@@ -12,7 +12,7 @@ def no_sleep(t):
 def test_execution_watch(runner, logged_in_and_linked, monkeypatch):
     monkeypatch.setattr(time, 'sleep', no_sleep)
     with get_execution_data_mock():
-        output = runner.invoke(watch, ['7'], catch_exceptions=False).output
+        output = runner.invoke(watch, [str(EXECUTION_DATA['counter'])], catch_exceptions=False).output
         assert EXECUTION_DATA['status'] in output
         assert PROJECT_DATA['name'] in output
         assert 'hOI!!!' in output

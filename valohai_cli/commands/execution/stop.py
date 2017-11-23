@@ -3,6 +3,7 @@ import click
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success, warn
+from valohai_cli.range import IntegerRange
 
 
 @click.argument('counters', required=False, nargs=-1)
@@ -17,7 +18,7 @@ def stop(counters, all=False):
     if counters and all:
         raise click.UsageError('Pass either an execution # or `--all`, not both.')
     elif counters:
-        params['counter'] = [c.strip('#') for c in counters]
+        params['counter'] = sorted(IntegerRange.parse(counters).as_set())
     elif all:
         params['status'] = 'incomplete'
     else:

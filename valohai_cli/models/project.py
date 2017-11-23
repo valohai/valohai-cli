@@ -5,7 +5,7 @@ import valohai_yaml
 from valohai_yaml import ValidationErrors
 
 from valohai_cli.api import request
-from valohai_cli.exceptions import InvalidConfig, NoExecution
+from valohai_cli.exceptions import InvalidConfig, NoExecution, APIError
 
 
 class Project:
@@ -35,16 +35,17 @@ class Project:
     def get_config_filename(self):
         return os.path.join(self.directory, 'valohai.yaml')
 
-    def get_execution_from_counter(self, counter, detail=False):
-        results = request(
-            'get',
-            '/api/v0/executions/',
-            params={'project': self.id, 'counter': counter}
-        ).json()['results']
-        assert len(results) <= 1
-        if not results:
-            raise NoExecution('Execution #{counter} does not exist'.format(counter=counter))
-        obj = results[0]
-        if detail:
-            obj = request('get', obj['url']).json()
-        return obj
+    def get_execution_from_counter(self, counter, params=None):
+        try:
+            return request(
+                method='get',
+                url='/api/v0/executions/{project_id}:{counter}/'.format(project_id=self.id, counter=counter),
+                params=(params or {}),
+            ).json()
+        except APIError as ae:
+            if ae.response.status_code == 404:
+                raise NoExecution('Execution #{counter} does not exist'.format(counter=counter))
+            raise
+
+    def __str__(self):
+        return self.name

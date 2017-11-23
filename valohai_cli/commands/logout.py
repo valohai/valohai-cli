@@ -16,10 +16,11 @@ def logout(yes):
 
     if not yes:
         user = settings['user']
+        host = settings['host']
         message = (
-            'You are logged in as {username}.\n'
+            'You are logged in as {username} (on {host}).\n'
             'Are you sure you wish to remove the authentication token?'
-        ).format(username=user['username'])
+        ).format(username=user['username'], host=host)
         click.confirm(message, abort=True)
     settings.update(host=None, user=None, token=None)
     settings.save()

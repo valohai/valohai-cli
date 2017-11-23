@@ -1,13 +1,14 @@
 import click
 
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import print_table
+from valohai_cli.table import print_table
 from valohai_cli.utils import humanize_identifier
 
 ignored_keys = {
     'commit',
     'counter',
     'ctime',
+    'environment',
     'events',
     'id',
     'inputs',
@@ -15,9 +16,9 @@ ignored_keys = {
     'outputs',
     'parameters',
     'project',
+    'tags',
     'url',
     'urls',
-    'environment',
 }
 
 
@@ -27,7 +28,12 @@ def info(counter):
     """
     Show execution info.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter, detail=True)
+    execution = get_project(require=True).get_execution_from_counter(
+        counter=counter,
+        params={
+            'exclude': 'metadata,events',
+        },
+    )
     data = dict((humanize_identifier(key), str(value)) for (key, value) in execution.items() if key not in ignored_keys)
     data['project name'] = execution['project']['name']
     data['environment name'] = execution['environment']['name']

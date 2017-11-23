@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from valohai_cli.messages import format_table
+from valohai_cli.table import format_table
 from valohai_cli.utils import force_bytes, force_text, humanize_identifier, match_prefix, walk_directory_parents
 
 
