@@ -24,6 +24,7 @@ def list(status):
         'project': project.id,
         'count': 9001,
         'ordering': 'counter',
+        'deleted': 'false',
     }
     if status:
         params['status'] = set(status)
