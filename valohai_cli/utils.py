@@ -8,6 +8,9 @@ import webbrowser
 import click
 import six
 
+ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
+control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
+control_characters_re = re.compile(control_character_re.pattern + '+')
 
 def walk_directory_parents(dir):
     """
@@ -129,3 +132,10 @@ def open_browser(object, url_name='display'):
 
 def subset_keys(dict, keys):
     return {key: dict[key] for key in dict if key in keys}
+
+
+def clean_log_line(line):
+    line = force_text(line)
+    line = ansi_escape_re.sub('', line)
+    line = control_characters_re.sub(' ', line)
+    return line.strip()
