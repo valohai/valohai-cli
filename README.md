@@ -15,8 +15,10 @@ Installation
 The easiest way to get started is to install `valohai-cli` system-wide with `pip`.
 
 ```bash
-$ pip3 install valohai-cli  # (or pip2)
+$ pip3 install -U valohai-cli  # (or pip2)
 ```
+
+The `-U` flag ensures that any present version is upgraded, too.
 
 After you've installed the client, `vh` should work and you should see a description
 of commands.
