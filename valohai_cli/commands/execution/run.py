@@ -22,7 +22,7 @@ class RunCommand(click.Command):
         'float': click.FLOAT,
     }
 
-    def __init__(self, project, step, commit, environment, watch):
+    def __init__(self, project, step, commit, environment, image, watch):
         """
         Initialize the dynamic run command.
 
@@ -36,12 +36,15 @@ class RunCommand(click.Command):
         :type environment: str
         :param watch: Whether to chain to `exec watch` afterwards
         :type watch: bool
+        :param image: Image override
+        :type image: str|None
         """
         assert isinstance(step, Step)
         self.project = project
         self.step = step
         self.commit = commit
         self.environment = environment
+        self.image = image
         self.watch = bool(watch)
         super(RunCommand, self).__init__(
             name=step.name.lower().replace(' ', '-'),
@@ -113,6 +116,8 @@ class RunCommand(click.Command):
         }
         if self.environment:
             payload['environment'] = self.environment
+        if self.image:
+            payload['image'] = self.image
         resp = request('post', '/api/v0/executions/', json=payload).json()
         success('Execution #{counter} created. See {link}'.format(
             counter=resp['counter'],
@@ -154,6 +159,7 @@ class RunCommand(click.Command):
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment', '-e', default=None, help='The environment UUID or slug to use.')
+@click.option('--image', default=None, help='Override the Docker image specified in the step')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
 @click.option(
     '--adhoc',
@@ -162,7 +168,7 @@ class RunCommand(click.Command):
     help='Upload the current state of the working directory, then run it as an ad-hoc execution')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, adhoc, args):
+def run(ctx, step, commit, environment, watch, adhoc, image, args):
     """
     Start an execution of a step.
     """
@@ -184,7 +190,7 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
     if adhoc:
         commit = create_adhoc_commit(project)['identifier']
 
-    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
+    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch, image=image)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
 
