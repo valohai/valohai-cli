@@ -8,7 +8,7 @@ from valohai_cli.consts import complete_execution_statuses, stream_styles
 from valohai_cli.ctx import get_project
 from valohai_cli.log_manager import LogManager
 from valohai_cli.messages import warn
-from valohai_cli.utils import force_bytes
+from valohai_cli.utils import force_bytes, clean_log_line
 
 
 @click.command()
@@ -45,7 +45,7 @@ def logs(counter, status, stderr, stdout, stream, all):
                 continue
             message = '{short_time} {text}'.format(
                 short_time=(event['time'].split('T')[1][:-4]),
-                text=(event['message']),
+                text=clean_log_line(event['message']),
             )
             style = stream_styles.get(event['stream'], {})
             click.echo(click.style(message, **style))

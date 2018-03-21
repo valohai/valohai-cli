@@ -8,6 +8,7 @@ from valohai_cli.consts import stream_styles
 from valohai_cli.ctx import get_project
 from valohai_cli.log_manager import LogManager
 from valohai_cli.tui import Divider, Flex, Layout
+from valohai_cli.utils import clean_log_line
 
 
 class WatchTUI:
@@ -45,7 +46,7 @@ class WatchTUI:
                 l.add(
                     Flex(style=stream_styles.get(event['stream']))
                     .add(event['time'].split('T')[1][:-4] + '  ', flex=0)
-                    .add(event['message'], flex=4)
+                    .add(clean_log_line(event['message']), flex=4)
                 )
         click.clear()
         l.draw()

@@ -7,7 +7,14 @@ import sys
 import pytest
 
 from valohai_cli.table import format_table
-from valohai_cli.utils import force_bytes, force_text, humanize_identifier, match_prefix, walk_directory_parents
+from valohai_cli.utils import (
+    clean_log_line,
+    force_bytes,
+    force_text,
+    humanize_identifier,
+    match_prefix,
+    walk_directory_parents,
+)
 
 
 def test_dir_parents():
@@ -54,3 +61,7 @@ def test_match_prefix():
 
 def test_humanize_identifier():
     assert humanize_identifier('_____Foo-Bar_______') == 'Foo Bar'
+
+
+def test_clean_log_line():
+    assert clean_log_line('ls\r\n\x1b[00m\x1b[01;31mexamplefile.zip\x1b[00m\r\n\x1b[01;31m') == 'ls examplefile.zip'
