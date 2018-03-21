@@ -9,11 +9,9 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn
+from valohai_cli.messages import success, warn, error
 from valohai_cli.utils import humanize_identifier, match_prefix
 
-
-# TODO: this should use the step config from an overridden commit
 
 class RunCommand(click.Command):
     """
@@ -172,11 +170,20 @@ def run(ctx, step, commit, environment, watch, adhoc, args):
         click.echo(ctx.get_help(), color=ctx.color)
         ctx.exit()
     project = get_project(require=True)
-    if adhoc:
-        commit = create_adhoc_commit(project)['identifier']
-    config = project.get_config()
+
+    if adhoc and commit:
+        raise click.UsageError('--commit and --adhoc are mutually exclusive.')
+
+    # We need to pass commit=None when adhoc=True to `get_config`, but
+    # the further steps do need the real commit identifier from remote,
+    # so this is done before `commit` is mangled by `create_adhoc_commit`.
+    config = project.get_config(commit=commit)
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
+
+    if adhoc:
+        commit = create_adhoc_commit(project)['identifier']
+
     rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch)
     with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
         return rc.invoke(ctx)
