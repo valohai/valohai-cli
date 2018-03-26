@@ -2,10 +2,10 @@ import os
 
 import six
 import valohai_yaml
-from valohai_yaml import ValidationErrors
 
 from valohai_cli.api import request
 from valohai_cli.exceptions import InvalidConfig, NoExecution, APIError
+from valohai_cli.git import get_file_at_commit
 
 
 class Project:
@@ -17,16 +17,34 @@ class Project:
     id = property(lambda p: p.data['id'])
     name = property(lambda p: p.data['name'])
 
-    def get_config(self):
-        filename = self.get_config_filename()
+    def get_config(self, commit=None):
+        """
+        Get the `valohai_yaml.Config` object from the current working directory,
+        or a given commit.
+
+        :param commit: Hexadecimal commit identifier; optional.
+        :type commit: str|None
+        :return: valohai_yaml.Config
+        :rtype: valohai_yaml.Config
+        """
+        if not commit:  # Current working directory
+            filename = self.get_config_filename()
+            with open(filename, 'r') as infp:
+                return self._parse_config(infp, filename)
+        else:  # Arbitrary commit
+            filename = '{}:valohai.yaml'.format(commit)
+            config_bytes = get_file_at_commit(self.directory, commit, 'valohai.yaml')
+            config_sio = six.StringIO(config_bytes.decode('utf-8'))
+            return self._parse_config(config_sio, filename)
+
+    def _parse_config(self, config_fp, filename='<config file>'):
         try:
-            with open(filename) as infp:
-                config = valohai_yaml.parse(infp)
-                config.project = self
-                return config
+            config = valohai_yaml.parse(config_fp)
+            config.project = self
+            return config
         except IOError as ioe:
             six.raise_from(InvalidConfig('Could not read %s' % filename), ioe)
-        except ValidationErrors as ves:
+        except valohai_yaml.ValidationErrors as ves:
             raise InvalidConfig('{filename} is invalid ({n} errors); see `vh lint`'.format(
                 filename=filename,
                 n=len(ves.errors),
