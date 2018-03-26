@@ -5,7 +5,9 @@ machine:
     PIP_EXISTS_ACTION: w
 dependencies:
   pre:
-    - pip install -U pip setuptools wheel tox
+    # Coverage needs to be installed in the outside-of-tox env:
+    # https://github.com/codecov/codecov-bash/issues/116
+    - pip install -U pip setuptools wheel tox coverage
 test:
   override:
     - pyenv local 2.7.11 3.4.4 3.5.2
