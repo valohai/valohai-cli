@@ -14,6 +14,20 @@ from valohai_cli.utils import ensure_makedirs, format_size, sanitize_filename
 
 MINIMUM_VALOHAI_LOCAL_RUN_VERSION = '0.2.1'
 
+UNPARCEL_SCRIPT = r"""
+#!/bin/bash
+WORKING_COPY_DIR=$(mktemp -dut parcel-working-copy-XXXXXX)
+(
+set -ex
+find . -name 'docker*tar' -exec docker load -i '{}' ';'
+[ -d python-archives ] && pip3 install --user python-archives/*
+[ -f git-repo.bundle ] && git clone ./git-repo.bundle "$WORKING_COPY_DIR"
+[ -f git-commit.tar ] && mkdir "$WORKING_COPY_DIR" && tar -xvf ./git-commit.tar -C "$WORKING_COPY_DIR"
+[ -f code.tar ] && mkdir "$WORKING_COPY_DIR" && tar -xvf ./code.tar -C "$WORKING_COPY_DIR"
+)
+cd $WORKING_COPY_DIR
+""".strip()
+
 
 def print_parcel_progress(text):
     click.secho('::: %s' % text, bold=True, fg='cyan')
@@ -30,7 +44,8 @@ def print_parcel_progress(text):
 )
 @click.option('--docker-images/--no-docker-images', default=True, help='Package Docker images?')
 @click.option('--valohai-local-run/--no-valohai-local-run', default=True, help='Download valohai-local-run + deps?')
-def parcel(destination, commit, code, valohai_local_run, docker_images):
+@click.option('--unparcel-script/--no-unparcel-script', default=True, help='Add unparcel script?')
+def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel_script):
     project = get_project(require=True)
 
     if not destination:
@@ -57,6 +72,9 @@ def parcel(destination, commit, code, valohai_local_run, docker_images):
     if docker_images:
         export_docker_images(project, destination, commit, extra_docker_images)
 
+    if unparcel_script:
+        write_unparcel_script(destination)
+
     success('Parcel {} created!'.format(destination))
 
 
@@ -72,6 +90,14 @@ def export_valohai_local_run(project, destination):
             'valohai-local-run>=' + MINIMUM_VALOHAI_LOCAL_RUN_VERSION,
         ],
     )
+
+
+def write_unparcel_script(destination):
+    unparcel_sh_path = os.path.join(destination, 'unparcel.sh')
+    print_parcel_progress('Creating unparcel script {}'.format(unparcel_sh_path))
+    with open(unparcel_sh_path, 'w') as outf:
+        outf.write(UNPARCEL_SCRIPT)
+    os.chmod(unparcel_sh_path, os.stat(unparcel_sh_path).st_mode | 0o700)
 
 
 def export_code(project, destination, mode):
