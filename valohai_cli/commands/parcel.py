@@ -12,6 +12,8 @@ from valohai_cli.messages import success
 from valohai_cli.tui import get_spinner_character
 from valohai_cli.utils import ensure_makedirs, format_size, sanitize_filename
 
+MINIMUM_VALOHAI_LOCAL_RUN_VERSION = '0.2.1'
+
 
 def print_parcel_progress(text):
     click.secho('::: %s' % text, bold=True, fg='cyan')
@@ -27,7 +29,8 @@ def print_parcel_progress(text):
     help='Package code as a full Git bundle, an archive of Git HEAD, a tarball of the directory or not at all?',
 )
 @click.option('--docker-images/--no-docker-images', default=True, help='Package Docker images?')
-def parcel(destination, commit, code, docker_images):
+@click.option('--valohai-local-run/--no-valohai-local-run', default=True, help='Download valohai-local-run + deps?')
+def parcel(destination, commit, code, valohai_local_run, docker_images):
     project = get_project(require=True)
 
     if not destination:
@@ -48,10 +51,27 @@ def parcel(destination, commit, code, docker_images):
     if code in ('bundle', 'archive', 'tarball'):
         export_code(project, destination, mode=code)
 
+    if valohai_local_run:
+        export_valohai_local_run(project, destination)
+
     if docker_images:
         export_docker_images(project, destination, commit, extra_docker_images)
 
     success('Parcel {} created!'.format(destination))
+
+
+def export_valohai_local_run(project, destination):
+    print_parcel_progress('Downloading valohai-local-run and dependencies')
+    destination = os.path.join(destination, 'python-archives')
+    subprocess.check_call(
+        [
+            'pip',
+            '--disable-pip-version-check',
+            'download',
+            '--dest', destination,
+            'valohai-local-run>=' + MINIMUM_VALOHAI_LOCAL_RUN_VERSION,
+        ],
+    )
 
 
 def export_code(project, destination, mode):
