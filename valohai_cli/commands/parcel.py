@@ -49,10 +49,10 @@ def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel
     project = get_project(require=True)
 
     if not destination:
-        destination = '{}-parcel-{}'.format(
+        destination = sanitize_filename('{}-parcel-{}'.format(
             project.name,
             time.strftime('%Y%m%d-%H%M%S'),
-        )
+        ))
 
     click.echo('Packing {} to directory {}'.format(
         click.style(project.name, bold=True, fg='blue'),
@@ -172,7 +172,7 @@ def export_docker_images(project, destination, commit, extra_docker_images=()):
         export_docker_image(image, output_path)
 
 
-def export_docker_image(image, output_path):
+def export_docker_image(image, output_path, print_progress=True):
     """
     Export the Docker image `image` to the tar file `output_path`,
     with visual progress.
@@ -180,17 +180,20 @@ def export_docker_image(image, output_path):
     :param image: Image specifier
     :param output_path: Output pathname
     """
-    image_size = get_docker_image_size(image)
+
     proc = subprocess.Popen(['docker', 'save', image], bufsize=-1, stdout=subprocess.PIPE)
+    print_progress = (print_progress and sys.stdout.isatty())
+    # Don't bother with acquiring the image size if we're not going to print it anyway
+    image_size = (get_docker_image_size(image) if print_progress else None)
     with open(output_path, 'wb') as outfp:
-        if sys.stdout.isatty():
+        if print_progress:
             print('Initializing export...', end='\r')
         while proc.poll() is None:
             chunk = proc.stdout.read(1048576)
             if not chunk:
                 break
             outfp.write(chunk)
-            if sys.stdout.isatty():
+            if print_progress:
                 width = click.get_terminal_size()[0]
                 status_text = '{} {}: {} / {}'.format(
                     get_spinner_character(),
