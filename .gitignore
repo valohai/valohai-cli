@@ -5,7 +5,7 @@
 *.mo
 *.pot
 *.py[cod]
-.cache
+.*cache
 .coverage
 .idea/
 .tox

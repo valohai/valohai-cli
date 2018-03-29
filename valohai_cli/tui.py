@@ -1,4 +1,5 @@
 import math
+import time
 
 import click
 
@@ -120,3 +121,7 @@ class Layout:
         self.width, self.height = click.get_terminal_size()
         for element in self.rows:
             element.draw()
+
+
+def get_spinner_character():
+    return '|/-\\'[int(time.time() * 3) % 4]

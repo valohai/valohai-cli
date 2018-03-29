@@ -12,6 +12,7 @@ ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
 control_characters_re = re.compile(control_character_re.pattern + '+')
 
+
 def walk_directory_parents(dir):
     """
     Yield the passed directory and its parents' names, all the way up until filesystem root.
@@ -139,3 +140,41 @@ def clean_log_line(line):
     line = ansi_escape_re.sub('', line)
     line = control_characters_re.sub(' ', line)
     return line.strip()
+
+
+def ensure_makedirs(path, mode=0o744):
+    # http://stackoverflow.com/questions/5231901/permission-problems-when-creating-a-dir-with-os-makedirs-python
+    original_umask = os.umask(0)
+    try:
+        # only newly create directories get the defined mode
+        if not os.path.exists(path):
+            os.makedirs(path, mode)
+        # ensure that the last directory has the right mode if it exists
+        os.chmod(path, mode)
+    finally:
+        os.umask(original_umask)
+
+
+def format_size(bytes):
+    """
+    Format a file size in a human-readable way.
+    :param bytes: Number of bytes
+    :type bytes: int
+    :return: string
+    """
+
+    if bytes > 1000000:
+        return '%.1fMB' % (bytes / 1000000.0)
+
+    if bytes > 10 * 1000:
+        return '%ikB' % (bytes / 1000)
+
+    if bytes > 1000:
+        return '%.1fkB' % (bytes / 1000.0)
+
+    return '%ibytes' % bytes
+
+
+def sanitize_filename(name, replacement='-'):
+    # Via https://github.com/parshap/node-sanitize-filename/blob/0d21bf13be419fcde5bc3f241672bd29f7e72c63/index.js
+    return re.sub(r'[\x00-\x1f\x80-\x9f/?<>\\:*|"]', replacement, name)
