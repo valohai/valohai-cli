@@ -30,7 +30,7 @@ def choose_project(dir, spec=None):
     :param spec: An optional search string
     :return: project object or None
     """
-    projects = request('get', '/api/v0/projects/', params={'count': '1000'}).json()['results']
+    projects = request('get', '/api/v0/projects/', params={'limit': '1000'}).json()['results']
     if not projects:
         if click.confirm('You don\'t have any projects. Create one instead?'):
             raise NewProjectInstead()

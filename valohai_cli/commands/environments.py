@@ -11,7 +11,7 @@ def environments():
     """
     List all available execution environments.
     """
-    envs_data = request('get', '/api/v0/environments/', params={'count': 9000}).json()['results']
+    envs_data = request('get', '/api/v0/environments/', params={'limit': 9000}).json()['results']
     envs_data.sort(key=itemgetter('name'))
     for env in envs_data:
         if 'per_user_queue_quota' in env and env['per_user_queue_quota'] <= 0:
