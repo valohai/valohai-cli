@@ -34,3 +34,18 @@ See the [tutorial document](./TUTORIAL.md)!
 
 [vh]: https://valohai.com/
 [app]: https://app.valohai.com/
+
+Developing
+----------
+
+To work on the `valohai-cli` code: pull the repository, create and activate a virtualenv, then run
+
+```
+pip install -e .
+```
+
+(The `-e` stands for `--editable`.)
+
+This makes a new `vh` command available in the virtualenv, but linked to the working copy's
+source.  That is, you can now edit the source under `valohai_cli` in your working directory,
+and try it out with `vh`.
