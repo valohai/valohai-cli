@@ -12,7 +12,7 @@ def check_git_output(args, directory):
             stderr=subprocess.STDOUT,
         )
     except subprocess.CalledProcessError as cpe:
-        if cpe.returncode == 128 and 'Not a git repository' in cpe.output.decode():
+        if cpe.returncode == 128 and 'not a git repository' in cpe.output.decode().lower():
             raise NoGitRepo(directory)
         raise
 
