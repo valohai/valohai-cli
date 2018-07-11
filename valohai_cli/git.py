@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from valohai_cli.exceptions import NoGitRepo
@@ -10,6 +11,7 @@ def check_git_output(args, directory):
             cwd=directory,
             shell=False,
             stderr=subprocess.STDOUT,
+            env=dict(os.environ, LC_ALL='C'),
         )
     except subprocess.CalledProcessError as cpe:
         if cpe.returncode == 128 and 'not a git repository' in cpe.output.decode().lower():
