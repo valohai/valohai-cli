@@ -117,3 +117,26 @@ def test_run_no_git(runner, logged_in_and_linked):
     with RunAPIMock(project_id, None, {}):
         output = runner.invoke(run, args, catch_exceptions=False).output
         assert 'is not a Git repository' in output
+
+
+def test_param_input_sanitization(runner, logged_in_and_linked):
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write('''
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+    inputs:
+      - name: Ridiculously Complex Input_Name
+        default: http://example.com/
+    parameters:
+      - name: Parameter With Highly Convoluted Name
+        pass-as: --simple={v}
+        type: integer
+        default: 1
+''')
+    output = runner.invoke(run, ['train', '--help'], catch_exceptions=False).output
+    assert '--Parameter-With-Highly-Convoluted-Name' in output
+    assert '--parameter-with-highly-convoluted-name' in output
+    assert '--Ridiculously-Complex-Input-Name' in output
+    assert '--ridiculously-complex-input-name' in output
