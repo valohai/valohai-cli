@@ -1,7 +1,7 @@
 import click
 
 from valohai_cli.api import request
-from valohai_cli.cli_utils import prompt_from_list
+from valohai_cli.utils.cli_utils import prompt_from_list
 from valohai_cli.commands.project.create import create_project
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
