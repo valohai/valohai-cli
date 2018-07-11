@@ -11,7 +11,8 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn, error
+from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
+from valohai_cli.messages import success, warn
 from valohai_cli.utils import humanize_identifier, match_prefix
 
 
@@ -169,6 +170,14 @@ class RunCommand(click.Command):
             raise click.Abort()
 
         return commit
+
+    def make_parser(self, ctx):
+        parser = super(RunCommand, self).make_parser(ctx)
+        # This is somewhat naughty, but allows us to easily hook into here.
+        # Besides, FriendlyOptionParser does inherit from OptionParser anyway,
+        # and just overrides that one piece of behavior...
+        parser.__class__ = FriendlyOptionParser
+        return parser
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True), add_help_option=False)

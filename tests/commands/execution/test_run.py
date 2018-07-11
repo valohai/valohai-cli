@@ -140,3 +140,12 @@ def test_param_input_sanitization(runner, logged_in_and_linked):
     assert '--parameter-with-highly-convoluted-name' in output
     assert '--Ridiculously-Complex-Input-Name' in output
     assert '--ridiculously-complex-input-name' in output
+
+
+def test_typo_check(runner, logged_in_and_linked):
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+    args = ['train', '--max-setps=80']  # Oopsy!
+    output = runner.invoke(run, args, catch_exceptions=False).output
+    assert '(Possible options:' in output
+    assert '--max-steps' in output
