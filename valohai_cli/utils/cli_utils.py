@@ -1,5 +1,7 @@
 import click
 
+from valohai_cli.help_texts import EXECUTION_COUNTER_HELP
+
 
 def prompt_from_list(options, prompt, nonlist_validator=None):
     for i, option in enumerate(options, 1):
@@ -25,3 +27,18 @@ def prompt_from_list(options, prompt, nonlist_validator=None):
                 return option
         click.secho('Sorry, try again.')
         continue
+
+
+class HelpfulArgument(click.Argument):
+    def __init__(self, param_decls, **kwargs):
+        self.help = kwargs.pop('help', None)
+        super(HelpfulArgument, self).__init__(param_decls, **kwargs)
+
+    def get_help_record(self, ctx):
+        if self.help:
+            return (self.name, self.help)
+
+
+def counter_argument(fn):
+    # Extra gymnastics needed because `click.arguments` mutates the kwargs here
+    return click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)(fn)

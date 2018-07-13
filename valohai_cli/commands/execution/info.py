@@ -3,6 +3,7 @@ import click
 from valohai_cli.ctx import get_project
 from valohai_cli.table import print_table
 from valohai_cli.utils import humanize_identifier
+from valohai_cli.utils.cli_utils import counter_argument
 
 ignored_keys = {
     'commit',
@@ -23,7 +24,7 @@ ignored_keys = {
 
 
 @click.command()
-@click.argument('counter')
+@counter_argument
 def info(counter):
     """
     Show execution info.

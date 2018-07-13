@@ -9,6 +9,7 @@ from valohai_cli.ctx import get_project
 from valohai_cli.log_manager import LogManager
 from valohai_cli.tui import Divider, Flex, Layout
 from valohai_cli.utils import clean_log_line
+from valohai_cli.utils.cli_utils import counter_argument
 
 
 class WatchTUI:
@@ -79,7 +80,7 @@ class WatchTUI:
 
 
 @click.command()
-@click.argument('counter')
+@counter_argument
 def watch(counter):
     """
     Watch execution progress in a console UI.

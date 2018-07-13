@@ -1,18 +1,17 @@
-import hashlib
 import time
 
 import click
 
-from valohai_cli.api import request
 from valohai_cli.consts import complete_execution_statuses, stream_styles
 from valohai_cli.ctx import get_project
 from valohai_cli.log_manager import LogManager
 from valohai_cli.messages import warn
-from valohai_cli.utils import force_bytes, clean_log_line
+from valohai_cli.utils import clean_log_line
+from valohai_cli.utils.cli_utils import counter_argument
 
 
 @click.command()
-@click.argument('counter')
+@counter_argument
 @click.option('--status/--no-status', default=True, help='Show status messages')
 @click.option('--stderr/--no-stderr', default=True, help='Show stderr messages')
 @click.option('--stdout/--no-stdout', default=True, help='Show stdout messages')
