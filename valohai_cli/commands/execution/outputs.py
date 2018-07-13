@@ -9,10 +9,11 @@ from valohai_cli.ctx import get_project
 from valohai_cli.messages import success, warn
 from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
+from valohai_cli.utils.cli_utils import counter_argument
 
 
 @click.command()
-@click.argument('counter')
+@counter_argument
 @click.option('--download', '-d', type=click.Path(file_okay=False),
               help='download files to this directory (by default, don\'t download)', default=None)
 @click.option('--filter-download', '-f', help='download only files matching this glob', default=None)

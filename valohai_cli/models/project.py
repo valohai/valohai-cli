@@ -2,6 +2,7 @@ import os
 
 import six
 import valohai_yaml
+from click import BadParameter
 
 from valohai_cli.api import request
 from valohai_cli.exceptions import InvalidConfig, NoExecution, APIError
@@ -54,6 +55,12 @@ class Project:
         return os.path.join(self.directory, 'valohai.yaml')
 
     def get_execution_from_counter(self, counter, params=None):
+        if isinstance(counter, str):
+            counter = counter.lstrip('#')
+            if not (counter.isdigit() or counter == 'latest'):
+                raise BadParameter(
+                    '{counter} is not a valid counter value; it must be an integer or "latest"'.format(counter=counter),
+                )
         try:
             return request(
                 method='get',
