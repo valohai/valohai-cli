@@ -5,7 +5,7 @@ import click
 import requests
 import yaml
 
-from valohai_cli.cli_utils import prompt_from_list
+from valohai_cli.utils.cli_utils import prompt_from_list
 from valohai_cli.messages import error, success, warn
 from valohai_cli.utils import find_scripts
 

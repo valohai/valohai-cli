@@ -1,3 +1,5 @@
+import re
+
 import click
 from click.exceptions import BadParameter
 from click.globals import get_current_context
@@ -9,8 +11,27 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn, error
+from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
+from valohai_cli.messages import success, warn
 from valohai_cli.utils import humanize_identifier, match_prefix
+
+
+def sanitize_name(name):
+    return re.sub(r'[_ ]', '-', name)
+
+
+def generate_sanitized_options(name):
+    seen = set()
+    for choice in (
+        '--%s' % name,
+        '--%s' % sanitize_name(name),
+        ('--%s' % sanitize_name(name)).lower(),
+    ):
+        if ' ' in choice:
+            continue
+        if choice not in seen:
+            seen.add(choice)
+            yield choice
 
 
 class RunCommand(click.Command):
@@ -47,7 +68,7 @@ class RunCommand(click.Command):
         self.image = image
         self.watch = bool(watch)
         super(RunCommand, self).__init__(
-            name=step.name.lower().replace(' ', '-'),
+            name=sanitize_name(step.name.lower()),
             callback=self.execute,
             add_help_option=True,
         )
@@ -65,9 +86,7 @@ class RunCommand(click.Command):
         """
         assert isinstance(parameter, Parameter)
         option = click.Option(
-            param_decls=[
-                '--%s' % parameter.name.replace('_', '-'),
-            ],
+            param_decls=list(generate_sanitized_options(parameter.name)),
             required=(parameter.default is None and not parameter.optional),
             default=parameter.default,
             help=parameter.description,
@@ -85,9 +104,7 @@ class RunCommand(click.Command):
         """
         assert isinstance(input, Input)
         option = click.Option(
-            param_decls=[
-                '--%s' % input.name.replace('_', '-'),
-            ],
+            param_decls=list(generate_sanitized_options(input.name)),
             required=(input.default is None and not input.optional),
             default=input.default,
             metavar='URL',
@@ -153,6 +170,14 @@ class RunCommand(click.Command):
             raise click.Abort()
 
         return commit
+
+    def make_parser(self, ctx):
+        parser = super(RunCommand, self).make_parser(ctx)
+        # This is somewhat naughty, but allows us to easily hook into here.
+        # Besides, FriendlyOptionParser does inherit from OptionParser anyway,
+        # and just overrides that one piece of behavior...
+        parser.__class__ = FriendlyOptionParser
+        return parser
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True), add_help_option=False)
