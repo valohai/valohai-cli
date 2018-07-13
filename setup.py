@@ -13,7 +13,7 @@ setup(
     install_requires=[
         'click>=6.0',
         'six>=1.10.0',
-        'valohai-yaml>=0.5',
+        'valohai-yaml>=0.5,<0.6',
         'requests[security]>=2.0.0',
         'requests-toolbelt>=0.7.1',
     ],
