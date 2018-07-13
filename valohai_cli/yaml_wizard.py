@@ -2,9 +2,11 @@ import codecs
 import os
 
 import click
+import requests
+import yaml
 
 from valohai_cli.cli_utils import prompt_from_list
-from valohai_cli.messages import error, success
+from valohai_cli.messages import error, success, warn
 from valohai_cli.utils import find_scripts
 
 YAML_SKELLINGTON = """---
@@ -23,40 +25,24 @@ YAML_SKELLINGTON = """---
     #   default: 300
 """
 
-IMAGE_SUGGESTIONS = [
-    {
-        'name': 'gcr.io/tensorflow/tensorflow:1.0.1-devel-gpu-py3',
-        'description': 'Tensorflow 1.0.1 with GPU support on Python 3',
-    },
-    {
-        'name': 'gcr.io/tensorflow/tensorflow:1.0.1-devel-gpu',
-        'description': 'Tensorflow 1.0.1 with GPU support on Python 2',
-    },
-    {
-        'name': 'gcr.io/tensorflow/tensorflow:0.12.1-devel-gpu-py3',
-        'description': 'Tensorflow 0.12.1 with GPU support on Python 3',
-    },
-    {
-        'name': 'gcr.io/tensorflow/tensorflow:0.12.1-devel-gpu',
-        'description': 'Tensorflow 0.12.1 with GPU support on Python 2',
-    },
-    {
-        'name': 'valohai/keras:2.0.0-tensorflow1.0.1-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
-        'description': 'Keras 2.0.0 with TensorFlow 1.0.1 backend and GPU support on Python 3',
-    },
-    {
-        'name': 'valohai/keras:2.0.0-theano0.9.0rc4-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
-        'description': 'Keras 2.0.0 with Theano 0.9.0rc4 backend and GPU support on Python 3',
-    },
-    {
-        'name': 'valohai/keras:2.0.0-theano0.8.2-python3.6-cuda8.0-cudnn5-devel-ubuntu16.04',
-        'description': 'Keras 2.0.0 with Theano 0.8.2 backend and GPU support on Python 3',
-    },
-    {
-        'name': 'valohai/darknet:b61bcf5-cuda8.0-cudnn5-devel-ubuntu16.04',
-        'description': 'Darknet with GPU support',
-    },
-]
+
+def get_image_suggestions():
+    try:
+        resp = requests.get('https://raw.githubusercontent.com/valohai/images/master/images.yaml')
+        resp.raise_for_status()
+        data = yaml.safe_load(resp.content)
+        description_map = data.get('descriptions', {})
+        return [
+            {
+                'name': image,
+                'description': description_map.get(image),
+            }
+            for image
+            in data.get('suggestions', [])
+        ]
+    except Exception as exc:
+        warn('Could not load online image suggestions: {exc}'.format(exc=exc))
+        return []
 
 
 def yaml_wizard(directory):
@@ -80,14 +66,19 @@ def yaml_wizard(directory):
 
 
 def choose_image():
+    image_suggestions = get_image_suggestions()
     click.echo(
-        'Now let\'s pick a Docker image to use with your code.\n'
-        'Here are some recommended choices, but feel free to type in one of your own.'
+        'Now let\'s pick a Docker image to use with your code.\n' +
+        ('Here are some recommended choices, but feel free to type in one of your own.' if image_suggestions else '')
     )
     while True:
         image = prompt_from_list(
-            IMAGE_SUGGESTIONS,
-            'Choose a number or enter a Docker image name.',
+            image_suggestions,
+            (
+                'Choose a number or enter a Docker image name.'
+                if image_suggestions else
+                'Enter a Docker image name.'
+            ),
             nonlist_validator=lambda s: s.strip()
         )
         if isinstance(image, dict):
