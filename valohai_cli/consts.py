@@ -4,7 +4,7 @@ yes_option = click.option('--yes', '-y', is_flag=True, help='Assume `yes` to con
 
 stream_styles = {
     'status': {'fg': 'blue'},
-    'stderr': {'fg': 'red'},
+    'stderr': {'fg': 'yellow'},
     'stdout': {'fg': 'white'},
 }
 
