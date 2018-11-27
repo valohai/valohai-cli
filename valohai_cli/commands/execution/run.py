@@ -217,13 +217,11 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
 
-    if adhoc:
-        commit = create_adhoc_commit(project)['identifier']
-
     rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch, image=image, title=title)
-    with rc.make_context(rc.name, list(args), parent=ctx) as ctx:
-        return rc.invoke(ctx)
-
+    with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
+        if adhoc:
+            rc.commit = create_adhoc_commit(project)['identifier']
+        return rc.invoke(child_ctx)
 
 def match_step(config, step):
     if step in config.steps:
