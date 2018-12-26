@@ -30,10 +30,9 @@ def package_directory(dir, progress=False):
 
                 with progress_bar:
                     for file in progress_bar:
-                        tarball.add(
-                            name=os.path.join(dir, file),
-                            arcname=file,
-                        )
+                        path = os.path.join(dir, file)
+                        if os.path.isfile(path):
+                            tarball.add(name=path, arcname=file)
     return fp.name
 
 
