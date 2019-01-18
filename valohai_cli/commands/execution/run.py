@@ -184,13 +184,24 @@ class RunCommand(click.Command):
         return parser
 
 
-@click.command(context_settings=dict(ignore_unknown_options=True), add_help_option=False)
+run_epilog = (
+    'More detailed help (e.g. how to define parameters and inputs) is available when you have '
+    'defined which step to run. For instance, if you have a step called Extract, '
+    'try running `vh exec run Extract --help`.'
+)
+
+
+@click.command(
+    context_settings=dict(ignore_unknown_options=True),
+    add_help_option=False,
+    epilog=run_epilog,
+)
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment', '-e', default=None, help='The environment UUID or slug to use.')
-@click.option('--image', '-i', default=None, help='Override the Docker image specified in the step')
+@click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
 @click.option('--title', '-t', default=None, help='Title of the execution.')
-@click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts')
+@click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
 @click.option(
     '--adhoc',
     '-a',
@@ -204,6 +215,14 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
     """
     if step == '--help':  # This is slightly weird, but it's because of the nested command thing
         click.echo(ctx.get_help(), color=ctx.color)
+        try:
+            config = get_project(require=True).get_config(commit=commit)
+            if config.steps:
+                click.echo('\nThese steps are available in the selected commit:\n', color=ctx.color)
+                for step in sorted(config.steps):
+                    click.echo('   * %s' % step, color=ctx.color)
+        except:  # If we fail to extract the step list, it's not that big of a deal.
+            pass
         ctx.exit()
     project = get_project(require=True)
 
