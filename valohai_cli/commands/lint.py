@@ -1,9 +1,7 @@
 import os
 
 import click
-from jsonschema.exceptions import relevance
-from valohai_yaml.utils import read_yaml
-from valohai_yaml.validation import get_validator
+from valohai_yaml.lint import lint_file
 
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import CLIException
@@ -20,38 +18,16 @@ def validate_file(filename):
     :return: Number of errors
     :rtype: int
     """
-    with open(filename, 'r') as infp:
-        try:
-            data = read_yaml(infp)
-        except Exception as e:
-            click.secho('%s: could not parse YAML: %s' % (filename, e), fg='red', bold=True)
-            return 1
+    lr = lint_file(filename)
 
-    validator = get_validator()
-    errors = sorted(
-        validator.iter_errors(data),
-        key=lambda error: (relevance(error), repr(error.path)),
-    )
-    if not errors:
+    if not lr.messages:
         success('%s: No errors' % filename)
         return 0
-    click.secho('%s: %d errors' % (filename, len(errors)), fg='yellow', bold=True)
-    for error in errors:
-        simplified_schema_path = [
-            el
-            for el
-            in list(error.relative_schema_path)[:-1]
-            if el not in ('properties', 'items')
-        ]
-        obj_path = [str(el) for el in error.path]
-        click.echo('  {validator} validation on {schema_path}: {message} ({path})'.format(
-            validator=click.style(error.validator.title(), bold=True),
-            schema_path=click.style('.'.join(simplified_schema_path), bold=True),
-            message=click.style(error.message, fg='red'),
-            path=click.style('.'.join(obj_path), bold=True),
-        ))
+    click.secho('%s: %d errors, %d warnings' % (filename, lr.error_count, lr.warning_count), fg='yellow', bold=True)
+    for message in lr.messages:
+        click.echo('  {type}: {message}'.format(**message))
     click.echo()
-    return len(errors)
+    return lr.error_count
 
 
 @click.command()
