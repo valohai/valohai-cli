@@ -83,7 +83,8 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
 
     if pass_input:
         args.append('--in1=http://url')
-        values['inputs'] = {'in1': 'http://url'}
+        args.append('--in1=http://anotherurl')
+        values['inputs'] = {'in1': ['http://url', 'http://anotherurl']}
 
     if pass_env:
         args.append('--environment=015dbd56-2670-b03e-f37c-dc342714f1b5')

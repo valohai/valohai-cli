@@ -71,6 +71,7 @@ class RunCommand(click.Command):
         super(RunCommand, self).__init__(
             name=sanitize_name(step.name.lower()),
             callback=self.execute,
+            epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
             add_help_option=True,
         )
         for parameter in step.parameters.values():
@@ -107,8 +108,9 @@ class RunCommand(click.Command):
         option = click.Option(
             param_decls=list(generate_sanitized_options(input.name)),
             required=(input.default is None and not input.optional),
-            default=input.default,
+            default=([input.default] if input.default else []),
             metavar='URL',
+            multiple=True,
             help='Input "%s"' % humanize_identifier(input.name),
         )
         option.name = '^%s' % input.name  # Caretize so we can pick these out of kwargs easily
