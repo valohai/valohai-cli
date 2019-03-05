@@ -63,21 +63,30 @@ class PluginCLI(click.MultiCommand):
         module = import_module('%s.%s' % (self.commands_module.__name__, name))
         return getattr(module, name)
 
+    def _get_all_commands(self, ctx):
+        def walk_commands(multicommand, name_trail=()):
+            for subcommand in multicommand.list_commands(ctx):
+                cmd = multicommand.get_command(ctx, subcommand)
+                assert cmd is not None
+                new_name_trail = name_trail + (cmd.name,)
+                yield (new_name_trail, cmd)
+                if isinstance(cmd, click.MultiCommand):
+                    for o in walk_commands(cmd, new_name_trail):
+                        yield o
+
+        for o in walk_commands(self):
+            yield o
+
 
 class RecursiveHelpPluginCLI(PluginCLI):
 
     def format_commands(self, ctx, formatter):
         rows_by_prefix = defaultdict(list)
+        for trail, command in self._get_all_commands(ctx):
+            prefix = (' '.join(trail[:1]) if len(trail) > 1 else '')
+            help = (command.short_help or command.help or '').partition('\n')[0]
+            rows_by_prefix[prefix.strip()].append((' '.join(trail).strip(), help))
 
-        def add_commands(multicommand, prefix=''):
-            for subcommand in multicommand.list_commands(ctx):
-                cmd = multicommand.get_command(ctx, subcommand)
-                assert cmd is not None
-                rows_by_prefix[prefix.strip()].append((prefix + subcommand, (cmd.short_help or '')))
-                if isinstance(cmd, click.MultiCommand):
-                    add_commands(cmd, prefix + '%s ' % cmd.name)
-
-        add_commands(self)
         for prefix, rows in sorted(rows_by_prefix.items()):
             title = (
                 'Commands (%s ...)' % prefix
