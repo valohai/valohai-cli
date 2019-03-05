@@ -12,7 +12,12 @@ from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import NoGitRepo
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from valohai_cli.messages import success, warn
-from valohai_cli.utils import humanize_identifier, match_prefix, sanitize_option_name
+from valohai_cli.utils import (
+    humanize_identifier,
+    match_prefix,
+    sanitize_option_name,
+    parse_environment_variable_strings,
+)
 
 
 def generate_sanitized_options(name):
@@ -32,10 +37,20 @@ class RunCommand(click.Command):
         'float': click.FLOAT,
     }
 
-    def __init__(self, project, step, commit, environment, image, title, watch):
+    def __init__(self,
+        project,
+        step,
+        commit,
+        environment=None,
+        image=None,
+        title=None,
+        watch=False,
+        environment_variables=None,
+    ):
         """
         Initialize the dynamic run command.
 
+        :param environment_variables:
         :param project: Project object
         :type project: valohai_cli.models.project.Project
         :param step: YAML step object
@@ -43,7 +58,9 @@ class RunCommand(click.Command):
         :param commit: Commit identifier
         :type commit: str
         :param environment: Environment identifier (slug or UUID)
-        :type environment: str
+        :type environment: str|None
+        :param environment_variables: Mapping of environment variables
+        :type environment_variables: dict[str, str]|None
         :param watch: Whether to chain to `exec watch` afterwards
         :type watch: bool
         :param image: Image override
@@ -57,6 +74,7 @@ class RunCommand(click.Command):
         self.image = image
         self.watch = bool(watch)
         self.title = title
+        self.environment_variables = dict(environment_variables or {})
         super(RunCommand, self).__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -130,6 +148,8 @@ class RunCommand(click.Command):
             payload['image'] = self.image
         if self.title:
             payload['title'] = self.title
+        if self.environment_variables:
+            payload['environment_variables'] = self.environment_variables
 
         resp = request('post', '/api/v0/executions/', json=payload).json()
         success('Execution #{counter} created. See {link}'.format(
@@ -166,7 +186,6 @@ class RunCommand(click.Command):
                 )
                 if not click.confirm('Use latest commit?', default=True):
                     raise click.Abort()
-
 
         commits = request('get', '/api/v0/projects/{id}/commits/'.format(id=self.project.id)).json()
         if commit:
@@ -208,18 +227,19 @@ run_epilog = (
 )
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use.')
+@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see `vh env`)')
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
+@click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
 @click.option(
     '--adhoc',
     '-a',
     is_flag=True,
-    help='Upload the current state of the working directory, then run it as an ad-hoc execution')
+    help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
+def run(ctx, step, commit, environment, watch, title, adhoc, image, environment_variables, args):
     """
     Start an execution of a step.
     """
@@ -246,11 +266,21 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
 
-    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch, image=image, title=title)
+    rc = RunCommand(
+        project=project,
+        step=step,
+        commit=commit,
+        environment=environment,
+        watch=watch,
+        image=image,
+        title=title,
+        environment_variables=parse_environment_variable_strings(environment_variables),
+    )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
             rc.commit = create_adhoc_commit(project)['identifier']
         return rc.invoke(child_ctx)
+
 
 def match_step(config, step):
     if step in config.steps:

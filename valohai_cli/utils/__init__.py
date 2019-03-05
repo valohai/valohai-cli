@@ -195,3 +195,21 @@ def sanitize_option_name(name):
     name = six.text_type(name)
     name = unicodedata.normalize('NFKD', name).encode('ascii', errors='ignore').decode()
     return re.sub(r'[^-a-z0-9]+', '-', name, flags=re.IGNORECASE).strip('-')
+
+
+def parse_environment_variable_strings(envvar_strings):
+    """
+    Parse a list of environment variable strings into a dict.
+    """
+    environment_variables = {}
+    for string in envvar_strings:
+        key, _, value = string.partition('=')
+        if not value:
+            raise ValueError('Environment variable specification {string} must be in the format KEY=VALUE'.format(
+                string=string,
+            ))
+        key = key.strip()
+        if not key:
+            continue
+        environment_variables[key] = value.strip()
+    return environment_variables

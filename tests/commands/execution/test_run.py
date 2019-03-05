@@ -67,8 +67,9 @@ def test_run_requires_step(runner, logged_in_and_linked):
 @pytest.mark.parametrize('pass_param', (False, True))
 @pytest.mark.parametrize('pass_input', (False, True))
 @pytest.mark.parametrize('pass_env', (False, True))
+@pytest.mark.parametrize('pass_env_var', (False, True))
 @pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'adhoc'))
-def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, pass_env, adhoc):
+def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, pass_env, pass_env_var, adhoc):
     project_id = PROJECT_DATA['id']
     commit_id = 'f' * 40
     monkeypatch.setattr(git, 'get_current_commit', lambda dir: commit_id)
@@ -94,6 +95,15 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         args.append('--environment=015dbd56-2670-b03e-f37c-dc342714f1b5')
         values['environment'] = '015dbd56-2670-b03e-f37c-dc342714f1b5'
 
+    if pass_env_var:
+        args.extend(['-v', 'greeting=hello'])
+        args.extend(['--var', 'enable=1'])
+        args.extend(['-vdebug=yes'])
+        values['environment_variables'] = {
+            'greeting': 'hello',
+            'enable': '1',
+            'debug': 'yes',
+        }
     with RunAPIMock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
         if adhoc:
