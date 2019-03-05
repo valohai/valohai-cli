@@ -9,6 +9,7 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
+from valohai_cli.exceptions import NoGitRepo
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from valohai_cli.messages import success, warn
 from valohai_cli.utils import humanize_identifier, match_prefix, sanitize_option_name
@@ -115,6 +116,7 @@ class RunCommand(click.Command):
         """
         options, parameters, inputs = self._sift_kwargs(kwargs)
         commit = self.resolve_commit(self.commit)
+
         payload = {
             'commit': commit,
             'inputs': inputs,
@@ -155,13 +157,31 @@ class RunCommand(click.Command):
 
     def resolve_commit(self, commit):
         if not commit:
-            commit = git.get_current_commit(self.project.directory)
+            try:
+                commit = git.get_current_commit(self.project.directory)
+            except NoGitRepo as exc:
+                warn(
+                    'The directory is not a Git repository. \n'
+                    'Would you like to just run using the latest commit known by Valohai?'
+                )
+                if not click.confirm('Use latest commit?', default=True):
+                    raise click.Abort()
+
 
         commits = request('get', '/api/v0/projects/{id}/commits/'.format(id=self.project.id)).json()
-        by_identifier = {c['identifier']: c for c in commits}
-        if commit not in by_identifier:
-            warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit))
-            raise click.Abort()
+        if commit:
+            by_identifier = {c['identifier']: c for c in commits}
+            if commit not in by_identifier:
+                warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit))
+                raise click.Abort()
+        else:
+            if not commits:
+                warn('No commits are known for the project.')
+                raise click.Abort()
+            newest_commit = sorted(commits, key=lambda c: c['commit_time'])[0]
+            assert newest_commit['identifier']
+            commit = newest_commit['identifier']
+            click.echo('Resolved to commit {commit}'.format(commit=commit))
 
         return commit
 
