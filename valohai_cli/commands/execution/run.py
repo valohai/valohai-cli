@@ -1,5 +1,3 @@
-import re
-
 import click
 from click.exceptions import BadParameter
 from click.globals import get_current_context
@@ -13,25 +11,15 @@ from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from valohai_cli.messages import success, warn
-from valohai_cli.utils import humanize_identifier, match_prefix
-
-
-def sanitize_name(name):
-    return re.sub(r'[_ ]', '-', name)
+from valohai_cli.utils import humanize_identifier, match_prefix, sanitize_option_name
 
 
 def generate_sanitized_options(name):
-    seen = set()
-    for choice in (
-        '--%s' % name,
-        '--%s' % sanitize_name(name),
-        ('--%s' % sanitize_name(name)).lower(),
-    ):
-        if ' ' in choice:
-            continue
-        if choice not in seen:
-            seen.add(choice)
-            yield choice
+    sanitized_name = sanitize_option_name(name)
+    return set(choice for choice in (
+        '--%s' % sanitized_name,
+        ('--%s' % sanitized_name).lower(),
+    ) if ' ' not in choice)
 
 
 class RunCommand(click.Command):
@@ -69,7 +57,7 @@ class RunCommand(click.Command):
         self.watch = bool(watch)
         self.title = title
         super(RunCommand, self).__init__(
-            name=sanitize_name(step.name.lower()),
+            name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
             epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
             add_help_option=True,
