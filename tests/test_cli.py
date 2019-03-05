@@ -22,6 +22,12 @@ def test_prefix_match(runner):
     assert 'cli execution' in output
 
 
+def test_suffix_match(runner):
+    output = runner.invoke(cli, ['link'], catch_exceptions=False).output
+    # Matched by suffix
+    assert '(Resolved link to project link.)' in output
+
+
 def test_ambiguous_match(runner):
     output = runner.invoke(cli, ['log']).output
     assert 'be more specific' in output

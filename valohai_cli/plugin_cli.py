@@ -45,15 +45,29 @@ class PluginCLI(click.MultiCommand):
             return self._get_command(command_map[name])
 
         matches = match_prefix(command_map.keys(), name, return_unique=False)
-        if not matches:
-            return None
+        if len(matches) == 1:
+            match = command_map[matches[0]]
+            return self._get_command(match)
+
+        if ' ' not in name:
+            # Try word suffix matching if possible.
+            # That is, if the user attempts `vh link` but we know about `vh proj link`, do that.
+            command_map = {' '.join(trail): cmd for (trail, cmd) in self._get_all_commands(ctx)}
+            s_matches = [key for key in command_map.keys() if ' ' in key and key.endswith(' ' + name)]
+            if len(s_matches) == 1:
+                match = s_matches[0]
+                click.echo('(Resolved {name} to {match}.)'.format(
+                    name=click.style(name, bold=True),
+                    match=click.style(match, bold=True),
+                ), err=True)
+                return command_map[match]
+
         if len(matches) > 1:
             ctx.fail('"{name}" matches {matches}; be more specific?'.format(
                 name=name,
                 matches=', '.join(click.style(match, bold=True) for match in sorted(matches))
             ))
-            return
-        return self._get_command(command_map[matches[0]])
+            return None
 
     def resolve_command(self, ctx, args):
         cmd_name, cmd, rest_args = super(PluginCLI, self).resolve_command(ctx, args)
