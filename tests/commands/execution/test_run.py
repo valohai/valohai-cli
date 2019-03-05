@@ -148,5 +148,5 @@ def test_typo_check(runner, logged_in_and_linked):
         yaml_fp.write(CONFIG_YAML)
     args = ['train', '--max-setps=80']  # Oopsy!
     output = runner.invoke(run, args, catch_exceptions=False).output
-    assert '(Possible options:' in output
+    assert '(Possible options:' in output or 'Did you mean' in output
     assert '--max-steps' in output
