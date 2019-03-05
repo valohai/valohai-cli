@@ -11,7 +11,7 @@ TABLE_FORMAT_META_KEY = __name__ + '.table_format'
 
 
 def n_str(s):
-    return ('' if s is None else six.text_type(s))
+    return ('' if s is None else six.text_type(s).replace('\n', ' '))
 
 
 def format_table(data, columns, headers, sep=' | '):
