@@ -1,4 +1,5 @@
 import platform
+import sys
 
 import click
 import requests
@@ -34,9 +35,10 @@ class APISession(requests.Session):
         self.base_netloc = urlparse(self.base_url).netloc
         self.auth = TokenAuth(self.base_netloc, token)
         self.headers['Accept'] = 'application/json'
-        self.headers['User-Agent'] = 'valohai-cli/%s (%s)' % (
-            VERSION,
-            ';'.join(platform.uname()),
+        self.headers['User-Agent'] = 'valohai-cli/{version} on {py_version} ({uname})'.format(
+            version=VERSION,
+            uname=';'.join(platform.uname()),
+            py_version='%s %s' % (platform.python_implementation(), platform.python_version()),
         )
 
     def prepare_request(self, request):
