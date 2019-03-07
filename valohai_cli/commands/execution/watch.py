@@ -3,6 +3,7 @@ import time
 
 import click
 from click import get_current_context
+from requests import RequestException
 
 from valohai_cli.consts import stream_styles
 from valohai_cli.ctx import get_project
@@ -25,13 +26,19 @@ class WatchTUI:
         self.log_manager = LogManager(execution)
         self.events = []
         self.n_events = 0
+        self.status_text = None
 
     def refresh(self):
-        self.log_manager.update_execution()
-        event_response = self.log_manager.fetch_events(limit=100)
-        self.n_events = event_response['total']
-        self.events.extend(event_response['events'])
-        self.events = self.events[-500:]  # Only keep the last 500 events
+        try:
+            self.log_manager.update_execution()
+            event_response = self.log_manager.fetch_events(limit=100)
+        except RequestException as re:
+            self.status_text = 'Failed fetch: %s' % re
+        else:
+            self.status_text = None
+            self.n_events = event_response['total']
+            self.events.extend(event_response['events'])
+            self.events = self.events[-500:]  # Only keep the last 500 events
         self.draw()
 
     def draw(self):
@@ -72,6 +79,12 @@ class WatchTUI:
             ),
             style={'bold': True},
         )
+        if self.status_text:
+            header_flex.add(
+                content=self.status_text,
+                align='center',
+                style={'fg': 'black', 'bg': 'yellow'},
+            )
         header_flex.add(
             content=datetime.datetime.now().isoformat(),
             align='right',

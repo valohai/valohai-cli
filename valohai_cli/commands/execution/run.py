@@ -1,5 +1,3 @@
-import re
-
 import click
 from click.exceptions import BadParameter
 from click.globals import get_current_context
@@ -11,27 +9,23 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
+from valohai_cli.exceptions import NoGitRepo
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from valohai_cli.messages import success, warn
-from valohai_cli.utils import humanize_identifier, match_prefix
-
-
-def sanitize_name(name):
-    return re.sub(r'[_ ]', '-', name)
+from valohai_cli.utils import (
+    humanize_identifier,
+    match_prefix,
+    sanitize_option_name,
+    parse_environment_variable_strings,
+)
 
 
 def generate_sanitized_options(name):
-    seen = set()
-    for choice in (
-        '--%s' % name,
-        '--%s' % sanitize_name(name),
-        ('--%s' % sanitize_name(name)).lower(),
-    ):
-        if ' ' in choice:
-            continue
-        if choice not in seen:
-            seen.add(choice)
-            yield choice
+    sanitized_name = sanitize_option_name(name)
+    return set(choice for choice in (
+        '--%s' % sanitized_name,
+        ('--%s' % sanitized_name).lower(),
+    ) if ' ' not in choice)
 
 
 class RunCommand(click.Command):
@@ -43,10 +37,20 @@ class RunCommand(click.Command):
         'float': click.FLOAT,
     }
 
-    def __init__(self, project, step, commit, environment, image, title, watch):
+    def __init__(self,
+        project,
+        step,
+        commit,
+        environment=None,
+        image=None,
+        title=None,
+        watch=False,
+        environment_variables=None,
+    ):
         """
         Initialize the dynamic run command.
 
+        :param environment_variables:
         :param project: Project object
         :type project: valohai_cli.models.project.Project
         :param step: YAML step object
@@ -54,7 +58,9 @@ class RunCommand(click.Command):
         :param commit: Commit identifier
         :type commit: str
         :param environment: Environment identifier (slug or UUID)
-        :type environment: str
+        :type environment: str|None
+        :param environment_variables: Mapping of environment variables
+        :type environment_variables: dict[str, str]|None
         :param watch: Whether to chain to `exec watch` afterwards
         :type watch: bool
         :param image: Image override
@@ -68,8 +74,9 @@ class RunCommand(click.Command):
         self.image = image
         self.watch = bool(watch)
         self.title = title
+        self.environment_variables = dict(environment_variables or {})
         super(RunCommand, self).__init__(
-            name=sanitize_name(step.name.lower()),
+            name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
             epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
             add_help_option=True,
@@ -127,6 +134,7 @@ class RunCommand(click.Command):
         """
         options, parameters, inputs = self._sift_kwargs(kwargs)
         commit = self.resolve_commit(self.commit)
+
         payload = {
             'commit': commit,
             'inputs': inputs,
@@ -140,6 +148,8 @@ class RunCommand(click.Command):
             payload['image'] = self.image
         if self.title:
             payload['title'] = self.title
+        if self.environment_variables:
+            payload['environment_variables'] = self.environment_variables
 
         resp = request('post', '/api/v0/executions/', json=payload).json()
         success('Execution #{counter} created. See {link}'.format(
@@ -167,13 +177,30 @@ class RunCommand(click.Command):
 
     def resolve_commit(self, commit):
         if not commit:
-            commit = git.get_current_commit(self.project.directory)
+            try:
+                commit = git.get_current_commit(self.project.directory)
+            except NoGitRepo as exc:
+                warn(
+                    'The directory is not a Git repository. \n'
+                    'Would you like to just run using the latest commit known by Valohai?'
+                )
+                if not click.confirm('Use latest commit?', default=True):
+                    raise click.Abort()
 
         commits = request('get', '/api/v0/projects/{id}/commits/'.format(id=self.project.id)).json()
-        by_identifier = {c['identifier']: c for c in commits}
-        if commit not in by_identifier:
-            warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit))
-            raise click.Abort()
+        if commit:
+            by_identifier = {c['identifier']: c for c in commits}
+            if commit not in by_identifier:
+                warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit))
+                raise click.Abort()
+        else:
+            if not commits:
+                warn('No commits are known for the project.')
+                raise click.Abort()
+            newest_commit = sorted(commits, key=lambda c: c['commit_time'])[0]
+            assert newest_commit['identifier']
+            commit = newest_commit['identifier']
+            click.echo('Resolved to commit {commit}'.format(commit=commit))
 
         return commit
 
@@ -200,18 +227,19 @@ run_epilog = (
 )
 @click.argument('step')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use.')
+@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see `vh env`)')
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
+@click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
 @click.option(
     '--adhoc',
     '-a',
     is_flag=True,
-    help='Upload the current state of the working directory, then run it as an ad-hoc execution')
+    help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
+def run(ctx, step, commit, environment, watch, title, adhoc, image, environment_variables, args):
     """
     Start an execution of a step.
     """
@@ -238,11 +266,21 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, args):
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
 
-    rc = RunCommand(project, step, commit=commit, environment=environment, watch=watch, image=image, title=title)
+    rc = RunCommand(
+        project=project,
+        step=step,
+        commit=commit,
+        environment=environment,
+        watch=watch,
+        image=image,
+        title=title,
+        environment_variables=parse_environment_variable_strings(environment_variables),
+    )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
             rc.commit = create_adhoc_commit(project)['identifier']
         return rc.invoke(child_ctx)
+
 
 def match_step(config, step):
     if step in config.steps:

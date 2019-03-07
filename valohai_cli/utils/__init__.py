@@ -3,6 +3,7 @@ import os
 import random
 import re
 import string
+import unicodedata
 import webbrowser
 
 import click
@@ -178,3 +179,37 @@ def format_size(bytes):
 def sanitize_filename(name, replacement='-'):
     # Via https://github.com/parshap/node-sanitize-filename/blob/0d21bf13be419fcde5bc3f241672bd29f7e72c63/index.js
     return re.sub(r'[\x00-\x1f\x80-\x9f/?<>\\:*|"]', replacement, name)
+
+
+def sanitize_option_name(name):
+    # In order to comply with `click.core.Option#_parse_decls`, this should
+    # actually ensure `name` is a valid Python identifier (`s.isidentifier()`)
+    # after dashes are replaced with underscores.
+    #
+    # However, what with Unicode letter characters being allowed for identifiers,
+    # the rules for `.isidentifier` are, ah, arcane to say the least.
+    #
+    # Instead, we'll just fold everything down to ASCII with the good old
+    # normalize-and-encode-and-decode dance, and then replace everything
+    # non-alphanumeric into dashes to be safe.
+    name = six.text_type(name)
+    name = unicodedata.normalize('NFKD', name).encode('ascii', errors='ignore').decode()
+    return re.sub(r'[^-a-z0-9]+', '-', name, flags=re.IGNORECASE).strip('-')
+
+
+def parse_environment_variable_strings(envvar_strings):
+    """
+    Parse a list of environment variable strings into a dict.
+    """
+    environment_variables = {}
+    for string in envvar_strings:
+        key, _, value = string.partition('=')
+        if not value:
+            raise ValueError('Environment variable specification {string} must be in the format KEY=VALUE'.format(
+                string=string,
+            ))
+        key = key.strip()
+        if not key:
+            continue
+        environment_variables[key] = value.strip()
+    return environment_variables

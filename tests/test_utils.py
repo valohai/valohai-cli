@@ -14,7 +14,7 @@ from valohai_cli.utils import (
     humanize_identifier,
     match_prefix,
     walk_directory_parents,
-)
+    sanitize_option_name)
 
 
 def test_dir_parents():
@@ -65,3 +65,9 @@ def test_humanize_identifier():
 
 def test_clean_log_line():
     assert clean_log_line('ls\r\n\x1b[00m\x1b[01;31mexamplefile.zip\x1b[00m\r\n\x1b[01;31m') == 'ls examplefile.zip'
+
+
+def test_sanitize_option_name():
+    assert sanitize_option_name('Name With  Space') == 'Name-With-Space'
+    assert sanitize_option_name('Name With Spaces. And Dots.') == 'Name-With-Spaces-And-Dots'
+    assert sanitize_option_name('äää') == 'aaa'

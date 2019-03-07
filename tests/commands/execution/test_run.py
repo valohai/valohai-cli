@@ -1,3 +1,4 @@
+import datetime
 import json
 
 import pytest
@@ -12,11 +13,11 @@ from valohai_cli.utils import get_random_string
 
 class RunAPIMock(requests_mock.Mocker):
 
-    def __init__(self, project_id, commit_id, additional_payload_values):
+    def __init__(self, project_id, commit_id='f' * 16, additional_payload_values=None):
         super(RunAPIMock, self).__init__()
         self.project_id = project_id
         self.commit_id = commit_id
-        self.additional_payload_values = additional_payload_values
+        self.additional_payload_values = (additional_payload_values or {})
         self.get(
             'https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id),
             json=self.handle_commits,
@@ -31,7 +32,10 @@ class RunAPIMock(requests_mock.Mocker):
         )
 
     def handle_commits(self, request, context):
-        return [{'identifier': self.commit_id}]
+        return [{
+            'identifier': self.commit_id,
+            'commit_time': datetime.datetime.now().isoformat(),
+        }]
 
     def handle_create_execution(self, request, context):
         body_json = json.loads(request.body.decode('utf-8'))
@@ -63,8 +67,9 @@ def test_run_requires_step(runner, logged_in_and_linked):
 @pytest.mark.parametrize('pass_param', (False, True))
 @pytest.mark.parametrize('pass_input', (False, True))
 @pytest.mark.parametrize('pass_env', (False, True))
+@pytest.mark.parametrize('pass_env_var', (False, True))
 @pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'adhoc'))
-def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, pass_env, adhoc):
+def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, pass_env, pass_env_var, adhoc):
     project_id = PROJECT_DATA['id']
     commit_id = 'f' * 40
     monkeypatch.setattr(git, 'get_current_commit', lambda dir: commit_id)
@@ -90,6 +95,15 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         args.append('--environment=015dbd56-2670-b03e-f37c-dc342714f1b5')
         values['environment'] = '015dbd56-2670-b03e-f37c-dc342714f1b5'
 
+    if pass_env_var:
+        args.extend(['-v', 'greeting=hello'])
+        args.extend(['--var', 'enable=1'])
+        args.extend(['-vdebug=yes'])
+        values['environment_variables'] = {
+            'greeting': 'hello',
+            'enable': '1',
+            'debug': 'yes',
+        }
     with RunAPIMock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
         if adhoc:
@@ -115,7 +129,7 @@ def test_run_no_git(runner, logged_in_and_linked):
 
     args = ['train']
 
-    with RunAPIMock(project_id, None, {}):
+    with RunAPIMock(project_id, 'f' * 16, {}):
         output = runner.invoke(run, args, catch_exceptions=False).output
         assert 'is not a Git repository' in output
 
@@ -148,5 +162,5 @@ def test_typo_check(runner, logged_in_and_linked):
         yaml_fp.write(CONFIG_YAML)
     args = ['train', '--max-setps=80']  # Oopsy!
     output = runner.invoke(run, args, catch_exceptions=False).output
-    assert '(Possible options:' in output
+    assert '(Possible options:' in output or 'Did you mean' in output
     assert '--max-steps' in output
