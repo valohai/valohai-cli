@@ -45,8 +45,10 @@ class RunCommand(click.Command):
         image=None,
         title=None,
         watch=False,
+        sync=None,
         environment_variables=None,
     ):
+
         """
         Initialize the dynamic run command.
 
@@ -73,6 +75,7 @@ class RunCommand(click.Command):
         self.environment = environment
         self.image = image
         self.watch = bool(watch)
+        self.sync = sync
         self.title = title
         self.environment_variables = dict(environment_variables or {})
         super(RunCommand, self).__init__(
@@ -156,8 +159,14 @@ class RunCommand(click.Command):
             counter=resp['counter'],
             link=resp['urls']['display'],
         ))
+
+        ctx = get_current_context()
+
+        if self.sync:
+            from valohai_cli.commands.execution.outputs import outputs
+            ctx.invoke(outputs, counter=resp['counter'], download=self.sync, sync=True)
+
         if self.watch:
-            ctx = get_current_context()
             from valohai_cli.commands.execution.watch import watch
             ctx.invoke(watch, counter=resp['counter'])
 
@@ -232,6 +241,8 @@ run_epilog = (
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
+@click.option('--sync', '-s', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
+
 @click.option(
     '--adhoc',
     '-a',
@@ -239,7 +250,7 @@ run_epilog = (
     help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, title, adhoc, image, environment_variables, args):
+def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, args):
     """
     Start an execution of a step.
     """
@@ -258,6 +269,8 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, environment_
 
     if adhoc and commit:
         raise click.UsageError('--commit and --adhoc are mutually exclusive.')
+    if sync and watch:
+        raise click.UsageError('Combining --sync and --watch not supported yet.')
 
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
@@ -272,6 +285,7 @@ def run(ctx, step, commit, environment, watch, title, adhoc, image, environment_
         commit=commit,
         environment=environment,
         watch=watch,
+        sync=sync,
         image=image,
         title=title,
         environment_variables=parse_environment_variable_strings(environment_variables),
