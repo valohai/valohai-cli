@@ -1,0 +1,52 @@
+version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-2.7
+      - test-3.4
+      - test-3.5
+      - test-3.6
+jobs:
+  test-2.7: &test-template
+    docker:
+      - image: circleci/python:2.7-jessie
+    working_directory: ~/valohai/valohai-cli
+    parallelism: 1
+    shell: /bin/bash --login
+    environment:
+      CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+      PIP_EXISTS_ACTION: w
+    steps:
+    - checkout
+    - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
+    - restore_cache:
+        keys:
+        - v1-dep-{{ .Branch }}-
+        - v1-dep-master-
+        - v1-dep-
+    - run: sudo pip install -U pip setuptools wheel tox coverage
+    - save_cache:
+        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        - ~/.cache/pip
+        - ~/.pyenv
+    - setup_remote_docker    
+    #- run: sudo docker info >/dev/null 2>&1 || sudo service docker start
+    - run: tox --skip-missing-interpreters -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
+    - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c -F $CIRCLE_JOB
+    - store_test_results:
+        path: /tmp/circleci-test-results
+  test-3.4:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.4-jessie
+  test-3.5:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.5-jessie
+  test-3.6:
+    <<: *test-template
+    docker:
+      - image: circleci/python:3.6-jessie
