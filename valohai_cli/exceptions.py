@@ -21,6 +21,9 @@ class APIError(CLIException):
         if '<!DOCTYPE html>' in response.text:
             # Don't shower the user with a blob of HTML
             text = 'Internal error'
+        elif 'is not a valid UUID' in response.text:
+            template = '{original}. Run "vh environments" to see complete list of available environments.'
+            text = template.format(original=response.text)
         else:
             text = response.text
         super(APIError, self).__init__(text)
