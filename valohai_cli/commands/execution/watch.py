@@ -7,6 +7,7 @@ from requests import RequestException
 
 from valohai_cli.consts import stream_styles
 from valohai_cli.ctx import get_project
+from valohai_cli.exceptions import APIError
 from valohai_cli.log_manager import LogManager
 from valohai_cli.tui import Divider, Flex, Layout
 from valohai_cli.utils import clean_log_line
@@ -32,8 +33,8 @@ class WatchTUI:
         try:
             self.log_manager.update_execution()
             event_response = self.log_manager.fetch_events(limit=100)
-        except RequestException as re:
-            self.status_text = 'Failed fetch: %s' % re
+        except (RequestException, APIError) as err:
+            self.status_text = 'Failed fetch: %s' % err
         else:
             self.status_text = None
             self.n_events = event_response['total']
