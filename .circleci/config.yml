@@ -37,7 +37,7 @@ jobs:
         - ~/.pyenv
     - setup_remote_docker
     - run: tox --skip-missing-interpreters -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
-    - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c -F $CIRCLE_JOB
+    - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
     - store_test_results:
         path: /tmp/circleci-test-results
   test-3.4:
