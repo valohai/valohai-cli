@@ -7,6 +7,7 @@ from subprocess import check_output
 import click
 
 from valohai_cli.exceptions import ConfigurationError
+from valohai_cli.messages import info
 
 
 def package_directory(dir, progress=False):
@@ -45,6 +46,7 @@ def get_files_for_package(dir, allow_git=True):
             in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0')
             if line and not line.startswith(b'.')
         ]
+        info('Used git to find {n} files to package'.format(n=len(files)))
     else:
         # Otherwise, just package up everything that doesn't have a . prefix
         files = []
@@ -57,5 +59,6 @@ def get_files_for_package(dir, allow_git=True):
             os.path.dirname(files[0]) + os.sep
         )
         files = [filename[len(common_prefix):] for filename in files]
+        info('Git not available, found {n} files to package'.format(n=len(files)))
     files.sort()
     return files
