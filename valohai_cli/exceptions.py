@@ -48,6 +48,10 @@ class InvalidConfig(CLIException):
     pass
 
 
+class PackageTooLarge(CLIException):
+    pass
+
+
 class NoGitRepo(CLIException):
     color = 'yellow'
 

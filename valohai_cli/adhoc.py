@@ -7,8 +7,10 @@ from valohai_cli.exceptions import NoGitRepo, NoCommit
 from valohai_cli.git import describe_current_commit
 from valohai_cli.messages import success, warn
 from valohai_cli.packager import package_directory
+from valohai_cli.utils.file_size_format import filesizeformat
 
-def create_adhoc_commit(project):
+
+def create_adhoc_commit(project, validate=True):
     """
     Create an ad-hoc tarball and commit of the project directory.
 
@@ -31,11 +33,11 @@ def create_adhoc_commit(project):
             click.echo('Packaging {dir} ({description})...'.format(dir=project.directory, description=description))
         else:
             click.echo('Packaging {dir}...'.format(dir=project.directory))
-        tarball = package_directory(project.directory, progress=True)
+        tarball = package_directory(project.directory, progress=True, validate=validate)
         # TODO: We could check whether the commit is known already
         size = os.stat(tarball).st_size
 
-        click.echo('Uploading {size:.2f} KiB...'.format(size=size / 1024.))
+        click.echo('Uploading {size}...'.format(size=filesizeformat(size)))
         with open(tarball, 'rb') as tarball_fp:
             upload = MultipartEncoder({
                 'data': ('data.tgz', tarball_fp, 'application/gzip'),

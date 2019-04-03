@@ -246,9 +246,14 @@ run_epilog = (
     '-a',
     is_flag=True,
     help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
+@click.option(
+    '--validate-adhoc/--no-validate-adhoc',
+    help='Enable or disable validation of adhoc packaged code, on by default',
+    default=True,
+)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED)
 @click.pass_context
-def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, args):
+def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, validate_adhoc, args):
     """
     Start an execution of a step.
     """
@@ -290,7 +295,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
-            rc.commit = create_adhoc_commit(project)['identifier']
+            rc.commit = create_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)
 
 
