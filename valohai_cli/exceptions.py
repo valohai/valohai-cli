@@ -54,3 +54,11 @@ class NoGitRepo(CLIException):
     def __init__(self, directory):
         self.directory = directory
         super(NoGitRepo, self).__init__('{} is not a Git repository'.format(directory))
+
+
+class NoCommit(ValueError, CLIException):
+    color = 'yellow'
+
+    def __init__(self, directory):
+        self.directory = directory
+        super(NoCommit, self).__init__('{} has no commits'.format(directory))

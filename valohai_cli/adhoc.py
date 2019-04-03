@@ -3,6 +3,8 @@ import os
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from valohai_cli.api import request
+from valohai_cli.exceptions import NoGitRepo, NoCommit
+from valohai_cli.git import describe_current_commit
 from valohai_cli.messages import success, warn
 from valohai_cli.packager import package_directory
 
@@ -17,14 +19,28 @@ def create_adhoc_commit(project):
     """
     tarball = None
     try:
-        click.echo('Packaging {dir}...'.format(dir=project.directory))
+        description = ''
+        try:
+            description = describe_current_commit(project.directory)
+        except (NoGitRepo, NoCommit):
+            pass
+        except Exception as exc:
+            warn('Unable to derive Git description: %s' % exc)
+
+        if description:
+            click.echo('Packaging {dir} ({description})...'.format(dir=project.directory, description=description))
+        else:
+            click.echo('Packaging {dir}...'.format(dir=project.directory))
         tarball = package_directory(project.directory, progress=True)
         # TODO: We could check whether the commit is known already
         size = os.stat(tarball).st_size
 
         click.echo('Uploading {size:.2f} KiB...'.format(size=size / 1024.))
         with open(tarball, 'rb') as tarball_fp:
-            upload = MultipartEncoder({'data': ('data.tgz', tarball_fp, 'application/gzip')})
+            upload = MultipartEncoder({
+                'data': ('data.tgz', tarball_fp, 'application/gzip'),
+                'description': description,
+            })
             prog = click.progressbar(length=upload.len, width=0)
             prog.is_hidden = (size < 524288)  # Don't bother with the bar if the upload is small
             with prog:

@@ -4,7 +4,8 @@ from subprocess import check_call, check_output
 
 import pytest
 
-from valohai_cli.exceptions import ConfigurationError
+from valohai_cli.exceptions import ConfigurationError, NoCommit
+from valohai_cli.git import describe_current_commit
 from valohai_cli.packager import package_directory
 
 
@@ -21,9 +22,17 @@ def get_tar_files(tarball):
     return set(check_output('tar tf %s' % tarball, shell=True).decode('utf8').splitlines())
 
 
-def test_package_git(tmpdir):
+@pytest.mark.parametrize('with_commit', (False, True))
+def test_package_git(tmpdir, with_commit):
     check_call('git init', cwd=str(tmpdir), shell=True)
     write_temp_files(tmpdir)
+    if with_commit:
+        check_call('git add .', cwd=str(tmpdir), shell=True)
+        check_call('git commit -m test', cwd=str(tmpdir), shell=True)
+        assert describe_current_commit(str(tmpdir))
+    else:
+        with pytest.raises(NoCommit):
+            describe_current_commit(str(tmpdir))
     tarball = package_directory(str(tmpdir))
     # the dotfile and asbestos do not appear
     assert get_tar_files(tarball) == {'kahvikuppi', 'valohai.yaml'}
