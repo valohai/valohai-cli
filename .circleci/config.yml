@@ -18,6 +18,9 @@ jobs:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       PIP_EXISTS_ACTION: w
+      EMAIL: foo@example.com
+      GIT_AUTHOR_NAME: Foo Bar
+      GIT_COMMITTER_NAME: Foo Bar
     steps:
     - checkout
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
@@ -32,8 +35,7 @@ jobs:
         paths:
         - ~/.cache/pip
         - ~/.pyenv
-    - setup_remote_docker    
-    #- run: sudo docker info >/dev/null 2>&1 || sudo service docker start
+    - setup_remote_docker
     - run: tox --skip-missing-interpreters -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
     - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c -F $CIRCLE_JOB
     - store_test_results:
