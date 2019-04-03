@@ -1,3 +1,4 @@
+import requests
 import click
 from click import ClickException
 
@@ -18,6 +19,9 @@ class CLIException(ClickException):
 
 class APIError(CLIException):
     def __init__(self, response):
+        """
+        :type response: requests.Response
+        """
         if '<!DOCTYPE html>' in response.text:
             # Don't shower the user with a blob of HTML
             text = 'Internal error'
