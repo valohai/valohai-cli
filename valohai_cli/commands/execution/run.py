@@ -206,7 +206,11 @@ class RunCommand(click.Command):
             if not commits:
                 warn('No commits are known for the project.')
                 raise click.Abort()
-            newest_commit = sorted(commits, key=lambda c: c['commit_time'])[0]
+            newest_commit = sorted(
+                [c for c in commits if not c.get('adhoc')],
+                key=lambda c: c['commit_time'],
+                reverse=True,
+            )[0]
             assert newest_commit['identifier']
             commit = newest_commit['identifier']
             click.echo('Resolved to commit {commit}'.format(commit=commit))

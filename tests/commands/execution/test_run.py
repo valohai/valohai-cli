@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 
 import pytest
 import requests_mock
@@ -22,6 +23,10 @@ class RunAPIMock(requests_mock.Mocker):
             'https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id),
             json=self.handle_commits,
         )
+        self.get(
+            re.compile(r'^https://app.valohai.com/api/v0/commits/.+$'),
+            json=self.handle_commits_list,
+        )
         self.post(
             'https://app.valohai.com/api/v0/executions/',
             json=self.handle_create_execution,
@@ -30,6 +35,11 @@ class RunAPIMock(requests_mock.Mocker):
             'https://app.valohai.com/api/v0/projects/{}/import-package/'.format(project_id),
             json=self.handle_create_commit,
         )
+
+    def handle_commits_list(self, request, context):
+        return {
+            'results': self.handle_commits(request, context),
+        }
 
     def handle_commits(self, request, context):
         return [{
