@@ -10,6 +10,7 @@ from valohai_cli.git import get_file_at_commit
 
 
 class Project:
+    is_remote = False
 
     def __init__(self, data, directory=None):
         self.data = data

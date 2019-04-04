@@ -1,6 +1,8 @@
 import random
 import uuid
 
+import yaml
+
 LOGGED_IN_DATA = {
     'host': 'https://app.valohai.com/',
     'user': {'id': 'x'},
@@ -127,3 +129,5 @@ INVALID_CONFIG_YAML = """
 """
 
 BROKEN_CONFIG_YAML = """'"""
+
+CONFIG_DATA = yaml.safe_load(CONFIG_YAML)

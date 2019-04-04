@@ -270,10 +270,22 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
         ctx.exit()
     project = get_project(require=True)
 
-    if adhoc and commit:
-        raise click.UsageError('--commit and --adhoc are mutually exclusive.')
+    if adhoc:
+        if commit:
+            raise click.UsageError('--commit and --adhoc are mutually exclusive.')
+        if project.is_remote:
+            raise click.UsageError('--adhoc can not be used with remote projects.')
+
     if sync and watch:
         raise click.UsageError('Combining --sync and --watch not supported yet.')
+
+    if not commit and project.is_remote:
+        # For remote projects, we need to resolve early.
+        commit = project.resolve_commit()['identifier']
+        info('Using remote project {name}\'s newest commit {commit}'.format(
+            name=project.name,
+            commit=commit,
+        ))
 
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,

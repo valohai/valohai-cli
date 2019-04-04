@@ -1,3 +1,5 @@
+from valohai_cli.exceptions import APINotFoundError
+from valohai_cli.messages import error, info
 from valohai_cli.utils import walk_directory_parents
 from .paths import get_settings_file_name
 from .persistence import FilePersistence
@@ -6,6 +8,7 @@ from .persistence import FilePersistence
 class Settings:
     # Non-persistent settings and their defaults:
     table_format = 'human'
+    override_project = None
 
     def __init__(self, persistence=None):
         """
@@ -17,6 +20,10 @@ class Settings:
 
         self.persistence = persistence
         self.overrides = {}
+
+    def reset(self):
+        self.override_project = None
+        self.overrides.clear()
 
     def _get(self, key, default=None):
         if key in self.overrides:
@@ -56,13 +63,17 @@ class Settings:
     def get_project(self, directory):
         """
         Get the Valohai project object for a directory context.
-
         The directory tree is walked upwards to find an actual linked directory.
+
+        If a project override is active, it is always returned.
 
         :param dir: Directory
         :return: Project object, or None.
         :rtype: valohai_cli.models.project.Project|None
         """
+        if self.override_project:
+            return self.override_project
+
         links = self.links
         if not links:
             return None
@@ -73,11 +84,34 @@ class Settings:
                 return Project(data=project_obj, directory=directory)
 
     def set_project_link(self, directory, project):
+        if self.override_project:
+            raise ValueError('Can not call set_project_link() when an override project is active')
+
         links = self.links.copy()
         links[directory] = project
         self.persistence.set('links', links)
         assert self.get_project(directory).id == project['id']
         self.persistence.save()
+
+    def set_override_project(self, project_id, directory, mode):
+        from valohai_cli.api import request
+        from valohai_cli.models.project import Project
+        from valohai_cli.models.remote_project import RemoteProject
+        assert mode in ('local', 'remote')
+
+        try:
+            project_data = request('get', '/api/v0/projects/{id}/'.format(id=project_id)).json()
+            project_cls = (RemoteProject if mode == 'remote' else Project)
+            project = self.override_project = project_cls(data=project_data, directory=directory)
+            info('Using project {name} in {mode} (in {directory})'.format(
+                name=project.name,
+                mode=('local mode' if mode == 'local' else 'remote mode'),
+                directory=project.directory,
+            ))
+            return True
+        except APINotFoundError:
+            error('No project was found with the ID {id} (via --project or VALOHAI_PROJECT)'.format(id=project_id))
+            return False
 
 
 settings = Settings()
