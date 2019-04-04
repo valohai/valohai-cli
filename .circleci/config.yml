@@ -14,13 +14,14 @@ jobs:
     working_directory: ~/valohai/valohai-cli
     parallelism: 1
     shell: /bin/bash --login
-    environment:
+    environment: &env-template
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
       PIP_EXISTS_ACTION: w
       EMAIL: foo@example.com
       GIT_AUTHOR_NAME: Foo Bar
       GIT_COMMITTER_NAME: Foo Bar
+      TOX_ENV: py27
     steps:
     - checkout
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
@@ -36,19 +37,28 @@ jobs:
         - ~/.cache/pip
         - ~/.pyenv
     - setup_remote_docker
-    - run: tox --skip-missing-interpreters -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
+    - run: tox -e $TOX_ENV -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
     - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
     - store_test_results:
         path: /tmp/circleci-test-results
   test-3.4:
     <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py34
     docker:
       - image: circleci/python:3.4-jessie
   test-3.5:
     <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py35
     docker:
       - image: circleci/python:3.5-jessie
   test-3.6:
     <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py36
     docker:
       - image: circleci/python:3.6-jessie
