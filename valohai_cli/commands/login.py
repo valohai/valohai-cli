@@ -7,7 +7,7 @@ from valohai_cli.settings import settings
 
 @click.command()
 @click.option('--username', '-u', prompt=True)
-@click.option('--password', '-p', prompt=True, hide_input=True, confirmation_prompt=True)
+@click.option('--password', '-p', prompt=True, hide_input=True)
 @click.option('--host', '-h', default='https://app.valohai.com/')
 @yes_option
 def login(username, password, host, yes):
