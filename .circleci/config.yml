@@ -4,13 +4,13 @@ workflows:
   test:
     jobs:
       - test-2.7
-      - test-3.4
       - test-3.5
       - test-3.6
+      - test-3.7
 jobs:
   test-2.7: &test-template
     docker:
-      - image: circleci/python:2.7-jessie
+      - image: circleci/python:2.7.16-jessie
     working_directory: ~/valohai/valohai-cli
     parallelism: 1
     shell: /bin/bash --login
@@ -41,24 +41,24 @@ jobs:
     - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
     - store_test_results:
         path: /tmp/circleci-test-results
-  test-3.4:
-    <<: *test-template
-    environment:
-      <<: *env-template
-      TOX_ENV: py34
-    docker:
-      - image: circleci/python:3.4-jessie
   test-3.5:
     <<: *test-template
     environment:
       <<: *env-template
       TOX_ENV: py35
     docker:
-      - image: circleci/python:3.5-jessie
+      - image: circleci/python:3.5.7-stretch
   test-3.6:
     <<: *test-template
     environment:
       <<: *env-template
       TOX_ENV: py36
     docker:
-      - image: circleci/python:3.6-jessie
+      - image: circleci/python:3.6.8-stretch
+  test-3.7:
+    <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py37
+    docker:
+      - image: circleci/python:3.7.3-stretch
