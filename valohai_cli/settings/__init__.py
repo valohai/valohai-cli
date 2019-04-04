@@ -1,3 +1,4 @@
+from valohai_cli.utils import walk_directory_parents
 from .paths import get_settings_file_name
 from .persistence import FilePersistence
 
@@ -51,6 +52,32 @@ class Settings:
         Dictionary of directory <-> project object dicts.
         """
         return self._get('links', {})
+
+    def get_project(self, directory):
+        """
+        Get the Valohai project object for a directory context.
+
+        The directory tree is walked upwards to find an actual linked directory.
+
+        :param dir: Directory
+        :return: Project object, or None.
+        :rtype: valohai_cli.models.project.Project|None
+        """
+        links = self.links
+        if not links:
+            return None
+        for directory in walk_directory_parents(directory):
+            project_obj = links.get(directory)
+            if project_obj:
+                from valohai_cli.models.project import Project
+                return Project(data=project_obj, directory=directory)
+
+    def set_project_link(self, directory, project):
+        links = self.links.copy()
+        links[directory] = project
+        self.persistence.set('links', links)
+        assert self.get_project(directory).id == project['id']
+        self.persistence.save()
 
 
 settings = Settings()
