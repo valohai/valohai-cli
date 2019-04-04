@@ -32,6 +32,10 @@ class APIError(CLIException):
         self.request = response.request
 
 
+class APINotFoundError(APIError):
+    pass
+
+
 class ConfigurationError(CLIException, RuntimeError):
     pass
 
