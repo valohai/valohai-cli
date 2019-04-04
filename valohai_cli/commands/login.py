@@ -1,14 +1,14 @@
 import click
 
 from valohai_cli.api import APISession
-from valohai_cli.consts import yes_option
+from valohai_cli.consts import yes_option, default_app_host
 from valohai_cli.settings import settings
 
 
 @click.command()
 @click.option('--username', '-u', prompt=True)
 @click.option('--password', '-p', prompt=True, hide_input=True)
-@click.option('--host', '-h', default='https://app.valohai.com/')
+@click.option('--host', '-h', default=default_app_host)
 @yes_option
 def login(username, password, host, yes):
     """Log in into Valohai."""
