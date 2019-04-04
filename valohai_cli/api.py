@@ -83,8 +83,8 @@ def _get_current_api_session():
 
 
 def get_host_and_token():
-    host = settings.get('host')
-    token = settings.get('token')
+    host = settings.host
+    token = settings.token
     if not (host and token):
         raise NotLoggedIn('You\'re not logged in; try `vh login` first.')
     return (host, token)

@@ -12,8 +12,8 @@ from valohai_cli.settings import settings
 @yes_option
 def login(username, password, host, yes):
     """Log in into Valohai."""
-    if settings.get('user') and settings.get('token') and not yes:
-        user = settings['user']
+    if settings.user and settings.token and not yes:
+        user = settings.user
         message = (
             'You are already logged in as {username}.\n'
             'Are you sure you wish to acquire a new token?'
@@ -24,6 +24,6 @@ def login(username, password, host, yes):
         token = token_data['token']
     with APISession(host, token) as sess:
         user_data = sess.get('/api/v0/users/me/').json()
-    settings.update(host=host, user=user_data, token=token)
-    settings.save()
+    settings.persistence.update(host=host, user=user_data, token=token)
+    settings.persistence.save()
     click.secho('Logged in. Hi!', fg='green', bold=True)

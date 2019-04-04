@@ -15,16 +15,16 @@ def test_auth(runner):
             '-p', '123456',
         ])
         assert 'Logged in' in result.output
-        assert settings['token'] == 'X' * 40
+        assert settings.token == 'X' * 40
 
     # Attempting to re-login requires a confirmation, so this aborts.
-    result = runner.invoke(login, ['-u', 'john.smith', '-p', '123456'])
+    result = runner.invoke(login, ['-u', 'john.smith', '-p', '123456'], catch_exceptions=False)
     assert 'Aborted!' in result.output
 
     # Log out...
 
-    result = runner.invoke(logout, input='y')
-    assert not settings.get('token')
+    result = runner.invoke(logout, input='y', catch_exceptions=False)
+    assert not settings.token
 
     # And again.
 

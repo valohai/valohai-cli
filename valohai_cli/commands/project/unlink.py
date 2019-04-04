@@ -26,10 +26,10 @@ def unlink(yes):
             ),
             abort=True,
         )
-    links = settings.get('links', {})
+    links = settings.links.copy()
     links.pop(dir)
-    settings['links'] = links
-    settings.save()
+    settings.persistence.set('links', links)
+    settings.persistence.save()
     success('Unlinked {dir} from {name}.'.format(
         dir=click.style(dir, bold=True),
         name=click.style(project.name, bold=True)

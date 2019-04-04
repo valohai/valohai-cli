@@ -18,7 +18,7 @@ def get_project(dir=None, require=False):
     :return: Project object, or None.
     :rtype: valohai_cli.models.project.Project|None
     """
-    links = settings.get('links') or {}
+    links = settings.links
     if not links:
         if require:
             raise NoProject('No projects are configured')
@@ -34,11 +34,11 @@ def get_project(dir=None, require=False):
 
 
 def set_project_link(dir, project, inform=False):
-    links = settings.get('links', {})
+    links = settings.links.copy()
     links[dir] = project
-    settings['links'] = links
+    settings.persistence.set('links', links)
     assert get_project(dir).id == project['id']
-    settings.save()
+    settings.persistence.save()
     if inform:
         success('Linked {dir} to {name}.'.format(
             dir=click.style(dir, bold=True),
