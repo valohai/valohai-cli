@@ -3,6 +3,9 @@ from .persistence import FilePersistence
 
 
 class Settings:
+    # Non-persistent settings and their defaults:
+    table_format = 'human'
+
     def __init__(self, persistence=None):
         """
 

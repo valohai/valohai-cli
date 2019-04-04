@@ -5,9 +5,10 @@ import click
 import sys
 import six
 
+from valohai_cli.settings import settings
+
 TABLE_FORMATS = ('human', 'csv', 'tsv', 'scsv', 'psv', 'json')
 SV_SEPARATORS = {'csv': ',', 'tsv': '\t', 'scsv': ';', 'psv': '|'}
-TABLE_FORMAT_META_KEY = __name__ + '.table_format'
 
 
 def n_str(s):
@@ -55,11 +56,8 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         headers = columns
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
-    if not format:  # Auto-determine format from current context
-        format = 'human'
-        ctx = click.get_current_context(silent=True)
-        if ctx and TABLE_FORMAT_META_KEY in ctx.meta:
-            format = ctx.meta[TABLE_FORMAT_META_KEY]
+    if not format:  # Auto-determine format from settings
+        format = settings.table_format
 
     if format == 'human':
         for y, row in enumerate(format_table(data, columns, headers, **kwargs)):
