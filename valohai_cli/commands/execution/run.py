@@ -261,7 +261,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     if step == '--help':  # This is slightly weird, but it's because of the nested command thing
         click.echo(ctx.get_help(), color=ctx.color)
         try:
-            config = get_project(require=True).get_config(commit=commit)
+            config = get_project(require=True).get_config(commit_identifier=commit)
             if config.steps:
                 click.echo('\nThese steps are available in the selected commit:\n', color=ctx.color)
                 for step in sorted(config.steps):
@@ -279,7 +279,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
     # so this is done before `commit` is mangled by `create_adhoc_commit`.
-    config = project.get_config(commit=commit)
+    config = project.get_config(commit_identifier=commit)
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
 

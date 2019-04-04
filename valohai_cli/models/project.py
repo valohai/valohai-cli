@@ -18,23 +18,23 @@ class Project:
     id = property(lambda p: p.data['id'])
     name = property(lambda p: p.data['name'])
 
-    def get_config(self, commit=None):
+    def get_config(self, commit_identifier=None):
         """
         Get the `valohai_yaml.Config` object from the current working directory,
         or a given commit.
 
-        :param commit: Hexadecimal commit identifier; optional.
-        :type commit: str|None
+        :param commit_identifier: Hexadecimal commit identifier; optional.
+        :type commit_identifier: str|None
         :return: valohai_yaml.Config
         :rtype: valohai_yaml.Config
         """
-        if not commit:  # Current working directory
+        if not commit_identifier:  # Current working directory
             filename = self.get_config_filename()
             with open(filename, 'r') as infp:
                 return self._parse_config(infp, filename)
         else:  # Arbitrary commit
-            filename = '{}:valohai.yaml'.format(commit)
-            config_bytes = get_file_at_commit(self.directory, commit, 'valohai.yaml')
+            filename = '{}:valohai.yaml'.format(commit_identifier)
+            config_bytes = get_file_at_commit(self.directory, commit_identifier, 'valohai.yaml')
             config_sio = six.StringIO(config_bytes.decode('utf-8'))
             return self._parse_config(config_sio, filename)
 
