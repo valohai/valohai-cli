@@ -4,7 +4,12 @@ import random
 import click
 import six
 
+SUCCESS_EMOJI = [':)', '^_^']
+WARN_EMOJI = [':(', 'o_o', '-_-']
+ERROR_EMOJI = ['x_x', '._.', ':[']
+
 if six.PY3:
+    # Py3 is always wide-unicode
     SUCCESS_EMOJI = [
         chr(0x1F600),  # GRINNING FACE (So) 😀
         chr(0x1F601),  # GRINNING FACE WITH SMILING EYES (So) 😁
@@ -38,19 +43,18 @@ if six.PY3:
         chr(0x1F62D),  # LOUDLY CRYING FACE
         chr(0x1F631),  # SCREAMY FACE
     ]
-else:
-    # Can't trust the Py2 build to be wide-Unicode, so...
-    SUCCESS_EMOJI = [':)', '^_^']
-    WARN_EMOJI = [':(', 'o_o', '-_-']
-    ERROR_EMOJI = ['x_x', '._.', ':[']
 
 
 def _format_message(message, emoji=None, prefix=None, color=None):
     return '{emoji}  {prefix} {message}'.format(
         emoji=random.choice(emoji or ['']),
-        prefix=click.style(prefix, fg=color, bold=True),
-        message=click.style(message, fg=color)
+        prefix=(click.style(prefix, fg=color, bold=True) if prefix else ''),
+        message=click.style(message, fg=color),
     )
+
+
+def info(message):
+    click.echo(_format_message(message, ['=>'], color='cyan'))
 
 
 def success(message):

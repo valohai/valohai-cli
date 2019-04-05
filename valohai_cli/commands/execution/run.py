@@ -11,7 +11,7 @@ from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import NoGitRepo
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
-from valohai_cli.messages import success, warn
+from valohai_cli.messages import success, warn, info
 from valohai_cli.utils import (
     humanize_identifier,
     match_prefix,
@@ -184,10 +184,10 @@ class RunCommand(click.Command):
                 options[key] = value
         return (options, params, inputs)
 
-    def resolve_commit(self, commit):
-        if not commit:
+    def resolve_commit(self, commit_identifier):
+        if not commit_identifier:
             try:
-                commit = git.get_current_commit(self.project.directory)
+                commit_identifier = git.get_current_commit(self.project.directory)
             except NoGitRepo as exc:
                 warn(
                     'The directory is not a Git repository. \n'
@@ -196,22 +196,20 @@ class RunCommand(click.Command):
                 if not click.confirm('Use latest commit?', default=True):
                     raise click.Abort()
 
-        commits = request('get', '/api/v0/projects/{id}/commits/'.format(id=self.project.id)).json()
-        if commit:
-            by_identifier = {c['identifier']: c for c in commits}
-            if commit not in by_identifier:
-                warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit))
-                raise click.Abort()
-        else:
-            if not commits:
-                warn('No commits are known for the project.')
-                raise click.Abort()
-            newest_commit = sorted(commits, key=lambda c: c['commit_time'])[0]
-            assert newest_commit['identifier']
-            commit = newest_commit['identifier']
-            click.echo('Resolved to commit {commit}'.format(commit=commit))
+        try:
+            commit_obj = self.project.resolve_commit(commit_identifier=commit_identifier)
+        except KeyError:
+            warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit_identifier))
+            raise click.Abort()
+        except IndexError:
+            warn('No commits are known for the project.')
+            raise click.Abort()
 
-        return commit
+        resolved_commit_identifier = commit_obj['identifier']
+        if not commit_identifier:
+            click.echo('Resolved to commit {commit}'.format(commit=resolved_commit_identifier))
+
+        return resolved_commit_identifier
 
     def make_parser(self, ctx):
         parser = super(RunCommand, self).make_parser(ctx)
@@ -257,7 +255,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     if step == '--help':  # This is slightly weird, but it's because of the nested command thing
         click.echo(ctx.get_help(), color=ctx.color)
         try:
-            config = get_project(require=True).get_config(commit=commit)
+            config = get_project(require=True).get_config(commit_identifier=commit)
             if config.steps:
                 click.echo('\nThese steps are available in the selected commit:\n', color=ctx.color)
                 for step in sorted(config.steps):
@@ -275,7 +273,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
     # so this is done before `commit` is mangled by `create_adhoc_commit`.
-    config = project.get_config(commit=commit)
+    config = project.get_config(commit_identifier=commit)
     matched_step = match_step(config, step)
     step = config.steps[matched_step]
 
