@@ -10,7 +10,8 @@ from valohai_cli.ctx import get_project
 from valohai_cli.git import expand_commit_id
 from valohai_cli.messages import success
 from valohai_cli.tui import get_spinner_character
-from valohai_cli.utils import ensure_makedirs, format_size, sanitize_filename
+from valohai_cli.utils import ensure_makedirs, sanitize_filename
+from valohai_cli.utils.file_size_format import filesizeformat
 
 MINIMUM_VALOHAI_LOCAL_RUN_VERSION = '0.2.1'
 
@@ -198,13 +199,13 @@ def export_docker_image(image, output_path, print_progress=True):
                 status_text = '{} {}: {} / {}'.format(
                     get_spinner_character(),
                     image,
-                    format_size(outfp.tell()),
-                    (format_size(image_size) if image_size else 'unknown size'),
+                    filesizeformat(outfp.tell()),
+                    (filesizeformat(image_size) if image_size else 'unknown size'),
                 )
                 print(status_text.ljust(width - 1), end='\r')
     if proc.returncode:
         raise subprocess.CalledProcessError(proc.returncode, 'docker save ' + image)
     click.secho('    {} exported: {}'.format(
         image,
-        format_size(os.stat(output_path).st_size),
+        filesizeformat(os.stat(output_path).st_size),
     ), fg='green')
