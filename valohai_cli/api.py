@@ -1,5 +1,4 @@
 import platform
-import sys
 
 import click
 import requests
@@ -8,7 +7,7 @@ from requests.auth import AuthBase
 from six.moves.urllib_parse import urljoin, urlparse
 
 from valohai_cli import __version__ as VERSION
-from valohai_cli.exceptions import APIError, CLIException, ConfigurationError, NotLoggedIn
+from valohai_cli.exceptions import APIError, APINotFoundError, CLIException, NotLoggedIn
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
@@ -60,7 +59,8 @@ class APISession(requests.Session):
             raise
 
         if handle_errors and resp.status_code >= 400:
-            raise APIError(resp)
+            cls = (APINotFoundError if resp.status_code == 404 else APIError)
+            raise cls(resp)
         return resp
 
 

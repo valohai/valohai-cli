@@ -156,26 +156,6 @@ def ensure_makedirs(path, mode=0o744):
         os.umask(original_umask)
 
 
-def format_size(bytes):
-    """
-    Format a file size in a human-readable way.
-    :param bytes: Number of bytes
-    :type bytes: int
-    :return: string
-    """
-
-    if bytes > 1000000:
-        return '%.1fMB' % (bytes / 1000000.0)
-
-    if bytes > 10 * 1000:
-        return '%ikB' % (bytes / 1000)
-
-    if bytes > 1000:
-        return '%.1fkB' % (bytes / 1000.0)
-
-    return '%ibytes' % bytes
-
-
 def sanitize_filename(name, replacement='-'):
     # Via https://github.com/parshap/node-sanitize-filename/blob/0d21bf13be419fcde5bc3f241672bd29f7e72c63/index.js
     return re.sub(r'[\x00-\x1f\x80-\x9f/?<>\\:*|"]', replacement, name)

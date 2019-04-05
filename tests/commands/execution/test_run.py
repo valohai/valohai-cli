@@ -178,3 +178,13 @@ def test_typo_check(runner, logged_in_and_linked):
     output = runner.invoke(run, args, catch_exceptions=False).output
     assert '(Possible options:' in output or 'Did you mean' in output
     assert '--max-steps' in output
+
+
+def test_run_help(runner, logged_in_and_linked):
+    project_id = PROJECT_DATA['id']
+
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    output = runner.invoke(run, ['--help'], catch_exceptions=False).output
+    assert 'Train model' in output
