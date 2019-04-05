@@ -24,7 +24,11 @@ class RunAPIMock(requests_mock.Mocker):
             json=self.handle_commits,
         )
         self.get(
-            re.compile(r'^https://app.valohai.com/api/v0/commits/.+$'),
+            re.compile(r'^https://app.valohai.com/api/v0/commits/(?P<id>.+)/$'),
+            status_code=404,
+        )
+        self.get(
+            re.compile(r'^https://app.valohai.com/api/v0/commits/(?:\?.*)$'),
             json=self.handle_commits_list,
         )
         self.post(

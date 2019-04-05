@@ -1,3 +1,4 @@
+import requests
 import click
 from click import ClickException
 
@@ -18,6 +19,9 @@ class CLIException(ClickException):
 
 class APIError(CLIException):
     def __init__(self, response):
+        """
+        :type response: requests.Response
+        """
         if '<!DOCTYPE html>' in response.text:
             # Don't shower the user with a blob of HTML
             text = 'Internal error'
@@ -48,9 +52,21 @@ class InvalidConfig(CLIException):
     pass
 
 
+class PackageTooLarge(CLIException):
+    pass
+
+
 class NoGitRepo(CLIException):
     color = 'yellow'
 
     def __init__(self, directory):
         self.directory = directory
         super(NoGitRepo, self).__init__('{} is not a Git repository'.format(directory))
+
+
+class NoCommit(ValueError, CLIException):
+    color = 'yellow'
+
+    def __init__(self, directory):
+        self.directory = directory
+        super(NoCommit, self).__init__('{} has no commits'.format(directory))

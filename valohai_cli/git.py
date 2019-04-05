@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from valohai_cli.exceptions import NoGitRepo
+from valohai_cli.exceptions import NoGitRepo, NoCommit
 
 
 def check_git_output(args, directory):
@@ -14,8 +14,12 @@ def check_git_output(args, directory):
             env=dict(os.environ, LC_ALL='C'),
         )
     except subprocess.CalledProcessError as cpe:
-        if cpe.returncode == 128 and 'not a git repository' in cpe.output.decode().lower():
-            raise NoGitRepo(directory)
+        if cpe.returncode == 128:
+            output_text = cpe.output.decode().lower()
+            if 'not a git repository' in output_text:
+                raise NoGitRepo(directory)
+            if 'bad revision' in output_text:
+                raise NoCommit(directory)
         raise
 
 
@@ -27,6 +31,16 @@ def get_current_commit(directory):
     :rtype: str
     """
     return check_git_output(['git', 'rev-parse', 'HEAD'], directory).strip().decode()
+
+
+def describe_current_commit(directory):
+    """
+    (Try to) describe the lineage and status of the Git working copy in `directory`.
+    :param directory: Directory path.
+    :return: Git description string
+    :rtype: str|None
+    """
+    return check_git_output(['git', 'describe', '--always', '--long', '--dirty', '--all'], directory).strip().decode()
 
 
 def get_file_at_commit(directory, commit, path):
