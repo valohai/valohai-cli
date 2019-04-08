@@ -3,12 +3,13 @@ from click.testing import CliRunner
 
 from tests.fixture_data import LOGGED_IN_DATA, PROJECT_DATA
 from valohai_cli.settings import settings
+from valohai_cli.settings.persistence import Persistence
 from valohai_cli.utils import get_project_directory
 
 
 @pytest.fixture
 def logged_in(monkeypatch):
-    monkeypatch.setattr(settings, '_data', LOGGED_IN_DATA)
+    monkeypatch.setattr(settings, 'persistence', Persistence(LOGGED_IN_DATA.copy()))
 
 
 @pytest.fixture
@@ -18,7 +19,7 @@ def logged_in_and_linked(monkeypatch):
         links={get_project_directory(): PROJECT_DATA}
     )
 
-    monkeypatch.setattr(settings, '_data', data)
+    monkeypatch.setattr(settings, 'persistence', Persistence(data))
 
 
 @pytest.fixture

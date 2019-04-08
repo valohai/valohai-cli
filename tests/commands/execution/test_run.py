@@ -5,7 +5,7 @@ import re
 import pytest
 import requests_mock
 
-from tests.fixture_data import CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA
+from tests.fixture_data import CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA, CONFIG_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -20,12 +20,16 @@ class RunAPIMock(requests_mock.Mocker):
         self.commit_id = commit_id
         self.additional_payload_values = (additional_payload_values or {})
         self.get(
+            'https://app.valohai.com/api/v0/projects/{}/'.format(project_id),
+            json=self.handle_project,
+        )
+        self.get(
             'https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id),
             json=self.handle_commits,
         )
         self.get(
-            re.compile(r'^https://app.valohai.com/api/v0/commits/(?P<id>.+)/$'),
-            status_code=404,
+            re.compile(r'^https://app.valohai.com/api/v0/commits/(?P<id>.+)/(?:\?.*)?$'),
+            json=self.handle_commit_detail,
         )
         self.get(
             re.compile(r'^https://app.valohai.com/api/v0/commits/(?:\?.*)$'),
@@ -40,16 +44,29 @@ class RunAPIMock(requests_mock.Mocker):
             json=self.handle_create_commit,
         )
 
+    def handle_project(self, request, context):
+        return {
+            'id': self.project_id,
+            'name': 'Project %s' % self.project_id,
+        }
+
     def handle_commits_list(self, request, context):
         return {
             'results': self.handle_commits(request, context),
         }
 
     def handle_commits(self, request, context):
-        return [{
+        commit_obj = self.handle_commit_detail(request, context)
+        commit_obj.pop('config', None)  # This wouldn't be in the list response
+        return [commit_obj]
+
+    def handle_commit_detail(self, request, context):
+        return {
             'identifier': self.commit_id,
             'commit_time': datetime.datetime.now().isoformat(),
-        }]
+            'url': '/api/v0/commits/%s/' % self.commit_id,
+            'config': CONFIG_DATA,
+        }
 
     def handle_create_execution(self, request, context):
         body_json = json.loads(request.body.decode('utf-8'))

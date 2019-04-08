@@ -8,20 +8,18 @@ from valohai_cli.settings import settings
 @yes_option
 def logout(yes):
     """Remove local authentication token."""
-    user = settings.get('user')
-    token = settings.get('token')
+    user = settings.user
+    token = settings.token
     if not (user or token):
         click.echo('You\'re not logged in.')
         return
 
     if not yes:
-        user = settings['user']
-        host = settings['host']
         message = (
             'You are logged in as {username} (on {host}).\n'
             'Are you sure you wish to remove the authentication token?'
-        ).format(username=user['username'], host=host)
+        ).format(username=user['username'], host=settings.host)
         click.confirm(message, abort=True)
-    settings.update(host=None, user=None, token=None)
-    settings.save()
+    settings.persistence.update(host=None, user=None, token=None)
+    settings.persistence.save()
     click.secho('Logged out.', fg='green', bold=True)

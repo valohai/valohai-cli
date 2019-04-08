@@ -2,25 +2,25 @@ import os
 
 import pytest
 
-from valohai_cli.settings import get_settings_file_name, settings
+from valohai_cli.settings import get_settings_file_name, settings, FilePersistence
 
 
 @pytest.fixture
 def temp_settings(monkeypatch, tmpdir):
     filename = str(tmpdir.join('settings.json'))
-    monkeypatch.setattr(settings, 'get_filename', lambda: filename)
+    monkeypatch.setattr(settings, 'persistence', FilePersistence(get_filename=lambda: filename))
     return settings
 
 
-def test_settings(temp_settings):
-    assert not settings.get('foo')
-    settings['foo'] = 'bar'
-    settings.update(baz='quux')
-    settings.save()
-    assert os.path.isfile(settings.get_filename())
+def test_settings_persistence(temp_settings):
+    assert not settings.persistence.get('foo')
+    settings.persistence.set('foo', 'bar')
+    settings.persistence.update(baz='quux')
+    settings.persistence.save()
+    assert os.path.isfile(settings.persistence.get_filename())
     settings._data = None  # Pretend we don't have data
-    assert settings['foo'] == 'bar'
-    assert settings['baz'] == 'quux'
+    assert settings.persistence.get('foo') == 'bar'
+    assert settings.persistence.get('baz') == 'quux'
 
 
 def test_get_settings_file_name():
