@@ -26,8 +26,19 @@ class CLIException(ClickException):
             text = '{kind}: {message}'.format(kind=self.kind, message=formatted_message)
             click.secho(text, file=file, err=True, fg=self.color)
 
+        hints = list(self.get_hints())
+        if hints:
+            click.secho('\nHint:', bold=True, err=True)
+            for hint in hints:
+                click.echo('* {}'.format(hint), err=True)
+
+    def get_hints(self):
+        return []
+
 
 class APIError(CLIException):
+    kind = 'API Error'
+
     def __init__(self, response):
         """
         :type response: requests.Response
@@ -55,11 +66,11 @@ class APIError(CLIException):
 
 
 class APINotFoundError(APIError):
-    pass
+    kind = 'Not Found'
 
 
 class ConfigurationError(CLIException, RuntimeError):
-    pass
+    kind = 'Configuration Error'
 
 
 class NotLoggedIn(ConfigurationError):
