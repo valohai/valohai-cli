@@ -196,6 +196,10 @@ class RunCommand(click.Command):
                 if not click.confirm('Use latest commit?', default=True):
                     raise click.Abort()
 
+        if commit_identifier.startswith('~'):
+            # Assume ad-hoc commits are qualified already
+            return commit_identifier
+
         try:
             commit_obj = self.project.resolve_commit(commit_identifier=commit_identifier)
         except KeyError:
