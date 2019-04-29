@@ -47,6 +47,7 @@ class APISession(requests.Session):
         return super(APISession, self).prepare_request(request)
 
     def request(self, method, url, **kwargs):
+        api_error_class = kwargs.pop('api_error_class', APIError)
         handle_errors = bool(kwargs.pop('handle_errors', True))
         try:
             resp = super(APISession, self).request(method, url, **kwargs)
@@ -59,7 +60,7 @@ class APISession(requests.Session):
             raise
 
         if handle_errors and resp.status_code >= 400:
-            cls = (APINotFoundError if resp.status_code == 404 else APIError)
+            cls = (APINotFoundError if resp.status_code == 404 else api_error_class)
             raise cls(resp)
         return resp
 

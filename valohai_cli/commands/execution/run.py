@@ -9,7 +9,8 @@ import valohai_cli.git as git  # this import style required for tests
 from valohai_cli.adhoc import create_adhoc_commit
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.exceptions import NoGitRepo
+from valohai_cli.exceptions import NoGitRepo, APIError
+from valohai_cli.utils.api_error_utils import find_error
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from valohai_cli.messages import success, warn, info
 from valohai_cli.utils import (
@@ -26,6 +27,20 @@ def generate_sanitized_options(name):
         '--%s' % sanitized_name,
         ('--%s' % sanitized_name).lower(),
     ) if ' ' not in choice)
+
+
+class ExecutionCreationAPIError(APIError):
+    def get_hints(self):
+        try:
+            error_json = self.response.json()
+            assert isinstance(error_json, dict)
+        except:
+            return
+
+        if find_error(error_json.get('environment'), code='does_not_exist'):
+            yield 'Run `{}` to see the complete list of available environments.'.format(
+                click.style('vh environments', bold=True),
+            )
 
 
 class RunCommand(click.Command):
@@ -154,7 +169,12 @@ class RunCommand(click.Command):
         if self.environment_variables:
             payload['environment_variables'] = self.environment_variables
 
-        resp = request('post', '/api/v0/executions/', json=payload).json()
+        resp = request(
+            method='post',
+            url='/api/v0/executions/',
+            json=payload,
+            api_error_class=ExecutionCreationAPIError,
+        ).json()
         success('Execution #{counter} created. See {link}'.format(
             counter=resp['counter'],
             link=resp['urls']['display'],
