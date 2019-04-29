@@ -1,3 +1,5 @@
+from pprint import pformat
+
 import requests
 import click
 from click import ClickException
@@ -13,8 +15,16 @@ class CLIException(ClickException):
         self.kind = (kind or self.kind)
 
     def show(self, file=None):
-        text = '{kind}: {message}'.format(kind=self.kind, message=self.format_message())
-        click.secho(text, file=file, err=True, fg=self.color)
+        formatted_message = self.format_message()
+        if '\n' in formatted_message:
+            # If there are newlines in the message, we'll format things a little differently.
+            # Namely, the entire message is on a separate line, and to avoid "color fatigue",
+            # it's not all red.
+            click.secho('{kind}:'.format(kind=self.kind), file=file, err=True, fg=self.color)
+            click.secho(formatted_message, file=file, err=True)
+        else:
+            text = '{kind}: {message}'.format(kind=self.kind, message=formatted_message)
+            click.secho(text, file=file, err=True, fg=self.color)
 
 
 class APIError(CLIException):
@@ -30,6 +40,18 @@ class APIError(CLIException):
         super(APIError, self).__init__(text)
         self.response = response
         self.request = response.request
+
+    def format_message(self):
+        try:
+            error_json = self.response.json()
+            if isinstance(error_json, (dict, list)):
+                from .utils.error_fmt import format_error_data
+                try:
+                    return format_error_data(error_json)
+                except:
+                    return pformat(error_json, indent=2)  # This should be more readable than raw JSON
+        except Exception:
+            return super().format_message()
 
 
 class APINotFoundError(APIError):
