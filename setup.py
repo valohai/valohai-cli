@@ -11,7 +11,7 @@ setup(
     author_email='hait@valohai.com',
     license='MIT',
     install_requires=[
-        'click>=6.0',
+        'click>=7.0',
         'six>=1.10.0',
         'valohai-yaml>=0.8',
         'requests[security]>=2.0.0',
