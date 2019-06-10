@@ -15,15 +15,23 @@ from valohai_cli.table import print_table
     help='Filter by status (default: all)',
     type=click.Choice(sorted(execution_statuses | {'incomplete'}))
 )
-def list(status):
+@click.option(
+    '--count',
+    '--limit',
+    '-n',
+    type=int,
+    default=9001,
+    help='How many executions to show',
+)
+def list(status, count):
     """
     Show a list of executions for the project.
     """
     project = get_project(require=True)
     params = {
         'project': project.id,
-        'count': 9001,
-        'ordering': 'counter',
+        'limit': count,
+        'ordering': '-counter',
         'deleted': 'false',
     }
     if status:
