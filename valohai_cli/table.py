@@ -60,10 +60,12 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         format = settings.table_format
 
     if format == 'human':
+        sep_width = 0
         for y, row in enumerate(format_table(data, columns, headers, **kwargs)):
+            sep_width = max(sep_width, len(row))
+            if y == 1:
+                click.secho('-' * sep_width, bold=True)
             click.secho(row, bold=(y == 0))
-            if y == 0:
-                click.secho('-' * len(row), bold=True)
     elif format == 'json':
         json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)
     elif format in SV_SEPARATORS:
