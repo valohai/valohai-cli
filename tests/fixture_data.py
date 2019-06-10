@@ -22,6 +22,20 @@ PROJECT_DATA = {
 }
 
 execution_id = str(uuid.uuid4())
+datum_id = str(uuid.uuid4())
+
+OUTPUT_DATUM_DATA = {
+    "id": datum_id,
+    "size": 509739,
+    "ctime": "2019-05-23T14:26:35.604807Z",
+    "file_ctime": "2019-05-23T14:26:33.607583Z",
+    "file_mtime": "2019-05-23T14:26:33.607583Z",
+    "name": "yvrw91fdvwz21.png",
+    "output_execution": {
+        "id": execution_id,
+    },
+}
+
 EXECUTION_DATA = {
     'counter': random.randint(1, 100),
     'ctime': '2017-02-08T11:09:16.120102Z',
@@ -50,20 +64,7 @@ EXECUTION_DATA = {
         'max_steps': 300,
     },
     'outputs': [
-        {
-            'id': '123',
-            'name': 'a.txt',
-            'ctime': '2017-02-16T15:25:59.304888Z',
-            'size': 120500,
-            'url': 'http://filestash.example.com/foo/a.txt',
-        },
-        {
-            'id': '456',
-            'name': 'b.txt',
-            'ctime': '2017-02-16T15:25:59.420535Z',
-            'size': 25000,
-            'url': 'http://filestash.example.com/foo/b.txt'
-        },
+        OUTPUT_DATUM_DATA,
     ],
     'environment': {
         'id': '88888888-8888-8888-8888-888888888888',
@@ -74,6 +75,17 @@ EXECUTION_DATA = {
     'cumulative_metadata': {
         'oispa': 'beer',
     },
+}
+
+OUTPUT_DATUM_RESPONSE_DATA = {
+    "count": 1,
+    "next": None,
+    "previous": None,
+    "results": [OUTPUT_DATUM_DATA],
+}
+
+OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA = {
+    'url': 'https://example.com/{}'.format(str(uuid.uuid4())),
 }
 
 EVENT_RESPONSE_DATA = {
