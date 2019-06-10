@@ -69,7 +69,12 @@ def choose_image():
     image_suggestions = get_image_suggestions()
     click.echo(
         'Now let\'s pick a Docker image to use with your code.\n' +
-        ('Here are some recommended choices, but feel free to type in one of your own.' if image_suggestions else '')
+        (
+            'Here are some recommended choices, but feel free to type in one of '
+            'your own from the ones available at https://hub.docker.com/'
+            if image_suggestions
+            else ''
+        )
     )
     while True:
         image = prompt_from_list(
