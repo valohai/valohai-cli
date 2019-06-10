@@ -4,6 +4,7 @@ from itertools import chain
 import click
 import sys
 import six
+from click import get_terminal_size
 
 from valohai_cli.settings import settings
 
@@ -15,30 +16,79 @@ def n_str(s):
     return ('' if s is None else six.text_type(s).replace('\n', ' '))
 
 
-def format_table(data, columns, headers, sep=' | '):
-    # Pick the requested data and their types from the input
-    printable_data = list(pluck_printable_data(data, columns, lambda col_val: (n_str(col_val), type(col_val))))
+def _format(datum, width, allow_rjust=True):
+    if isinstance(datum, tuple):
+        datum, tp = datum
+    else:
+        tp = six.text_type
+    if width is None:
+        return str(datum)
+    if tp in (int, float) and allow_rjust:
+        datum = datum.rjust(width)
+    else:
+        datum = datum.ljust(width)
+    return datum[:width]
 
-    # Transpose `printable_data` and count maximum length of data in each column
-    column_widths = [max(len(s) for (s, t) in col) for col in zip(*printable_data)]
 
-    # Take header lengths into account
-    column_widths = [max(len(header), col_w) for (header, col_w) in zip(headers, column_widths)]
+class HumanTableFormatter:
+    def __init__(self, data, columns, headers, sep=' | '):
+        self.columns = columns
+        self.headers = headers
+        self.sep = sep
 
-    for row in chain([headers], printable_data):
-        cells = []
-        for datum, width in zip(row, column_widths):
-            if isinstance(datum, tuple):
-                datum, tp = datum
-            else:
-                tp = six.text_type
-            if tp in (int, float):
-                datum = datum.rjust(width)
-            else:
-                datum = datum.ljust(width)
-            cells.append(datum[:width])
-        row = sep.join(cells)
-        yield row.rstrip()
+        # Pick the requested data and their types from the input
+        self.printable_data = list(pluck_printable_data(data, columns, lambda col_val: (n_str(col_val), type(col_val))))
+
+        # Transpose `printable_data` and count maximum length of data in each column
+        self.column_widths = [max(len(s) for (s, t) in col) for col in zip(*self.printable_data)]
+
+        # Take header lengths into account
+        self.column_widths = [max(len(header), col_w) for (header, col_w) in zip(headers, self.column_widths)]
+
+        self.terminal_width = get_terminal_size()[0]
+
+        self.vertical_format = (sum(self.column_widths) >= self.terminal_width)
+
+    def _generate_vertical(self):
+        header_width = max(len(header) for header in self.headers)
+        table_width = self.terminal_width - 5
+        for row in self.printable_data:
+            for header, value in zip(self.headers, row):
+                yield (False, '{}{}{}'.format(
+                    header.rjust(header_width),
+                    self.sep,
+                    _format(value, None),
+                ).rstrip())
+            yield (True, '-' * header_width)
+
+    def _generate_horizontal(self):
+        for y, row in enumerate(chain([self.headers], self.printable_data)):
+            cells = []
+            for datum, width in zip(row, self.column_widths):
+                cells.append(_format(datum, width))
+            row = self.sep.join(cells)
+            yield (y == 0, row.rstrip())
+
+    def generate(self):
+        if self.vertical_format:
+            return self._generate_vertical()
+        else:
+            return self._generate_horizontal()
+
+    def echo(self):
+        sep_width = 0
+        for y, (is_header, row) in enumerate(self.generate()):
+            sep_width = max(sep_width, len(row))
+            if y == 1 and not self.vertical_format:
+                click.secho('-' * sep_width, bold=True)
+            click.secho(row, bold=(is_header))
+
+
+def format_table(data, **kwargs):
+    htf = HumanTableFormatter(data, **kwargs)
+    htf.vertical_format = False
+    for (is_header, text) in htf.generate():
+        yield text
 
 
 def pluck_printable_data(data, columns, col_formatter):
@@ -60,12 +110,8 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         format = settings.table_format
 
     if format == 'human':
-        sep_width = 0
-        for y, row in enumerate(format_table(data, columns, headers, **kwargs)):
-            sep_width = max(sep_width, len(row))
-            if y == 1:
-                click.secho('-' * sep_width, bold=True)
-            click.secho(row, bold=(y == 0))
+        htf = HumanTableFormatter(data=data, columns=columns, headers=headers, **kwargs)
+        htf.echo()
     elif format == 'json':
         json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)
     elif format in SV_SEPARATORS:
