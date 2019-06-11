@@ -12,7 +12,6 @@ from valohai_cli.messages import error, warn
 from valohai_cli.utils import get_project_directory
 from valohai_cli.yaml_wizard import yaml_wizard
 
-
 DONE_TEXT = """
 All done! You can now create an ad-hoc execution with
   $ {command}
@@ -64,7 +63,11 @@ def init():
         error('Please log in with `vh login` before continuing.')
         sys.exit(3)
 
-    link_or_create_prompt(directory)
+    project = link_or_create_prompt(directory)
+
+    if not project:
+        # If we didn't link or create a project, don't show the "all good to go" text.
+        return
 
     width = min(70, click.get_terminal_size()[0])
     click.secho('*' * width, fg='green', bold=True)
@@ -77,12 +80,19 @@ def init():
 def link_or_create_prompt(cwd):
     while True:
         response = click.prompt(
-            'Do you want to link this directory to a pre-existing project, or create a new one? [L/C]'
+            'Do you want to link this directory to a pre-existing project, or create a new one? [L/C]\n'
+            'If you\'d prefer to do neither at this point, respond [N].'
         ).lower().strip()
         if response.startswith('l'):
             link.main(prog_name='vh-link', args=[], standalone_mode=False)
         elif response.startswith('c'):
             create.main(prog_name='vh-create', args=[], standalone_mode=False)
+        elif response.startswith('n'):
+            click.echo(
+                'Okay, skipping linking or creating a project for the time being.\n'
+                'You can do that later with `vh project link` or `vh project create`.'
+            )
+            return None
         else:
             warn('Sorry, I couldn\'t understand that.')
             continue
@@ -90,5 +100,4 @@ def link_or_create_prompt(cwd):
         if not project:
             error('Oops, looks like something went wrong.')
             sys.exit(2)
-        break
-    return project
+        return project

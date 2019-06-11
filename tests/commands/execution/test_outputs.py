@@ -3,7 +3,7 @@ import os
 import pytest
 
 from tests.commands.execution.utils import get_execution_data_mock
-from tests.fixture_data import EXECUTION_DATA
+from tests.fixture_data import EXECUTION_DATA, OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA
 from valohai_cli.commands.execution.outputs import outputs
 
 
@@ -12,8 +12,7 @@ def test_execution_outputs(runner, logged_in_and_linked, tmpdir, download):
     tmpdir = str(tmpdir)
 
     with get_execution_data_mock() as m:
-        for output in EXECUTION_DATA['outputs']:
-            m.get(output['url'], content=b'0' * 100)
+        m.get(OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA['url'], content=b'0' * 100)
         params = [str(EXECUTION_DATA['counter'])]
         if download:
             params.append('--download=%s' % tmpdir)

@@ -5,12 +5,24 @@ from fnmatch import fnmatch
 import click
 import requests
 
+from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success, warn
 from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import counter_argument
 from valohai_cli.consts import complete_execution_statuses
+
+
+def get_execution_outputs(execution):
+    return list(request(
+        method='get',
+        url='/api/v0/data/',
+        params={
+            'output_execution': execution['id'],
+            'limit': 9000,
+        },
+    ).json().get('results', []))
 
 
 @click.command()
@@ -37,12 +49,18 @@ def outputs(counter, download_directory, filter_download, force, sync):
         watch(counter, force, filter_download, download_directory)
         return
 
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
-    outputs = execution.get('outputs', ())
+    project = get_project(require=True)
+    execution = project.get_execution_from_counter(
+        counter=counter,
+        params={'exclude': 'outputs'},
+    )
+    outputs = get_execution_outputs(execution)
     if not outputs:
         warn('The execution has no outputs.')
         return
-    print_table(outputs, ('name', 'url', 'size'))
+    for output in outputs:
+        output['datum_url'] = 'datum://{}'.format(output['id'])
+    print_table(outputs, ('name', 'datum_url', 'size'))
     if download_directory:
         outputs = filter_outputs(outputs, download_directory, filter_download, force)
         download_outputs(outputs, download_directory, show_success_message=True)
@@ -55,9 +73,13 @@ def watch(counter, force, filter_download, download_directory):
         warn('Target folder is not set. Use --download to set it.')
         return
 
+    project = get_project(require=True)
+    execution = project.get_execution_from_counter(
+        counter=counter,
+        params={'exclude': 'outputs'},
+    )
     while True:
-        execution = get_project(require=True).get_execution_from_counter(counter=counter)
-        outputs = execution.get('outputs', ())
+        outputs = get_execution_outputs(execution)
         outputs = filter_outputs(outputs, download_directory, filter_download, force)
         if outputs:
             download_outputs(outputs, download_directory, show_success_message=False)
@@ -84,7 +106,10 @@ def download_outputs(outputs, output_path, show_success_message=True):
         click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
         requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
-            url = output['url']
+            url = request(
+                method='get',
+                url='/api/v0/data/{id}/download/'.format(id=output['id']),
+            ).json()['url']
             out_path = os.path.join(output_path, output['name'])
             out_dir = os.path.dirname(out_path)
             if not os.path.isdir(out_dir):
