@@ -130,10 +130,12 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         args.extend(['-v', 'greeting=hello'])
         args.extend(['--var', 'enable=1'])
         args.extend(['-vdebug=yes'])
+        args.extend(['--var', 'testenvvar='])
         values['environment_variables'] = {
             'greeting': 'hello',
             'enable': '1',
             'debug': 'yes',
+            'testenvvar': ''
         }
     with RunAPIMock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
