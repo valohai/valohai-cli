@@ -80,6 +80,9 @@ class RunCommand(click.Command):
             self.params.append(self.convert_param_to_option(parameter))
         for input in step.inputs.values():
             self.params.append(self.convert_input_to_option(input))
+        for name, value in step.environment_variables.items():
+            if name not in self.environment_variables:
+                self.environment_variables[name] = value.default
 
     def convert_param_to_option(self, parameter):
         """

@@ -184,10 +184,6 @@ def parse_environment_variable_strings(envvar_strings):
     environment_variables = {}
     for string in envvar_strings:
         key, _, value = string.partition('=')
-        if not value:
-            raise ValueError('Environment variable specification {string} must be in the format KEY=VALUE'.format(
-                string=string,
-            ))
         key = key.strip()
         if not key:
             continue
