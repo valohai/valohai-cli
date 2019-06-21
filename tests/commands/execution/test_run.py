@@ -98,7 +98,7 @@ def test_run_requires_step(runner, logged_in_and_linked):
 @pytest.mark.parametrize('pass_param', (False, True))
 @pytest.mark.parametrize('pass_input', (False, True))
 @pytest.mark.parametrize('pass_env', (False, True))
-@pytest.mark.parametrize('pass_env_var', (False, True))
+@pytest.mark.parametrize('pass_env_var', (None, 'custom', 'override-default'))
 @pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'adhoc'))
 def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, pass_env, pass_env_var, adhoc):
     project_id = PROJECT_DATA['id']
@@ -130,12 +130,16 @@ def test_run(runner, logged_in_and_linked, monkeypatch, pass_param, pass_input, 
         args.extend(['-v', 'greeting=hello'])
         args.extend(['--var', 'enable=1'])
         args.extend(['-vdebug=yes'])
-        args.extend(['--var', 'testenvvar='])
+        if pass_env_var == 'override-default':
+            args.extend(['--var', 'testenvvar='])
+            expected_testenvvar = ''
+        else:
+            expected_testenvvar = 'test'  # default from YAML
         values['environment_variables'] = {
             'greeting': 'hello',
             'enable': '1',
             'debug': 'yes',
-            'testenvvar': ''
+            'testenvvar': expected_testenvvar,
         }
     with RunAPIMock(project_id, commit_id, values):
         output = runner.invoke(run, args, catch_exceptions=False).output
