@@ -4,3 +4,4 @@ omit =
 	*.tox*
 	*site-packages*
 	setup.py
+	valohai_cli/_vendor/*
