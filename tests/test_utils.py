@@ -6,7 +6,6 @@ import sys
 
 import pytest
 
-from valohai_cli.table import format_table
 from valohai_cli.utils import (
     clean_log_line,
     force_bytes,
@@ -24,26 +23,6 @@ def test_dir_parents():
     dirs = list(walk_directory_parents(dir))
     assert dirs[0] == dir
     assert dirs[-1] == '/'
-
-
-def test_format_table():
-    data = [
-        {'a': 10, 'b': 100000, 'c': 'hello'},
-        {'a': 'fee', 'b': 1000, 'c': 300},
-    ]
-    formatted = '\n'.join(
-        format_table(
-            data,
-            columns=['c', 'b', 'a'],
-            headers=['X', 'Y', 'Z'],
-            sep=' $ ',
-        )
-    )
-    assert formatted == '''
-X     $ Y      $ Z
-hello $ 100000 $  10
-  300 $   1000 $ fee
-    '''.strip()
 
 
 def test_force_text_and_bytes():

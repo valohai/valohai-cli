@@ -1,11 +1,11 @@
 import json
-from itertools import chain
 
 import click
 import sys
 import six
 from click import get_terminal_size
 
+from valohai_cli._vendor.tabulate import tabulate
 from valohai_cli.settings import settings
 
 TABLE_FORMATS = ('human', 'csv', 'tsv', 'scsv', 'psv', 'json')
@@ -61,34 +61,19 @@ class HumanTableFormatter:
                 ).rstrip())
             yield (True, '-' * header_width)
 
-    def _generate_horizontal(self):
-        for y, row in enumerate(chain([self.headers], self.printable_data)):
-            cells = []
-            for datum, width in zip(row, self.column_widths):
-                cells.append(_format(datum, width))
-            row = self.sep.join(cells)
-            yield (y == 0, row.rstrip())
-
-    def generate(self):
-        if self.vertical_format:
-            return self._generate_vertical()
-        else:
-            return self._generate_horizontal()
-
-    def echo(self):
+    def _echo_vertical(self):
         sep_width = 0
-        for y, (is_header, row) in enumerate(self.generate()):
+        for y, (is_header, row) in enumerate(self._generate_vertical()):
             sep_width = max(sep_width, len(row))
             if y == 1 and not self.vertical_format:
                 click.secho('-' * sep_width, bold=True)
             click.secho(row, bold=(is_header))
 
-
-def format_table(data, **kwargs):
-    htf = HumanTableFormatter(data, **kwargs)
-    htf.vertical_format = False
-    for (is_header, text) in htf.generate():
-        yield text
+    def echo(self):
+        if self.vertical_format:
+            self._echo_vertical()
+        else:
+            print(tabulate([[val for (val, typ) in row] for row in self.printable_data], headers=self.headers))
 
 
 def pluck_printable_data(data, columns, col_formatter):
