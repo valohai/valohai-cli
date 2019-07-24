@@ -53,17 +53,17 @@ def _format_message(message, emoji=None, prefix=None, color=None):
     )
 
 
-def info(message):
-    click.echo(_format_message(message, ['=>'], color='cyan'))
+def info(message, err=True):
+    click.echo(_format_message(message, ['=>'], color='cyan'), err=err)
 
 
-def success(message):
-    click.echo(_format_message(message, SUCCESS_EMOJI, 'Success!', 'green'))
+def success(message, err=True):
+    click.echo(_format_message(message, SUCCESS_EMOJI, 'Success!', 'green'), err=err)
 
 
-def warn(message):
-    click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'))
+def warn(message, err=True):
+    click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'), err=err)
 
 
-def error(message):
-    click.echo(_format_message(message, ERROR_EMOJI, 'ERROR:', 'red'))
+def error(message, err=True):
+    click.echo(_format_message(message, ERROR_EMOJI, 'ERROR:', 'red'), err=err)
