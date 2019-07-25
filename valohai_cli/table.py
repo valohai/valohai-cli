@@ -92,7 +92,7 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
     if not format:  # Auto-determine format from settings
-        format = settings.table_format
+        format = settings.output_format
 
     if format == 'human':
         htf = HumanTableFormatter(data=data, columns=columns, headers=headers, **kwargs)
