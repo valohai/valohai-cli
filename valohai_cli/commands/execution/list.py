@@ -5,7 +5,9 @@ import click
 from valohai_cli.api import request
 from valohai_cli.consts import execution_statuses
 from valohai_cli.ctx import get_project
-from valohai_cli.table import print_table
+from valohai_cli.messages import info
+from valohai_cli.settings import settings
+from valohai_cli.table import print_table, print_json
 
 
 @click.command()
@@ -37,8 +39,10 @@ def list(status, count):
     if status:
         params['status'] = set(status)
     executions = request('get', '/api/v0/executions/', params=params).json()['results']
+    if settings.output_format == 'json':
+        return print_json(executions)
     if not executions:
-        print('{project}: No executions.'.format(project=project))
+        info('{project}: No executions.'.format(project=project))
         return
     for execution in executions:
         execution['url'] = execution['urls']['display']

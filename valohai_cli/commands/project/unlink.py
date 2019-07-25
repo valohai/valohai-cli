@@ -2,7 +2,7 @@ import click
 
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success
+from valohai_cli.messages import success, warn
 from valohai_cli.settings import settings
 from valohai_cli.utils import get_project_directory
 
@@ -16,7 +16,7 @@ def unlink(yes):
     dir = get_project_directory()
     project = get_project()
     if not project:
-        click.echo('{dir} or its parents do not seem linked to a project.'.format(dir=dir))
+        warn('{dir} or its parents do not seem linked to a project.'.format(dir=dir))
         return 1
     if not yes:
         click.confirm(

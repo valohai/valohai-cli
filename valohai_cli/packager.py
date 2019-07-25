@@ -44,9 +44,9 @@ def package_directory(dir, progress=False, validate=True):
         package_size_warnings = validate_package_size(file_stats)
         if package_size_warnings:
             for warning in package_size_warnings:
-                click.secho('* ' + warning)
-            click.secho(PACKAGE_SIZE_HELP)
-            click.confirm('Continue packaging anyway?', default=True, abort=True, prompt_suffix='')
+                click.secho('* ' + warning, err=True)
+            click.secho(PACKAGE_SIZE_HELP, err=True)
+            click.confirm('Continue packaging anyway?', default=True, abort=True, prompt_suffix='', err=True)
 
     files = sorted(file_stats.keys())
 

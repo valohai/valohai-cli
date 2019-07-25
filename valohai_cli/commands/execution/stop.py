@@ -2,7 +2,7 @@ import click
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn
+from valohai_cli.messages import success, warn, progress, info
 from valohai_cli.range import IntegerRange
 from valohai_cli.utils.cli_utils import HelpfulArgument
 
@@ -35,9 +35,9 @@ def stop(counters, all=False):
     executions = get_executions_for_stop(project, counters, all)
 
     for execution in executions:
-        click.echo('Stopping #{counter}... '.format(counter=execution['counter']), nl=False)
+        progress('Stopping #{counter}... '.format(counter=execution['counter']))
         resp = request('post', execution['urls']['stop'])
-        click.echo(resp.text)
+        info(resp.text)
     success('Done.')
 
 
