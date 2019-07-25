@@ -15,7 +15,7 @@ def get_settings_file_name(name):
     path = os.environ.get('VALOHAI_CONFIG_DIR')
     if path:
         if not os.path.isdir(path):
-            raise ValueError('Directory %s does not exist' % path)
+            os.makedirs(path)
     else:
         path = os.path.join(get_settings_root_path(), 'valohai-cli')
         if not os.path.isdir(path):
