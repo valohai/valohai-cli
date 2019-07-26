@@ -1,7 +1,8 @@
 import click
 
 from valohai_cli.ctx import get_project
-from valohai_cli.table import print_table
+from valohai_cli.settings import settings
+from valohai_cli.table import print_table, print_json
 from valohai_cli.utils import humanize_identifier
 from valohai_cli.utils.cli_utils import counter_argument
 
@@ -35,6 +36,9 @@ def info(counter):
             'exclude': 'metadata,events',
         },
     )
+    if settings.output_format == 'json':
+        return print_json(execution)
+
     data = dict((humanize_identifier(key), str(value)) for (key, value) in execution.items() if key not in ignored_keys)
     data['project name'] = execution['project']['name']
     data['environment name'] = execution['environment']['name']

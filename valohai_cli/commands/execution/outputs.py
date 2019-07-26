@@ -7,7 +7,7 @@ import requests
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn
+from valohai_cli.messages import success, warn, info
 from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import counter_argument
@@ -68,7 +68,7 @@ def outputs(counter, download_directory, filter_download, force, sync):
 
 def watch(counter, force, filter_download, download_directory):
     if download_directory:
-        print("Downloading to: %s\nWaiting for new outputs..." % download_directory)
+        info("Downloading to: %s\nWaiting for new outputs..." % download_directory)
     else:
         warn('Target folder is not set. Use --download to set it.')
         return
@@ -84,7 +84,7 @@ def watch(counter, force, filter_download, download_directory):
         if outputs:
             download_outputs(outputs, download_directory, show_success_message=False)
         if execution['status'] in complete_execution_statuses:
-            print('Execution has finished.')
+            info('Execution has finished.')
             return
         time.sleep(1)
 

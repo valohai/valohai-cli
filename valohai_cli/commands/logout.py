@@ -1,6 +1,7 @@
 import click
 
 from valohai_cli.consts import yes_option
+from valohai_cli.messages import success
 from valohai_cli.settings import settings
 
 
@@ -22,4 +23,4 @@ def logout(yes):
         click.confirm(message, abort=True)
     settings.persistence.update(host=None, user=None, token=None)
     settings.persistence.save()
-    click.secho('Logged out.', fg='green', bold=True)
+    success('Logged out.')

@@ -2,6 +2,7 @@ import click
 
 from valohai_cli.api import APISession
 from valohai_cli.consts import yes_option, default_app_host
+from valohai_cli.messages import success
 from valohai_cli.settings import settings
 
 
@@ -26,4 +27,4 @@ def login(username, password, host, yes):
         user_data = sess.get('/api/v0/users/me/').json()
     settings.persistence.update(host=host, user=user_data, token=token)
     settings.persistence.save()
-    click.secho('Logged in. Hi!', fg='green', bold=True)
+    success('Logged in. Hi!')

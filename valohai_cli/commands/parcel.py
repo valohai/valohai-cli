@@ -31,7 +31,7 @@ cd $WORKING_COPY_DIR
 
 
 def print_parcel_progress(text):
-    click.secho('::: %s' % text, bold=True, fg='cyan')
+    click.secho('::: %s' % text, bold=True, fg='cyan', err=True)
 
 
 @click.command()
@@ -188,7 +188,7 @@ def export_docker_image(image, output_path, print_progress=True):
     image_size = (get_docker_image_size(image) if print_progress else None)
     with open(output_path, 'wb') as outfp:
         if print_progress:
-            print('Initializing export...', end='\r')
+            click.echo('Initializing export...\r', nl=False, err=True)
         while proc.poll() is None:
             chunk = proc.stdout.read(1048576)
             if not chunk:
@@ -202,10 +202,10 @@ def export_docker_image(image, output_path, print_progress=True):
                     filesizeformat(outfp.tell()),
                     (filesizeformat(image_size) if image_size else 'unknown size'),
                 )
-                print(status_text.ljust(width - 1), end='\r')
+                click.echo(status_text.ljust(width - 1), nl=False, err=True)
     if proc.returncode:
         raise subprocess.CalledProcessError(proc.returncode, 'docker save ' + image)
-    click.secho('    {} exported: {}'.format(
+    success('{} exported: {}'.format(
         image,
         filesizeformat(os.stat(output_path).st_size),
-    ), fg='green')
+    ))

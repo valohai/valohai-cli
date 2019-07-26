@@ -92,13 +92,13 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
     assert len(headers) == len(columns), 'Must have equal amount of columns and headers'
 
     if not format:  # Auto-determine format from settings
-        format = settings.table_format
+        format = settings.output_format
 
     if format == 'human':
         htf = HumanTableFormatter(data=data, columns=columns, headers=headers, **kwargs)
         htf.echo()
     elif format == 'json':
-        json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)
+        print_json(data)
     elif format in SV_SEPARATORS:
         import csv
         writer = csv.writer(sys.stdout, delimiter=SV_SEPARATORS[format], quoting=csv.QUOTE_MINIMAL)
@@ -106,3 +106,7 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         writer.writerows(pluck_printable_data(data, columns, lambda col_val: n_str(col_val)))
     else:
         raise RuntimeError('Unknown print_table format: {}'.format(format))
+
+
+def print_json(data):
+    json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)

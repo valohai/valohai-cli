@@ -1,4 +1,4 @@
-from logging import warning
+from logging import warning, info
 
 import click
 
@@ -21,7 +21,7 @@ def fetch():
             success('Fetched: {ref} ({identifier})'.format(ref=commit['ref'], identifier=commit['identifier']))
         success('{n} new commits were fetched!'.format(n=len(commits)))
     else:
-        click.echo('No new commits.')
+        info('No new commits.')
     errors = data.get('errors', ())
     for error in errors:
         warning(error)

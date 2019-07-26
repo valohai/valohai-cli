@@ -3,7 +3,7 @@ import click
 from valohai_cli.api import request
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
-from valohai_cli.messages import success
+from valohai_cli.messages import success, info
 from valohai_cli.utils import get_project_directory
 
 
@@ -27,7 +27,7 @@ def create_project(directory, name, description='', link=True, yes=False):
                 return
         set_project_link(directory, project_data, inform=True)
     else:
-        click.echo('Links left alone.')
+        info('Links left alone.')
 
 
 @click.command()

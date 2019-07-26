@@ -1,3 +1,5 @@
+import warnings
+
 from valohai_cli.exceptions import APINotFoundError
 from valohai_cli.messages import error, info
 from valohai_cli.utils import walk_directory_parents
@@ -7,7 +9,7 @@ from .persistence import FilePersistence
 
 class Settings:
     # Non-persistent settings and their defaults:
-    table_format = 'human'
+    output_format = 'human'
     override_project = None
 
     def __init__(self, persistence=None):
@@ -29,6 +31,19 @@ class Settings:
         if key in self.overrides:
             return self.overrides[key]
         return self.persistence.get(key, default)
+
+    @property
+    def table_format(self):
+        warnings.warn('table_format is deprecated; use output_format', category=PendingDeprecationWarning)
+        return self.output_format
+
+    @table_format.setter
+    def table_format(self, value):
+        self.output_format = value
+
+    @property
+    def is_human_output(self):
+        return (self.output_format == 'human')
 
     @property
     def user(self):

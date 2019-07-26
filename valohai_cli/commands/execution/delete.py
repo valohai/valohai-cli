@@ -4,7 +4,7 @@ import sys
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import APIError
-from valohai_cli.messages import success, warn
+from valohai_cli.messages import success, warn, progress
 from valohai_cli.range import IntegerRange
 
 
@@ -40,17 +40,16 @@ def delete_execution(project, counter, purge_outputs=False):
     if purge_outputs:
         for output_datum in execution.get('outputs', ()):
             if not output_datum.get('purged'):
-                click.echo(
-                    '#{counter}: Purging output {name}... '.format(
-                        counter=execution['counter'],
-                        name=output_datum['name'],
-                    ))
+                progress('#{counter}: Purging output {name}... '.format(
+                    counter=execution['counter'],
+                    name=output_datum['name'],
+                ))
                 purge_url = '/api/v0/data/{datum_id}/purge/'.format(datum_id=output_datum['id'])
                 resp = request('post', purge_url, handle_errors=False)
                 if resp.status_code >= 400:  # pragma: no cover
                     warn('Error purging output: {error}; leaving this execution alone!'.format(error=resp.text))
                     return False
-    click.echo('Deleting #{counter}... '.format(counter=execution['counter']))
+    progress('Deleting #{counter}... '.format(counter=execution['counter']))
     resp = request('delete', execution_url, handle_errors=False)
     if resp.status_code >= 400:  # pragma: no cover
         warn('Error deleting execution: {error}'.format(error=resp.text))

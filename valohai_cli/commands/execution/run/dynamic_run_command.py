@@ -211,7 +211,7 @@ class RunCommand(click.Command):
 
         resolved_commit_identifier = commit_obj['identifier']
         if not commit_identifier:
-            click.echo('Resolved to commit {commit}'.format(commit=resolved_commit_identifier))
+            click.echo('Resolved to commit {commit}'.format(commit=resolved_commit_identifier), err=True)
 
         return resolved_commit_identifier
 

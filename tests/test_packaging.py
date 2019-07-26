@@ -63,7 +63,7 @@ def test_file_soft_size_warn(tmpdir, capsys, monkeypatch):
     write_temp_files(tmpdir, with_yaml=True, large_file_size=int(pkg.FILE_SIZE_WARN_THRESHOLD + 50))
     pkg.package_directory(str(tmpdir))
     out, err = capsys.readouterr()
-    assert 'Large file large_file.dat' in out
+    assert 'Large file large_file.dat' in err
 
 
 @pytest.mark.parametrize('threshold', (
