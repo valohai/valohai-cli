@@ -1,3 +1,5 @@
+import collections
+
 import click
 from click import get_current_context
 from valohai_yaml.objs import Parameter, Step
@@ -5,9 +7,10 @@ from valohai_yaml.objs.input import Input
 
 from valohai_cli import git as git
 from valohai_cli.api import request
-from valohai_cli.exceptions import NoGitRepo
+from valohai_cli.exceptions import CLIException, NoGitRepo
 from valohai_cli.messages import success, warn
 from valohai_cli.utils import humanize_identifier, sanitize_option_name
+from valohai_cli.utils.file_input import read_data_file
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 from .excs import ExecutionCreationAPIError
 
@@ -76,6 +79,11 @@ class RunCommand(click.Command):
             epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
             add_help_option=True,
         )
+        self.params.append(click.Option(
+            ['--parameter-file'],
+            type=click.Path(exists=True, dir_okay=False),
+            help='Read parameter values from JSON/YAML file',
+        ))
         for parameter in step.parameters.values():
             self.params.append(self.convert_param_to_option(parameter))
         for input in step.inputs.values():
@@ -83,6 +91,17 @@ class RunCommand(click.Command):
         for name, value in step.environment_variables.items():
             if name not in self.environment_variables:
                 self.environment_variables[name] = value.default
+
+    def format_options(self, ctx, formatter):
+        opts_by_group = collections.defaultdict(list)
+        for param in self.get_params(ctx):
+            rv = param.get_help_record(ctx)
+            if rv is not None:
+                opts_by_group[getattr(param, 'help_group', None)].append(rv)
+
+        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: (pair[0] or '')):
+            with formatter.section(group_name or 'Options'):
+                formatter.write_dl(opts)
 
     def convert_param_to_option(self, parameter):
         """
@@ -94,12 +113,13 @@ class RunCommand(click.Command):
         assert isinstance(parameter, Parameter)
         option = click.Option(
             param_decls=list(generate_sanitized_options(parameter.name)),
-            required=(parameter.default is None and not parameter.optional),
+            required=False,  # This is done later
             default=parameter.default,
             help=parameter.description,
             type=self.parameter_type_map.get(parameter.type, click.STRING),
         )
         option.name = '~%s' % parameter.name  # Tildify so we can pick these out of kwargs easily
+        option.help_group = 'Parameter Options'
         return option
 
     def convert_input_to_option(self, input):
@@ -118,6 +138,7 @@ class RunCommand(click.Command):
             multiple=True,
             help='Input "%s"' % humanize_identifier(input.name),
         )
+        option.help_group = 'Input Options'
         option.name = '^%s' % input.name  # Caretize so we can pick these out of kwargs easily
         return option
 
@@ -182,7 +203,36 @@ class RunCommand(click.Command):
                 inputs[key[1:]] = value
             else:
                 options[key] = value
+        self._process_parameters(params, parameter_file=options.get('parameter_file'))
         return (options, params, inputs)
+
+    def _process_parameters(self, parameters, parameter_file):
+        if parameter_file:
+            parameter_file_data = read_data_file(parameter_file)
+            if not isinstance(parameter_file_data, dict):
+                raise CLIException('Parameter file could not be parsed as a dictionary')
+
+            for name, parameter in self.step.parameters.items():
+                # See if we can match the name or the sanitized name to an option
+                for key in (name, sanitize_option_name(name)):
+                    if key not in parameter_file_data:
+                        continue
+                    value = parameter_file_data.pop(key)
+                    type = self.parameter_type_map.get(parameter.type, click.STRING)
+                    value = type.convert(value, param=None, ctx=None)
+                    parameters[name] = value
+
+            if parameter_file_data:  # Not everything was popped off
+                unparsed_parameter_names = ', '.join(sorted(str(k) for k in parameter_file_data))
+                warn('Parameters ignored in parameter file: {}'.format(unparsed_parameter_names))
+
+        missing_required_parameters = set()
+        for name, parameter in self.step.parameters.items():
+            required = (parameter.default is None and not parameter.optional)
+            if required and name not in parameters:
+                missing_required_parameters.add(name)
+        if missing_required_parameters:
+            raise CLIException('Required parameters missing: {}'.format(missing_required_parameters))
 
     def resolve_commit(self, commit_identifier):
         if not commit_identifier:

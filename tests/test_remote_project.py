@@ -1,4 +1,4 @@
-from tests.commands.execution.test_run import RunAPIMock
+from tests.commands.execution.run_test_utils import RunAPIMock
 from tests.fixture_data import PROJECT_DATA
 from valohai_cli.commands.execution.run import run
 from valohai_cli.models.remote_project import RemoteProject

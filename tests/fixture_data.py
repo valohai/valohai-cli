@@ -121,6 +121,9 @@ CONFIG_YAML = """
         description: Number of steps to run the trainer
         type: integer
         default: 300
+      - name: learning_rate
+        type: float
+        default: 0.1337
     environment-variables:
       - name: testenvvar
         default: 'test'
