@@ -1,6 +1,7 @@
 import pytest
+import yaml
 
-from tests.commands.execution.run_test_utils import RunAPIMock
+from tests.commands.execution.run_test_utils import RunAPIMock, run_test_setup
 from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -44,15 +45,22 @@ def test_run_input(run_test_setup):
     run_test_setup.run()
 
 
-def test_run_params(tmpdir, run_test_setup):
+@pytest.mark.parametrize('pass_param', ('direct', 'file', 'mix'))
+def test_run_params(tmpdir, run_test_setup, pass_param):
     values = {}
     values['parameters'] = {  # default from YAML
         'max_steps': 300,
         'learning_rate': 0.1337,
     }
-    run_test_setup.args.append('--max-steps=1801')
-    values['parameters']['max_steps'] = 1801
+    if pass_param in ('direct', 'mix'):
+        run_test_setup.args.append('--max-steps=1801')
+        values['parameters']['max_steps'] = 1801
 
+    if pass_param in ('file', 'mix'):
+        params_yaml = tmpdir.join('params.yaml')
+        params_yaml.write(yaml.safe_dump({'learning-rate': 1700}))
+        run_test_setup.args.append('--parameter-file=%s' % params_yaml)
+        values['parameters']['learning_rate'] = 1700
     run_test_setup.run()
 
 
