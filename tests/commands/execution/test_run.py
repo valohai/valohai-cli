@@ -117,10 +117,17 @@ def test_typo_check(runner, logged_in_and_linked):
 
 
 def test_run_help(runner, logged_in_and_linked):
-    project_id = PROJECT_DATA['id']
-
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
     output = runner.invoke(run, ['--help'], catch_exceptions=False).output
     assert 'Train model' in output
+
+
+def test_command_help(runner, logged_in_and_linked):
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    output = runner.invoke(run, ['Train model', '--help'], catch_exceptions=False).output
+    assert 'Parameter Options' in output
+    assert 'Input Options' in output

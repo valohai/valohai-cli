@@ -1,3 +1,5 @@
+import collections
+
 import click
 from click import get_current_context
 from valohai_yaml.objs import Parameter, Step
@@ -90,6 +92,17 @@ class RunCommand(click.Command):
             if name not in self.environment_variables:
                 self.environment_variables[name] = value.default
 
+    def format_options(self, ctx, formatter):
+        opts_by_group = collections.defaultdict(list)
+        for param in self.get_params(ctx):
+            rv = param.get_help_record(ctx)
+            if rv is not None:
+                opts_by_group[getattr(param, 'help_group', None)].append(rv)
+
+        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: (pair[0] or '')):
+            with formatter.section(group_name or 'Options'):
+                formatter.write_dl(opts)
+
     def convert_param_to_option(self, parameter):
         """
         Convert a Parameter into a click Option.
@@ -106,6 +119,7 @@ class RunCommand(click.Command):
             type=self.parameter_type_map.get(parameter.type, click.STRING),
         )
         option.name = '~%s' % parameter.name  # Tildify so we can pick these out of kwargs easily
+        option.help_group = 'Parameter Options'
         return option
 
     def convert_input_to_option(self, input):
@@ -124,6 +138,7 @@ class RunCommand(click.Command):
             multiple=True,
             help='Input "%s"' % humanize_identifier(input.name),
         )
+        option.help_group = 'Input Options'
         option.name = '^%s' % input.name  # Caretize so we can pick these out of kwargs easily
         return option
 
