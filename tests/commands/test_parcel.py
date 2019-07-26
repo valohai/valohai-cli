@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+import pytest
 import requests_mock
 
 from valohai_cli.commands.parcel import parcel
@@ -30,6 +31,7 @@ def create_fake_project(dir):
     ]), cwd=dir, shell=True)
 
 
+@pytest.mark.slow
 def test_parcel(runner, logged_in_and_linked, tmpdir):
     input_dir = get_project_directory()
     create_fake_project(input_dir)
