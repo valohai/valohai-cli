@@ -110,14 +110,11 @@ class RunTestSetup:
     def run(self):
         with RunAPIMock(self.project_id, self.commit_id, self.values):
             output = CliRunner().invoke(run, self.args, catch_exceptions=False).output
-            if self.adhoc:
-                assert 'Uploaded ad-hoc code' in output
-            else:
-                # Making sure that non-adhoc executions don't turn adhoc.
-                assert 'Uploaded ad-hoc code' not in output
+            # Making sure that non-adhoc executions don't turn adhoc or vice versa.
+            assert ('Uploaded ad-hoc code' in output) == self.adhoc
             assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
 
 
 @pytest.fixture(params=['regular', 'adhoc'], ids=('regular', 'adhoc'))
 def run_test_setup(request, logged_in_and_linked, monkeypatch):
-    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request == 'adhoc'))
+    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == 'adhoc'))
