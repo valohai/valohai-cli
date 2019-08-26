@@ -1,6 +1,6 @@
 import click
 
-from valohai_cli.adhoc import create_adhoc_commit
+from valohai_cli.adhoc import package_adhoc_commit
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
@@ -85,5 +85,5 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
-            rc.commit = create_adhoc_commit(project, validate=validate_adhoc)['identifier']
+            rc.commit = package_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)

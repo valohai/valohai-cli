@@ -3,6 +3,7 @@ import os
 import subprocess
 import tarfile
 import tempfile
+from collections import namedtuple
 from subprocess import check_output
 
 import click
@@ -33,6 +34,8 @@ their patterns to your `.gitignore` file.
 You can disable this validation with the `--no-validate-adhoc` option.
 '''
 
+PackageFileInfo = namedtuple('PackageFileInfo', ('source_path', 'stat'))
+
 
 def package_directory(dir, progress=False, validate=True):
     file_stats = get_files_for_package(dir)
@@ -48,27 +51,8 @@ def package_directory(dir, progress=False, validate=True):
             click.secho(PACKAGE_SIZE_HELP, err=True)
             click.confirm('Continue packaging anyway?', default=True, abort=True, prompt_suffix='', err=True)
 
-    files = sorted(file_stats.keys())
-
     with tempfile.NamedTemporaryFile(delete=False, suffix='.tgz', prefix='valohai-cli-') as fp:
-        # Manually creating the gzipfile to force mtime to 0.
-        with gzip.GzipFile('data.tar', mode='w', fileobj=fp, mtime=0) as gzf:
-            with tarfile.open(name='data.tar', mode='w', fileobj=gzf) as tarball:
-                progress_bar = click.progressbar(
-                    files,
-                    show_pos=True,
-                    item_show_func=lambda i: ('Packaging: %s' % i if i else ''),
-                    width=0,
-                )
-                if not progress:
-                    progress_bar.is_hidden = True
-
-                with progress_bar:
-                    for file in progress_bar:
-                        path = os.path.join(dir, file)
-                        if os.path.isfile(path):
-                            tarball.add(name=path, arcname=file)
-        fp.flush()
+        package_files_into(fp, file_stats, progress=progress)
         total_compressed_size = fp.tell()
 
     if validate and total_compressed_size >= COMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD:
@@ -80,7 +64,56 @@ def package_directory(dir, progress=False, validate=True):
     return fp.name
 
 
+def package_files_into(dest_fp, file_stats, progress=False):
+    """
+    Package (gzipped tarball) files from `file_stats` (which is a dict mapping names within the package
+    to their PackageFileInfo tuples) into the open writable binary file `dest_fp`.
+
+    The dict could look like this:
+
+    {
+      'valohai.yaml': PackageFileInfo(source_path='/my/tmp/valohai.yaml', stat=...),
+      'train.py': PackageFileInfo(source_path='/my/somewhere/else/train.py', stat=...),
+      'data/foo.dat': PackageFileInfo(source_path='/tmp/big.data', stat=...),
+    }
+
+    :param dest_fp: Target file descriptor
+    :param file_stats: Dict of files to infos
+    :param progress: Whether to show progress
+    :return:
+    """
+
+    files = sorted(file_stats.keys())
+
+    # Manually creating the gzipfile to force mtime to 0.
+    with gzip.GzipFile('data.tar', mode='w', fileobj=dest_fp, mtime=0) as gzf:
+        with tarfile.open(name='data.tar', mode='w', fileobj=gzf) as tarball:
+            progress_bar = click.progressbar(
+                files,
+                show_pos=True,
+                item_show_func=lambda i: ('Packaging: %s' % i if i else ''),
+                width=0,
+            )
+            if not progress:
+                progress_bar.is_hidden = True
+
+            with progress_bar:
+                for file in progress_bar:
+                    pfi = file_stats[file]
+                    if os.path.isfile(pfi.source_path):
+                        tarball.add(name=pfi.source_path, arcname=file)
+    dest_fp.flush()
+
+
+
 def get_files_for_package(dir, allow_git=True):
+    """
+    Get files to package for ad-hoc packaging from the file system.
+
+    :param dir: The source directory. Probably a working copy root or similar.
+    :param allow_git: Whether to allow usage of `git ls-files`, if available, for packaging.
+    :return:
+    """
     files = None
     if allow_git and os.path.exists(os.path.join(dir, '.git')):
         # We have .git, so we can try to use Git to figure out a file list of nonignored files
@@ -109,13 +142,22 @@ def get_files_for_package(dir, allow_git=True):
         )
         files = [filename[len(common_prefix):] for filename in files]
         info('Git not available, found {n} files to package'.format(n=len(files)))
-    return {file: os.stat(os.path.join(dir, file)) for file in files}
+
+    output_stats = {}
+    for file in files:
+        file_path = os.path.join(dir, file)
+        output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
+    return output_stats
 
 
 def validate_package_size(file_stats):
+    """
+    :type file_stats: Dict[str, PackageFileInfo]
+    """
     warnings = []
     total_uncompressed_size = 0
-    for file, stat in sorted(file_stats.items()):
+    for file, pfi in sorted(file_stats.items()):
+        stat = pfi.stat
         total_uncompressed_size += stat.st_size
         if stat.st_size >= FILE_SIZE_WARN_THRESHOLD:
             warnings.append('Large file {file}: {size}'.format(
