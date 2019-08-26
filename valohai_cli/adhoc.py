@@ -11,7 +11,7 @@ from valohai_cli.utils.file_size_format import filesizeformat
 from valohai_cli.utils.hashing import get_fp_sha256
 
 
-def create_adhoc_commit(project, validate=True):
+def package_adhoc_commit(project, validate=True):
     """
     Create an ad-hoc tarball and commit of the project directory.
 
@@ -35,20 +35,39 @@ def create_adhoc_commit(project, validate=True):
         else:
             click.echo('Packaging {dir}...'.format(dir=project.directory))
         tarball = package_directory(project.directory, progress=True, validate=validate)
-
-        commit_obj = _get_pre_existing_commit(tarball)
-
-        if commit_obj:
-            success('Ad-hoc code {identifier} already uploaded'.format(identifier=commit_obj['identifier']))
-        else:
-            commit_obj = _upload_commit_code(project, tarball, description)
-        return commit_obj
+        return create_adhoc_commit_from_tarball(project, tarball, description)
     finally:
         if tarball:
             try:
                 os.unlink(tarball)
             except OSError as err:  # pragma: no cover
                 warn('Unable to remove temporary file: {}'.format(err))
+
+
+# Compatibility alias.
+# TODO: Remove in 2020.
+create_adhoc_commit = package_adhoc_commit
+
+
+def create_adhoc_commit_from_tarball(project, tarball, description=''):
+    """
+    Using a precreated ad-hoc tarball, create or retrieve an ad-hoc commit of it on the Valohai host.
+
+    :param project: Project
+    :type project: valohai_cli.models.project.Project
+    :param tarball: Tgz tarball path, likely created by the packager
+    :type tarball: str
+    :param description: Optional description for the commit
+    :type description: str
+    :return: Commit response object from API
+    :rtype: dict[str, object]
+    """
+    commit_obj = _get_pre_existing_commit(tarball)
+    if commit_obj:
+        success('Ad-hoc code {identifier} already uploaded'.format(identifier=commit_obj['identifier']))
+    else:
+        commit_obj = _upload_commit_code(project, tarball, description)
+    return commit_obj
 
 
 def _get_pre_existing_commit(tarball):
