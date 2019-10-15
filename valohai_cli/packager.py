@@ -13,6 +13,7 @@ from valohai_cli.messages import info, warn
 from valohai_cli.utils.file_size_format import filesizeformat
 
 FILE_SIZE_WARN_THRESHOLD = 50 * 1024 * 1024
+FILE_COUNT_HARD_THRESHOLD = 10000
 UNCOMPRESSED_PACKAGE_SIZE_SOFT_THRESHOLD = 150 * 1024 * 1024
 COMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD = 1000 * 1024 * 1024
 
@@ -135,6 +136,12 @@ def get_files_for_package(dir, allow_git=True):
         for dirpath, dirnames, filenames in os.walk(dir):
             dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
             files.extend([os.path.join(dirpath, filename) for filename in filenames if not filename.startswith('.')])
+            if len(files) > FILE_COUNT_HARD_THRESHOLD:
+                raise PackageTooLarge(
+                    'Trying to package too many files (threshold: {threshold}).'.format(
+                        threshold=FILE_COUNT_HARD_THRESHOLD,
+                    ))
+
         common_prefix = (
             os.path.commonprefix(files)
             if len(files) > 1 else

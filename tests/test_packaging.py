@@ -77,6 +77,18 @@ def test_package_hard_size_fail(tmpdir, monkeypatch, threshold):
         pkg.package_directory(str(tmpdir))
 
 
+def test_package_file_count_hard_fail(tmpdir, monkeypatch):
+    # Should not fail here
+    monkeypatch.setattr(pkg, 'FILE_COUNT_HARD_THRESHOLD', 3)
+    write_temp_files(tmpdir, with_yaml=True)
+    pkg.package_directory(str(tmpdir))
+
+    # With threshold of 2, should fail for 3 files
+    monkeypatch.setattr(pkg, 'FILE_COUNT_HARD_THRESHOLD', 2)
+    with pytest.raises(PackageTooLarge):
+        pkg.package_directory(str(tmpdir))
+
+
 def test_single_file_packaged_correctly(tmpdir):
     tmpdir.join('valohai.yaml').write_text('this file is required', 'utf8')
     tarball = pkg.package_directory(str(tmpdir))
