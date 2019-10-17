@@ -3,6 +3,7 @@ import os
 import subprocess
 import tarfile
 import tempfile
+import fnmatch
 from collections import namedtuple
 from subprocess import check_output
 
@@ -116,6 +117,7 @@ def get_files_for_package(dir, allow_git=True, ignore=[]):
     :return:
     """
     files = None
+    files_and_paths = None
     if allow_git and os.path.exists(os.path.join(dir, '.git')):
         # We have .git, so we can try to use Git to figure out a file list of nonignored files
         try:
@@ -123,37 +125,43 @@ def get_files_for_package(dir, allow_git=True, ignore=[]):
                 line.decode('utf-8')
                 for line
                 in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0')
-                if line and not line.startswith(b'.') and is_valid_path(line, ignore)
+                if line and not line.startswith(b'.') and is_valid_path(line.decode('utf-8'), ignore)
             ]
-            info('Used git to find {n} files to package'.format(n=len(files)))
+            files_and_paths = [
+                (file, os.path.join(dir, file))
+                for file
+                in files
+            ]
+            info('Used git to find {n} files to package'.format(n=len(files_and_paths)))
         except subprocess.CalledProcessError as cpe:
             warn('.git exists, but we could not use git ls-files (error %d), falling back to non-git' % cpe.returncode)
 
-    if files is None:
+    if files_and_paths is None:
         # We failed to use git for packaging, or didn't want to -
         # just package up everything that doesn't have a . prefix and not included in ignore list
         files = []
         for dirpath, dirnames, filenames in os.walk(dir):
             dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
-            files.extend([os.path.join(dirpath, filename) for filename in filenames
-                if not filename.startswith('.')]) and is_valid_path(os.path.join(dirpath, filename), ignore)
+            files.extend([
+                os.path.join(dirpath, filename) for filename in filenames
+                if not filename.startswith('.') and is_valid_path(os.path.join(dirpath, filename), ignore)
+            ])
             if len(files) > FILE_COUNT_HARD_THRESHOLD:
                 raise PackageTooLarge(
                     'Trying to package too many files (threshold: {threshold}).'.format(
                         threshold=FILE_COUNT_HARD_THRESHOLD,
                     ))
 
-        common_prefix = (
-            os.path.commonprefix(files)
-            if len(files) > 1 else
-            os.path.dirname(files[0]) + os.sep
-        )
-        files = [filename[len(common_prefix):] for filename in files]
-        info('Git not available, found {n} files to package'.format(n=len(files)))
+        files_and_paths = [
+            (filepath[len(dir):].lstrip(os.sep), filepath)
+            for filepath
+            in files
+        ]
+
+        info('Git not available, found {n} files to package'.format(n=len(files_and_paths)))
 
     output_stats = {}
-    for file in files:
-        file_path = os.path.join(dir, file)
+    for file, file_path in files_and_paths:
         output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
     return output_stats
 
