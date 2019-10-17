@@ -106,13 +106,13 @@ def package_files_into(dest_fp, file_stats, progress=False):
     dest_fp.flush()
 
 
-
-def get_files_for_package(dir, allow_git=True):
+def get_files_for_package(dir, allow_git=True, ignore=[]):
     """
     Get files to package for ad-hoc packaging from the file system.
 
     :param dir: The source directory. Probably a working copy root or similar.
     :param allow_git: Whether to allow usage of `git ls-files`, if available, for packaging.
+    :param ignore: List of ignored patterns.
     :return:
     """
     files = None
@@ -123,7 +123,7 @@ def get_files_for_package(dir, allow_git=True):
                 line.decode('utf-8')
                 for line
                 in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0')
-                if line and not line.startswith(b'.')
+                if line and not line.startswith(b'.') and is_valid_path(line, ignore)
             ]
             info('Used git to find {n} files to package'.format(n=len(files)))
         except subprocess.CalledProcessError as cpe:
@@ -131,11 +131,12 @@ def get_files_for_package(dir, allow_git=True):
 
     if files is None:
         # We failed to use git for packaging, or didn't want to -
-        # just package up everything that doesn't have a . prefix
+        # just package up everything that doesn't have a . prefix and not included in ignore list
         files = []
         for dirpath, dirnames, filenames in os.walk(dir):
             dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
-            files.extend([os.path.join(dirpath, filename) for filename in filenames if not filename.startswith('.')])
+            files.extend([os.path.join(dirpath, filename) for filename in filenames
+                if not filename.startswith('.')]) and is_valid_path(os.path.join(dirpath, filename), ignore)
             if len(files) > FILE_COUNT_HARD_THRESHOLD:
                 raise PackageTooLarge(
                     'Trying to package too many files (threshold: {threshold}).'.format(
@@ -182,3 +183,10 @@ def validate_package_size(file_stats):
                 threshold=filesizeformat(UNCOMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD),
             ))
     return warnings
+
+
+def is_valid_path(path, ignore):
+    for ignored in ignore:
+        if fnmatch.fnmatch(path, ignored) or ignored in path:
+            return False
+    return True
