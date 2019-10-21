@@ -42,7 +42,7 @@ PackageFileInfo = namedtuple('PackageFileInfo', ('source_path', 'stat'))
 def package_directory(dir, progress=False, validate=True):
     file_stats = get_files_for_package(dir)
 
-    if 'valohai.yaml' not in file_stats:
+    if validate and 'valohai.yaml' not in file_stats:
         raise ConfigurationError('valohai.yaml missing from {}'.format(dir))
 
     if validate:
