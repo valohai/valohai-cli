@@ -40,6 +40,9 @@ class PluginCLI(click.MultiCommand):
         return self.command_modules
 
     def get_command(self, ctx, name):
+        # Dashes aren't valid in Python identifiers, so let's just replace them here.
+        name = name.replace('-', '_')
+
         command_map = self.command_to_canonical_map
         if name in command_map:
             return self._get_command(command_map[name])

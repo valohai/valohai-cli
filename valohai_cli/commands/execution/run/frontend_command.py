@@ -19,7 +19,7 @@ run_epilog = (
     add_help_option=False,
     epilog=run_epilog,
 )
-@click.argument('step')
+@click.argument('step', required=False, metavar='STEP-NAME')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see `vh env`)')
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
@@ -29,18 +29,19 @@ run_epilog = (
 @click.option('--sync', '-s', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option( '--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
-@click.argument('args', nargs=-1, type=click.UNPROCESSED)
+@click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, validate_adhoc, args):
     """
     Start an execution of a step.
     """
-    if step == '--help':  # This is slightly weird, but it's because of the nested command thing
+    # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
+    if step == '--help' or not step:
         click.echo(ctx.get_help(), color=ctx.color)
         try:
             config = get_project(require=True).get_config(commit_identifier=commit)
             if config.steps:
-                click.echo('\nThese steps are available in the selected commit:\n', color=ctx.color)
+                click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
                 for step in sorted(config.steps):
                     click.echo('   * %s' % step, color=ctx.color)
         except:  # If we fail to extract the step list, it's not that big of a deal.

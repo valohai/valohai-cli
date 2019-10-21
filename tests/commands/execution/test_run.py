@@ -10,7 +10,7 @@ adhoc_mark = pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'ad
 
 
 def test_run_requires_step(runner, logged_in_and_linked):
-    assert 'Missing argument' in runner.invoke(run, catch_exceptions=False).output
+    assert 'Usage: run' in runner.invoke(run, catch_exceptions=False).output
 
 
 @pytest.mark.parametrize('pass_env_var', ('custom', 'override-default'))
