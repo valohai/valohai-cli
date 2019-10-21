@@ -3,6 +3,7 @@ import os
 import subprocess
 import tarfile
 import tempfile
+import fnmatch
 from collections import namedtuple
 from subprocess import check_output
 
@@ -41,7 +42,7 @@ PackageFileInfo = namedtuple('PackageFileInfo', ('source_path', 'stat'))
 def package_directory(dir, progress=False, validate=True):
     file_stats = get_files_for_package(dir)
 
-    if 'valohai.yaml' not in file_stats:
+    if validate and 'valohai.yaml' not in file_stats:
         raise ConfigurationError('valohai.yaml missing from {}'.format(dir))
 
     if validate:
@@ -106,53 +107,72 @@ def package_files_into(dest_fp, file_stats, progress=False):
     dest_fp.flush()
 
 
+def _get_files_with_git(dir):
+    for line in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0'):
+        if line.startswith(b'.'):
+            continue
+        file = line.decode('utf-8')
+        yield (file, os.path.join(dir, file))
 
-def get_files_for_package(dir, allow_git=True):
+
+def _get_files_walk(dir):
+    for dirpath, dirnames, filenames in os.walk(dir):
+        dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
+        for filename in filenames:
+            if filename.startswith('.'):
+                continue
+            filename = os.path.join(dirpath, filename)
+            file_abs_path = os.path.join(dir, filename)
+            file_rel_path = filename[len(dir):].lstrip(os.sep)
+            yield (file_rel_path, file_abs_path)
+
+
+def _get_files(dir, allow_git=True):
+    if allow_git and os.path.exists(os.path.join(dir, '.git')):
+        # We have .git, so we can try to use Git to figure out a file list of nonignored files
+        try:
+            return (True, _get_files_with_git(dir))  # return the generator
+        except subprocess.CalledProcessError as cpe:
+            warn('.git exists, but we could not use git ls-files (error %d), falling back to non-git' % cpe.returncode)
+    return (False, _get_files_walk(dir))  # return the generator
+
+
+def is_valid_path(path, ignore_patterns):
+    for pat in ignore_patterns:
+        if fnmatch.fnmatch(path, pat) or pat in path:
+            return False
+    return True
+
+
+def get_files_for_package(dir, allow_git=True, ignore_patterns=()):
     """
     Get files to package for ad-hoc packaging from the file system.
 
     :param dir: The source directory. Probably a working copy root or similar.
     :param allow_git: Whether to allow usage of `git ls-files`, if available, for packaging.
+    :param ignore_patterns: List of ignored patterns.
     :return:
     """
-    files = None
-    if allow_git and os.path.exists(os.path.join(dir, '.git')):
-        # We have .git, so we can try to use Git to figure out a file list of nonignored files
-        try:
-            files = [
-                line.decode('utf-8')
-                for line
-                in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0')
-                if line and not line.startswith(b'.')
-            ]
-            info('Used git to find {n} files to package'.format(n=len(files)))
-        except subprocess.CalledProcessError as cpe:
-            warn('.git exists, but we could not use git ls-files (error %d), falling back to non-git' % cpe.returncode)
+    files_and_paths = []
+    using_git, ftup_generator = _get_files(dir, allow_git=allow_git)
 
-    if files is None:
-        # We failed to use git for packaging, or didn't want to -
-        # just package up everything that doesn't have a . prefix
-        files = []
-        for dirpath, dirnames, filenames in os.walk(dir):
-            dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
-            files.extend([os.path.join(dirpath, filename) for filename in filenames if not filename.startswith('.')])
-            if len(files) > FILE_COUNT_HARD_THRESHOLD:
-                raise PackageTooLarge(
-                    'Trying to package too many files (threshold: {threshold}).'.format(
-                        threshold=FILE_COUNT_HARD_THRESHOLD,
-                    ))
+    for ftup in ftup_generator:
+        if ignore_patterns and not is_valid_path(ftup[1], ignore_patterns):
+            continue
+        files_and_paths.append(ftup)
+        if len(files_and_paths) > FILE_COUNT_HARD_THRESHOLD:
+            raise PackageTooLarge(
+                'Trying to package too many files (threshold: {threshold}).'.format(
+                    threshold=FILE_COUNT_HARD_THRESHOLD,
+                ))
 
-        common_prefix = (
-            os.path.commonprefix(files)
-            if len(files) > 1 else
-            os.path.dirname(files[0]) + os.sep
-        )
-        files = [filename[len(common_prefix):] for filename in files]
-        info('Git not available, found {n} files to package'.format(n=len(files)))
+    if using_git:
+        info('Used git to find {n} files to package'.format(n=len(files_and_paths)))
+    else:
+        info('Git not available, found {n} files to package'.format(n=len(files_and_paths)))
 
     output_stats = {}
-    for file in files:
-        file_path = os.path.join(dir, file)
+    for file, file_path in files_and_paths:
         output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
     return output_stats
 

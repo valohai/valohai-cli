@@ -93,3 +93,9 @@ def test_single_file_packaged_correctly(tmpdir):
     tmpdir.join('valohai.yaml').write_text('this file is required', 'utf8')
     tarball = pkg.package_directory(str(tmpdir))
     assert get_tar_files(tarball) == {'valohai.yaml'}
+
+
+def test_no_files_in_rootdir(tmpdir):
+    tmpdir.mkdir('subway').join('asdf.bat').write_text('this file is required', 'utf8')
+    tarball = pkg.package_directory(str(tmpdir), validate=False)
+    assert get_tar_files(tarball) == {'subway/asdf.bat'}
