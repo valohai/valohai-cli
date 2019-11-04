@@ -51,7 +51,17 @@ def choose_project(dir, spec=None):
     prompt = 'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
         dir=click.style(dir, bold=True),
     )
-    return prompt_from_list(projects, prompt, nonlist_validator)
+    has_multiple_owners = (len(set(p.get('owner', {}).get('id') for p in projects)) > 1)
+
+    def project_name_formatter(project):
+        try:
+            if has_multiple_owners:
+                return click.style(project['owner']['username'] + '/', dim=True) + project['name']
+        except:
+            pass
+        return project['name']
+
+    return prompt_from_list(projects, prompt, nonlist_validator, name_formatter=project_name_formatter)
 
 
 @click.command()
