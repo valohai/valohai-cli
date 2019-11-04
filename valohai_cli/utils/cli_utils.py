@@ -3,11 +3,15 @@ import click
 from valohai_cli.help_texts import EXECUTION_COUNTER_HELP
 
 
-def prompt_from_list(options, prompt, nonlist_validator=None):
+def _default_name_formatter(option):
+    return option['name']
+
+
+def prompt_from_list(options, prompt, nonlist_validator=None, name_formatter=_default_name_formatter):
     for i, option in enumerate(options, 1):
         click.echo('{number} {name} {description}'.format(
             number=click.style('[%3d]' % i, fg='cyan'),
-            name=option['name'],
+            name=name_formatter(option),
             description=(
                 click.style('(%s)' % option['description'], dim=True)
                 if option.get('description')

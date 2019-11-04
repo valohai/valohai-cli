@@ -1,6 +1,8 @@
+from operator import itemgetter
+
 import pytest
 
-from tests.utils import get_project_data
+from tests.utils import get_project_list_data
 from valohai_cli.commands.project.link import link
 from valohai_cli.commands.project.unlink import unlink
 from valohai_cli.ctx import get_project
@@ -10,8 +12,8 @@ from .utils import get_project_mock
 
 @pytest.mark.parametrize('method', ('number', 'arg', 'name'))
 def test_link(runner, logged_in, method):
-    project_data = get_project_data(2)
-    name = project_data['results'][0]['name']
+    project_data = get_project_list_data(2)
+    name = sorted(project_data['results'], key=itemgetter('name'))[0]['name']
     with get_project_mock(existing_projects=project_data):
         if method == 'arg':
             result = runner.invoke(link, [name])  # Parameter on command line
