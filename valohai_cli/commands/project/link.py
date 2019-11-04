@@ -61,6 +61,7 @@ def choose_project(dir, spec=None):
             pass
         return project['name']
 
+    projects.sort(key=lambda project: project_name_formatter(project).lower())
     return prompt_from_list(projects, prompt, nonlist_validator, name_formatter=project_name_formatter)
 
 
