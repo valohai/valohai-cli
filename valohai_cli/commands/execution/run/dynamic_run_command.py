@@ -239,7 +239,7 @@ class RunCommand(click.Command):
         if not commit_identifier:
             try:
                 commit_identifier = git.get_current_commit(self.project.directory)
-            except NoGitRepo as exc:
+            except NoGitRepo:
                 warn(
                     'The directory is not a Git repository. \n'
                     'Would you like to just run using the latest commit known by Valohai?'

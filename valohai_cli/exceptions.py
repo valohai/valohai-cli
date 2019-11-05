@@ -1,7 +1,6 @@
 from pprint import pformat
 
 import click
-import requests
 from click import ClickException
 
 
