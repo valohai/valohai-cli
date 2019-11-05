@@ -1,10 +1,11 @@
-import click
 import sys
+
+import click
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import APIError
-from valohai_cli.messages import success, warn, progress
+from valohai_cli.messages import progress, success, warn
 from valohai_cli.range import IntegerRange
 
 

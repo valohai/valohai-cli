@@ -1,9 +1,9 @@
+import fnmatch
 import gzip
 import os
 import subprocess
 import tarfile
 import tempfile
-import fnmatch
 from collections import namedtuple
 from subprocess import check_output
 

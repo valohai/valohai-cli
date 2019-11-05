@@ -1,12 +1,9 @@
 import logging
-import platform
-import sys
 
 import click
 
 from valohai_cli.consts import default_app_host
-from valohai_cli.messages import warn
-from valohai_cli.override import configure_token_login, configure_project_override
+from valohai_cli.override import configure_project_override, configure_token_login
 from valohai_cli.plugin_cli import RecursiveHelpPluginCLI
 from valohai_cli.settings import settings
 from valohai_cli.table import TABLE_FORMATS
@@ -40,9 +37,3 @@ def cli(ctx, debug, output_format, valohai_host, valohai_token, project_id, proj
             raise click.UsageError('--project-mode (currently %s) must not be set without --project' % project_mode)
         if project_root:
             raise click.UsageError('--project-root (currently %s) must not be set without --project' % project_root)
-
-    if platform.python_implementation() in ('CPython', 'PyPy') and sys.version_info[:2] < (3, 5):
-        warn(
-            'A future version of the tool will drop support Python versions older than 3.5. '
-            'You are currently using Python %s. Please upgrade!' % platform.python_version()
-        )

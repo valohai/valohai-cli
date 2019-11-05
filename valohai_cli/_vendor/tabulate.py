@@ -27,13 +27,12 @@
 
 """Pretty-print tabular data."""
 
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
+
+import math
+import re
 from collections import namedtuple
 from platform import python_version_tuple
-import re
-import math
-
 
 if python_version_tuple() >= ("3", "3", "0"):
     from collections.abc import Iterable

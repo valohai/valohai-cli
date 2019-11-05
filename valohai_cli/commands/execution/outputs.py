@@ -6,12 +6,12 @@ import click
 import requests
 
 from valohai_cli.api import request
+from valohai_cli.consts import complete_execution_statuses
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn, info
+from valohai_cli.messages import info, success, warn
 from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import counter_argument
-from valohai_cli.consts import complete_execution_statuses
 
 
 def get_execution_outputs(execution):

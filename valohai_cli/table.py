@@ -1,7 +1,7 @@
 import json
+import sys
 
 import click
-import sys
 import six
 from click import get_terminal_size
 
@@ -51,7 +51,6 @@ class HumanTableFormatter:
 
     def _generate_vertical(self):
         header_width = max(len(header) for header in self.headers)
-        table_width = self.terminal_width - 5
         for row in self.printable_data:
             for header, value in zip(self.headers, row):
                 yield (False, '{}{}{}'.format(

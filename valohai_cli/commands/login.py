@@ -3,8 +3,8 @@ from click.exceptions import Exit
 
 from valohai_cli import __version__
 from valohai_cli.api import APISession
-from valohai_cli.consts import yes_option, default_app_host
-from valohai_cli.messages import success, error, info
+from valohai_cli.consts import default_app_host, yes_option
+from valohai_cli.messages import error, info, success
 from valohai_cli.settings import settings
 
 

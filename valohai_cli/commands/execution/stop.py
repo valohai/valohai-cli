@@ -2,7 +2,7 @@ import click
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, warn, progress, info
+from valohai_cli.messages import info, progress, success, warn
 from valohai_cli.range import IntegerRange
 from valohai_cli.utils.cli_utils import HelpfulArgument
 

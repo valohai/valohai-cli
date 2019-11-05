@@ -1,0 +1,8 @@
+autoflake
+autopep8
+isort
+pip-tools
+pytest
+pytest-cov
+requests-mock
+tox

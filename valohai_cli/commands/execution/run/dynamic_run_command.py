@@ -12,6 +12,7 @@ from valohai_cli.messages import success, warn
 from valohai_cli.utils import humanize_identifier, sanitize_option_name
 from valohai_cli.utils.file_input import read_data_file
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
+
 from .excs import ExecutionCreationAPIError
 
 
@@ -238,7 +239,7 @@ class RunCommand(click.Command):
         if not commit_identifier:
             try:
                 commit_identifier = git.get_current_commit(self.project.directory)
-            except NoGitRepo as exc:
+            except NoGitRepo:
                 warn(
                     'The directory is not a Git repository. \n'
                     'Would you like to just run using the latest commit known by Valohai?'

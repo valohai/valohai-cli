@@ -1,15 +1,13 @@
 from uuid import uuid4
 
-from valohai_cli.utils import get_random_string
 
-
-def get_project_list_data(n_projects):
+def get_project_list_data(project_names):
     return {
         'results': [
             {
                 "id": str(uuid4()),
-                "name": get_random_string(),
-                "description": str(i),
+                "name": name,
+                "description": name,
                 "owner": {
                     "id": 1,
                     "username": "test"
@@ -26,7 +24,8 @@ def get_project_list_data(n_projects):
                 "queued_execution_count": 0,
                 "last_execution_ctime": "2019-02-26T16:14:08.442080Z"
             }
-            for i in range(n_projects)
+            for name
+            in project_names
         ],
     }
 

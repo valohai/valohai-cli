@@ -7,7 +7,7 @@ from valohai_cli.consts import execution_statuses
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.settings import settings
-from valohai_cli.table import print_table, print_json
+from valohai_cli.table import print_json, print_table
 
 
 @click.command()

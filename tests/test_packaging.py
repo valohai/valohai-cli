@@ -6,9 +6,9 @@ from subprocess import check_call, check_output
 import pytest
 from click import termui
 
+import valohai_cli.packager as pkg
 from valohai_cli.exceptions import ConfigurationError, NoCommit, PackageTooLarge
 from valohai_cli.git import describe_current_commit
-import valohai_cli.packager as pkg
 
 
 def write_temp_files(tmpdir, with_yaml=True, large_file_size=0):

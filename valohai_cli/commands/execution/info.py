@@ -2,7 +2,7 @@ import click
 
 from valohai_cli.ctx import get_project
 from valohai_cli.settings import settings
-from valohai_cli.table import print_table, print_json
+from valohai_cli.table import print_json, print_table
 from valohai_cli.utils import humanize_identifier
 from valohai_cli.utils.cli_utils import counter_argument
 

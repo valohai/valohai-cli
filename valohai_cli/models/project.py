@@ -5,7 +5,7 @@ import valohai_yaml
 from click import BadParameter
 
 from valohai_cli.api import request
-from valohai_cli.exceptions import InvalidConfig, NoExecution, APIError
+from valohai_cli.exceptions import APIError, InvalidConfig, NoExecution
 from valohai_cli.git import get_file_at_commit
 
 

@@ -1,12 +1,12 @@
 import click
 
 from valohai_cli.api import request
-from valohai_cli.utils.cli_utils import prompt_from_list
 from valohai_cli.commands.project.create import create_project
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
 from valohai_cli.messages import warn
 from valohai_cli.utils import get_project_directory
+from valohai_cli.utils.cli_utils import prompt_from_list
 
 
 class NewProjectInstead(Exception):

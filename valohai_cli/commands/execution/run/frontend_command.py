@@ -4,6 +4,7 @@ from valohai_cli.adhoc import package_adhoc_commit
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
+
 from .dynamic_run_command import RunCommand
 from .utils import match_step
 
@@ -28,7 +29,7 @@ run_epilog = (
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
 @click.option('--sync', '-s', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
-@click.option( '--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
+@click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, validate_adhoc, args):
