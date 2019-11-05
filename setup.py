@@ -17,5 +17,6 @@ setup(
         'requests[security]>=2.0.0',
         'requests-toolbelt>=0.7.1',
     ],
+    python_requires='>=3.5',
     packages=find_packages(include=('valohai_cli*',)),
 )
