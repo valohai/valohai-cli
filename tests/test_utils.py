@@ -7,13 +7,9 @@ import sys
 import pytest
 
 from valohai_cli.utils import (
-    clean_log_line,
-    force_bytes,
-    force_text,
-    humanize_identifier,
-    match_prefix,
-    walk_directory_parents,
-    sanitize_option_name)
+    clean_log_line, force_bytes, force_text, humanize_identifier, match_prefix, sanitize_option_name,
+    walk_directory_parents
+)
 
 
 def test_dir_parents():

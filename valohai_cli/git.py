@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from valohai_cli.exceptions import NoGitRepo, NoCommit
+from valohai_cli.exceptions import NoCommit, NoGitRepo
 
 
 def check_git_output(args, directory):

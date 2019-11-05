@@ -1,4 +1,4 @@
-from click import OptionParser, NoSuchOption
+from click import NoSuchOption, OptionParser
 
 from .levenshtein import levenshtein
 

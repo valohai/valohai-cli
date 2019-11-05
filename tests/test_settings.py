@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from valohai_cli.settings import get_settings_file_name, settings, FilePersistence
+from valohai_cli.settings import FilePersistence, get_settings_file_name, settings
 
 
 @pytest.fixture

@@ -1,8 +1,9 @@
 import pytest
 
-from .utils import get_project_mock
 from valohai_cli.commands.project.create import create
 from valohai_cli.utils import get_random_string
+
+from .utils import get_project_mock
 
 
 @pytest.mark.parametrize('link', (False, True))

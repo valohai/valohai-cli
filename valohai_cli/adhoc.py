@@ -1,9 +1,10 @@
-import click
 import os
+
+import click
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from valohai_cli.api import request
-from valohai_cli.exceptions import NoGitRepo, NoCommit, APIError
+from valohai_cli.exceptions import APIError, NoCommit, NoGitRepo
 from valohai_cli.git import describe_current_commit
 from valohai_cli.messages import success, warn
 from valohai_cli.packager import package_directory

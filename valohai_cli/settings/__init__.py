@@ -3,6 +3,7 @@ import warnings
 from valohai_cli.exceptions import APINotFoundError
 from valohai_cli.messages import error, info
 from valohai_cli.utils import walk_directory_parents
+
 from .paths import get_settings_file_name
 from .persistence import FilePersistence
 

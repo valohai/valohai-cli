@@ -1,7 +1,7 @@
 import json
+import sys
 
 import click
-import sys
 import six
 from click import get_terminal_size
 

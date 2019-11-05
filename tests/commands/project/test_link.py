@@ -7,6 +7,7 @@ from valohai_cli.commands.project.link import link
 from valohai_cli.commands.project.unlink import unlink
 from valohai_cli.ctx import get_project
 from valohai_cli.utils import get_random_string
+
 from .utils import get_project_mock
 
 

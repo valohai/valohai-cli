@@ -1,4 +1,4 @@
-from logging import warning, info
+from logging import info, warning
 
 import click
 
