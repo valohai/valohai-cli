@@ -189,3 +189,7 @@ def parse_environment_variable_strings(envvar_strings):
             continue
         environment_variables[key] = value.strip()
     return environment_variables
+
+
+def compact_dict(dct: dict) -> dict:
+    return {key: value for (key, value) in dct.items() if key and value}
