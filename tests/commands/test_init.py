@@ -1,8 +1,6 @@
 import os
-from uuid import uuid4
 
-import requests_mock
-
+from tests.commands.project.utils import get_project_mock
 from valohai_cli.commands.init import init
 from valohai_cli.ctx import get_project
 from valohai_cli.utils import get_project_directory, get_random_string
@@ -14,11 +12,7 @@ def test_init(runner, logged_in):
     with open(os.path.join(dir, 'my_script.py'), 'w') as script_fp:
         script_fp.write('# Hello')
 
-    with requests_mock.mock() as m:
-        m.post('https://app.valohai.com/api/v0/projects/', json={
-            'id': str(uuid4()),
-            'name': name,
-        })
+    with get_project_mock(create_project_name=name) as m:
         result = runner.invoke(init, input='\n'.join([
             'y',  # correct directory
             'echo hello',  # command

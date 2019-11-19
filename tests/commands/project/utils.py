@@ -7,6 +7,7 @@ from valohai_cli.utils import get_random_string
 
 
 def get_project_mock(create_project_name=None, existing_projects=None):
+    username = get_random_string()
     m = requests_mock.mock()
     if isinstance(existing_projects, int):
         existing_projects = get_project_list_data([get_random_string() for x in range(existing_projects)])
@@ -16,5 +17,10 @@ def get_project_mock(create_project_name=None, existing_projects=None):
         m.post('https://app.valohai.com/api/v0/projects/', json=lambda request, context: {
             'id': str(uuid4()),
             'name': create_project_name,
+            'owner': {
+                'id': 8,
+                'username': username,
+            }
         })
+    m.get('https://app.valohai.com/api/v0/projects/ownership_options/', json=[username])
     return m
