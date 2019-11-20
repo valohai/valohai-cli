@@ -76,3 +76,18 @@ def error(message, err=True):
 
 def progress(message, err=True):
     click.echo(_format_message(message, PROGRESS_EMOJI, None, None), err=err)
+
+
+DEFAULT_BANNER_STYLE = dict(fg='magenta', bold=True)
+
+
+def banner(message, banner_char='=', banner_style=None):
+    if banner_style is None:
+        banner_style = DEFAULT_BANNER_STYLE
+
+    longest_line_len = max(len(l) for l in message.splitlines())
+
+    banner_line = banner_char * longest_line_len
+    click.secho(banner_line, **banner_style)
+    click.echo(message)
+    click.secho(banner_line, **banner_style)
