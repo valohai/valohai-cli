@@ -51,10 +51,29 @@ class APIError(CLIException):
         self.response = response
         self.request = response.request
 
-    def format_message(self):
+    @property
+    def error_json(self):
         try:
             error_json = self.response.json()
             if isinstance(error_json, (dict, list)):
+                return error_json
+        except Exception:
+            return None
+
+    @property
+    def code(self):
+        """
+        Attempt to retrieve a top-level error code from the response.
+        """
+        error_json = self.error_json
+        if error_json:
+            return error_json.get('code')
+        return None
+
+    def format_message(self):
+        try:
+            error_json = self.error_json
+            if error_json:
                 from .utils.error_fmt import format_error_data
                 try:
                     return format_error_data(error_json)
