@@ -1,11 +1,25 @@
+import sys
+
 import click
 from click.exceptions import Exit
 
 from valohai_cli import __version__
 from valohai_cli.api import APISession
 from valohai_cli.consts import default_app_host, yes_option
-from valohai_cli.messages import error, info, success
+from valohai_cli.exceptions import APIError
+from valohai_cli.messages import error, info, success, banner
 from valohai_cli.settings import settings
+
+
+TOKEN_LOGIN_HELP = '''
+Oops!
+The error code "{code}" indicates username + password authentication is not possible.
+Use a login token instead:
+ 1. Log in on {host}
+ 2. Visit {host}auth/tokens/ to generate an authentication token
+ 3. Once you have an authentication token, log in with:
+    {command}
+'''.strip()
 
 
 @click.command()
@@ -51,8 +65,20 @@ def login(username, password, token, host, yes):
         click.echo('Retrieving API token...')
 
         with APISession(host) as sess:
-            token_data = sess.post('/api/v0/get-token/', data={'username': username, 'password': password}).json()
-            token = token_data['token']
+            try:
+                token_data = sess.post('/api/v0/get-token/', data={
+                    'username': username,
+                    'password': password,
+                }).json()
+                token = token_data['token']
+            except APIError as ae:
+                code = ae.code
+                if code in ('has_external_identity', 'has_2fa'):
+                    command = 'vh login --token TOKEN_HERE '
+                    if host != default_app_host:
+                        command += '--host {}'.format(host)
+                    banner(TOKEN_LOGIN_HELP.format(code=code, host=host, command=command))
+                raise
 
     click.echo('Verifying API token...')
 
