@@ -36,7 +36,7 @@ def print_parcel_progress(text):
 
 
 @click.command()
-@click.option('-d', '--destination', type=click.Path(file_okay=False, dir_okay=True), required=False)
+@click.option('-d', '--destination', type=click.Path(file_okay=False, dir_okay=True), required=False, help='Destination directory')
 @click.option('-c', '--commit', help='Commit to read required Docker image IDs from')
 @click.option(
     '--code',

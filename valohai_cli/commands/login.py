@@ -23,10 +23,10 @@ Use a login token instead:
 
 
 @click.command()
-@click.option('--username', '-u', envvar='VALOHAI_USERNAME')
-@click.option('--password', '-p', envvar='VALOHAI_PASSWORD')
-@click.option('--token', '-t', envvar='VALOHAI_TOKEN')
-@click.option('--host', '-h', default=default_app_host)
+@click.option('--username', '-u', envvar='VALOHAI_USERNAME', help='Your Valohai username')
+@click.option('--password', '-p', envvar='VALOHAI_PASSWORD', help='Your Valohai password')
+@click.option('--token', '-t', envvar='VALOHAI_TOKEN', help='A Valohai API token (instead of username and password)')
+@click.option('--host', '-h', default=default_app_host, help='Valohai host to login on (for private installations)')
 @yes_option
 def login(username, password, token, host, yes):
     """Log in into Valohai."""

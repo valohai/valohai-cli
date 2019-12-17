@@ -10,8 +10,8 @@ from valohai_cli.table import TABLE_FORMATS
 
 
 @click.command(cls=RecursiveHelpPluginCLI, commands_module='valohai_cli.commands')
-@click.option('--debug/--no-debug', default=False, envvar='VALOHAI_DEBUG')
-@click.option('--output-format', '--table-format', type=click.Choice(TABLE_FORMATS), default='human', envvar=('VALOHAI_TABLE_FORMAT', 'VALOHAI_OUTPUT_FORMAT'))
+@click.option('--debug/--no-debug', default=False, envvar='VALOHAI_DEBUG', help='Enable debug logging.')
+@click.option('--output-format', '--table-format', type=click.Choice(TABLE_FORMATS), default='human', envvar=('VALOHAI_TABLE_FORMAT', 'VALOHAI_OUTPUT_FORMAT'), help='Set the output format for various data.')
 @click.option('--valohai-host', envvar='VALOHAI_HOST', metavar='URL', help='Override the Valohai API host (default %s)' % default_app_host, show_envvar=True)
 @click.option('--valohai-token', envvar='VALOHAI_TOKEN', metavar='SECRET', help='Use this Valohai authentication token', show_envvar=True)
 @click.option('--project', 'project_id', envvar='VALOHAI_PROJECT', type=click.UUID, help='(Advanced) Override the project ID', show_envvar=True)
