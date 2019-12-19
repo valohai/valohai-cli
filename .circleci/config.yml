@@ -36,7 +36,7 @@ jobs:
         - ~/.cache/pip
         - ~/.pyenv
     - setup_remote_docker
-    - run: tox -e $TOX_ENV -- --cov-append --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
+    - run: tox -e $TOX_ENV -- --cov . --cov-report term-missing --junitxml=$CIRCLE_TEST_REPORTS/junit.xml -ra
     - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
     - store_test_results:
         path: /tmp/circleci-test-results
