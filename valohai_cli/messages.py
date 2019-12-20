@@ -1,5 +1,6 @@
 # -- encoding: UTF-8 --
 import random
+import sys
 
 import click
 import six
@@ -9,8 +10,10 @@ WARN_EMOJI = [':(', 'o_o', '-_-']
 ERROR_EMOJI = ['x_x', '._.', ':[']
 PROGRESS_EMOJI = ['...']
 
-if six.PY3:
-    # Py3 is always wide-unicode
+if six.PY3 and sys.platform != 'win32':
+    # Py3 is always wide-unicode so we can use the emoji codepoints.
+    # The default Win32 console can't display these properly.
+
     SUCCESS_EMOJI = [
         chr(0x1F600),  # GRINNING FACE (So) 😀
         chr(0x1F601),  # GRINNING FACE WITH SMILING EYES (So) 😁
