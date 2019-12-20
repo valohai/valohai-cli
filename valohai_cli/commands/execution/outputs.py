@@ -13,6 +13,18 @@ from valohai_cli.table import print_table
 from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import counter_argument
 
+DOWNLOAD_HELP = (
+    'Download files to this directory (by default, don\'t download). '
+    'You can use `{counter}` as a placeholder that will be replaced by the execution\'s '
+    'counter number.'
+)
+
+GLOB_HELP = (
+    'Download only files matching this glob.\n'
+    'Be sure to wrap the value in single quotes (or however appropriate for your shell) '
+    'to avoid your shell expanding the wildcard, e.g. `outputs -f \'*.csv\'`.'
+)
+
 
 def get_execution_outputs(execution):
     return list(request(
@@ -27,15 +39,8 @@ def get_execution_outputs(execution):
 
 @click.command()
 @counter_argument
-@click.option(
-    '--download', '-d', 'download_directory',
-    type=click.Path(file_okay=False),
-    help='Download files to this directory (by default, don\'t download). '
-         'You can use `{counter}` as a placeholder that will be replaced by the execution\'s '
-         'counter number.',
-    default=None,
-)
-@click.option('--filter-download', '-f', help='Download only files matching this glob.', default=None)
+@click.option('--download', '-d', 'download_directory', type=click.Path(file_okay=False), help=DOWNLOAD_HELP, default=None)
+@click.option('--filter-download', '-f', help=GLOB_HELP, default=None)
 @click.option('--force', is_flag=True, help='Download all files even if they already exist.')
 @click.option('--sync', '-s', is_flag=True, help='Keep watching for new output files to download.')
 def outputs(counter, download_directory, filter_download, force, sync):
