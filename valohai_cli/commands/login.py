@@ -26,10 +26,15 @@ Use a login token instead:
 @click.option('--username', '-u', envvar='VALOHAI_USERNAME', help='Your Valohai username')
 @click.option('--password', '-p', envvar='VALOHAI_PASSWORD', help='Your Valohai password')
 @click.option('--token', '-t', envvar='VALOHAI_TOKEN', help='A Valohai API token (instead of username and password)')
-@click.option('--host', '-h', default=default_app_host, help='Valohai host to login on (for private installations)')
+@click.option('--host', '-h', help='Valohai host to login on (for private installations)')
 @yes_option
 def login(username, password, token, host, yes):
     """Log in into Valohai."""
+    host = (
+        host  # Explicitly set for this command, ...
+        or settings.overrides.get('host')  # ... or from the top-level CLI (or envvar) ...
+        or default_app_host  # ... or the global default
+    )
     if settings.user and settings.token:
         user = settings.user
         current_username = user['username']
