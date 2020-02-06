@@ -27,12 +27,12 @@ run_epilog = (
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
-@click.option('--sync', '-s', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
+@click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
-def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, environment_variables, validate_adhoc, args):
+def run(ctx, step, commit, environment, watch, download_directory, title, adhoc, image, environment_variables, validate_adhoc, args):
     """
     Start an execution of a step.
     """
@@ -56,7 +56,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
         if project.is_remote:
             raise click.UsageError('--adhoc can not be used with remote projects.')
 
-    if sync and watch:
+    if download_directory and watch:
         raise click.UsageError('Combining --sync and --watch not supported yet.')
 
     if not commit and project.is_remote:
@@ -80,7 +80,7 @@ def run(ctx, step, commit, environment, watch, sync, title, adhoc, image, enviro
         commit=commit,
         environment=environment,
         watch=watch,
-        sync=sync,
+        download_directory=download_directory,
         image=image,
         title=title,
         environment_variables=parse_environment_variable_strings(environment_variables),

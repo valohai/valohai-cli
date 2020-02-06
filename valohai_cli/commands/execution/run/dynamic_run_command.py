@@ -41,7 +41,7 @@ class RunCommand(click.Command):
         image=None,
         title=None,
         watch=False,
-        sync=None,
+        download_directory=None,
         environment_variables=None,
     ):
 
@@ -63,6 +63,8 @@ class RunCommand(click.Command):
         :type watch: bool
         :param image: Image override
         :type image: str|None
+        :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
+        :param download_directory: str|None
         """
         assert isinstance(step, Step)
         self.project = project
@@ -71,7 +73,7 @@ class RunCommand(click.Command):
         self.environment = environment
         self.image = image
         self.watch = bool(watch)
-        self.sync = sync
+        self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
         super(RunCommand, self).__init__(
@@ -184,9 +186,14 @@ class RunCommand(click.Command):
 
         ctx = get_current_context()
 
-        if self.sync:
-            from valohai_cli.commands.execution.outputs import outputs
-            ctx.invoke(outputs, counter=resp['counter'], download=self.sync, sync=True)
+        if self.download_directory:
+            from valohai_cli.commands.execution.outputs import outputs as outputs_command
+            ctx.invoke(
+                outputs_command,
+                counter=resp['counter'],
+                sync=True,
+                download_directory=self.download_directory,
+            )
 
         if self.watch:
             from valohai_cli.commands.execution.watch import watch
