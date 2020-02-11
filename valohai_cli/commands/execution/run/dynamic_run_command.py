@@ -133,10 +133,12 @@ class RunCommand(click.Command):
         :rtype: click.Option
         """
         assert isinstance(input, Input)
+        default_as_list = input.default if isinstance(input.default, list) else [input.default]
+
         option = click.Option(
             param_decls=list(generate_sanitized_options(input.name)),
             required=(input.default is None and not input.optional),
-            default=([input.default] if input.default else []),
+            default=(default_as_list if input.default else []),
             metavar='URL',
             multiple=True,
             help='Input "%s"' % humanize_identifier(input.name),
