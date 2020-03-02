@@ -14,6 +14,7 @@ setup(
         'click>=7.0',
         'six>=1.10.0',
         'valohai-yaml>=0.9',
+        'valohai-utils',
         'requests[security]>=2.0.0',
         'requests-toolbelt>=0.7.1',
     ],
