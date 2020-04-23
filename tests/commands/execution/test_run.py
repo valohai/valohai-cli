@@ -47,10 +47,11 @@ def test_run_input(run_test_setup):
 
 @pytest.mark.parametrize('pass_param', ('direct', 'file', 'mix'))
 def test_run_params(tmpdir, run_test_setup, pass_param):
-    values = {}
-    values['parameters'] = {  # default from YAML
-        'max_steps': 300,
-        'learning_rate': 0.1337,
+    values = {
+        'parameters': {  # default from YAML
+            'max_steps': 300,
+            'learning_rate': 0.1337,
+        },
     }
     if pass_param in ('direct', 'mix'):
         run_test_setup.args.append('--max-steps=1801')
@@ -61,14 +62,40 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
         params_yaml.write(yaml.safe_dump({'learning-rate': 1700}))
         run_test_setup.args.append('--parameter-file=%s' % params_yaml)
         values['parameters']['learning_rate'] = 1700
+    run_test_setup.values.update(values)
     run_test_setup.run()
 
 
-def test_param_type_validation(runner, logged_in_and_linked):
+def test_param_type_validation_integer(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)
     assert 'plonk is not a valid integer' in rv.output
+
+
+def test_param_type_validation_flag(runner, logged_in_and_linked):
+    with open(get_project().get_config_filename(), 'w') as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+    rv = runner.invoke(run, ['train', '--enable-mega-boost=please'], catch_exceptions=False)
+    assert 'please is not a valid boolean' in rv.output
+
+
+@pytest.mark.parametrize('value, result', [
+    # Various forms supported by `click.BOOL`...
+    ('yes', True),
+    ('no', False),
+    ('1', True),
+    ('FALSE', False),
+    ('True', True),
+])
+def test_flag_param_coercion(tmpdir, run_test_setup, value, result):
+    run_test_setup.values['parameters'] = {  # default from YAML
+        'max_steps': 300,
+        'learning_rate': 0.1337,
+        'enable_mega_boost': result,
+    }
+    run_test_setup.args.append('--enable-mega-boost=%s' % value)
+    run_test_setup.run()
 
 
 def test_run_no_git(runner, logged_in_and_linked):

@@ -124,6 +124,8 @@ CONFIG_YAML = """
       - name: learning_rate
         type: float
         default: 0.1337
+      - name: enable_mega_boost
+        type: flag
     environment-variables:
       - name: testenvvar
         default: 'test'
