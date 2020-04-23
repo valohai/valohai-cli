@@ -47,10 +47,11 @@ def test_run_input(run_test_setup):
 
 @pytest.mark.parametrize('pass_param', ('direct', 'file', 'mix'))
 def test_run_params(tmpdir, run_test_setup, pass_param):
-    values = {}
-    values['parameters'] = {  # default from YAML
-        'max_steps': 300,
-        'learning_rate': 0.1337,
+    values = {
+        'parameters': {  # default from YAML
+            'max_steps': 300,
+            'learning_rate': 0.1337,
+        },
     }
     if pass_param in ('direct', 'mix'):
         run_test_setup.args.append('--max-steps=1801')
@@ -61,6 +62,7 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
         params_yaml.write(yaml.safe_dump({'learning-rate': 1700}))
         run_test_setup.args.append('--parameter-file=%s' % params_yaml)
         values['parameters']['learning_rate'] = 1700
+    run_test_setup.values.update(values)
     run_test_setup.run()
 
 
