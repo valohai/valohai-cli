@@ -74,8 +74,9 @@ class RunAPIMock(requests_mock.Mocker):
         assert body_json['project'] == self.project_id
         assert body_json['step'] == 'Train model'
         assert body_json['commit'] == self.commit_id
-        for key, value in self.additional_payload_values.items():
-            assert body_json[key] == value
+        for key, expected_value in self.additional_payload_values.items():
+            body_value = body_json[key]
+            assert body_value == expected_value, 'body[%s] = %r, expected %r' % (key, body_value, expected_value)
         context.status_code = 201
         return EXECUTION_DATA.copy()
 

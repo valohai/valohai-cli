@@ -6,6 +6,8 @@ from valohai_cli.settings import settings
 from valohai_cli.settings.persistence import Persistence
 from valohai_cli.utils import get_project_directory
 
+pytest.register_assert_rewrite("tests.commands.execution.run_test_utils")
+
 
 @pytest.fixture
 def logged_in(monkeypatch):
