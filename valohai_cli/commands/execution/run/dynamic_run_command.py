@@ -31,6 +31,7 @@ class RunCommand(click.Command):
     parameter_type_map = {
         'integer': click.INT,
         'float': click.FLOAT,
+        'flag': click.BOOL,
     }
 
     def __init__(self,
@@ -238,9 +239,14 @@ class RunCommand(click.Command):
 
         missing_required_parameters = set()
         for name, parameter in self.step.parameters.items():
-            required = (parameter.default is None and not parameter.optional)
-            if required and name not in parameters:
-                missing_required_parameters.add(name)
+            if name in parameters:
+                # Clean out default-less flag parameters whose value would be None
+                if parameter.type == 'flag' and parameters[name] is None:
+                    del parameters[name]
+            else:
+                required = (parameter.default is None and not parameter.optional)
+                if required:
+                    missing_required_parameters.add(name)
         if missing_required_parameters:
             raise CLIException('Required parameters missing: {}'.format(missing_required_parameters))
 
