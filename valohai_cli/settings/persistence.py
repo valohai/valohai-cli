@@ -1,5 +1,6 @@
 import codecs
 import json
+import os
 from errno import ENOENT
 
 import six
@@ -53,5 +54,11 @@ class FilePersistence(Persistence):
 
     def save(self):
         filename = self.get_filename()
+        first_save = not os.path.isfile(filename)
         with codecs.open(filename, 'w', encoding='UTF-8') as outfp:
             json.dump(self.data, outfp, ensure_ascii=False, indent=2, sort_keys=True)
+        if first_save:
+            try:
+                os.chmod(filename, 0o600)
+            except Exception:
+                pass
