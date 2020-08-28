@@ -77,6 +77,92 @@ EXECUTION_DATA = {
     },
 }
 
+PIPELINE_DATA = {
+    'counter': 21,
+    'creator': {'id': 1, 'username': 'magda'},
+    'ctime': '2020-09-02T09:14:41.216963Z',
+    'deleted': False,
+    'edges': [{'id': '01744e18-c8cf-4ed9-0a44-412f65b0f224',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'source_key': '*train-images*',
+               'source_node': '01744e18-c8c1-a267-44a2-5e7f0a86bf38',
+               'source_type': 'output',
+               'target_key': 'training-set-images',
+               'target_node': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'target_type': 'input'},
+              {'id': '01744e18-c8e3-492d-135e-a1ef237c4a94',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'source_key': '*train-labels*',
+               'source_node': '01744e18-c8c1-a267-44a2-5e7f0a86bf38',
+               'source_type': 'output',
+               'target_key': 'training-set-labels',
+               'target_node': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'target_type': 'input'},
+              {'id': '01744e18-c8e6-e27d-442b-b820c8975a37',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'source_key': '*test-images*',
+               'source_node': '01744e18-c8c1-a267-44a2-5e7f0a86bf38',
+               'source_type': 'output',
+               'target_key': 'test-set-images',
+               'target_node': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'target_type': 'input'},
+              {'id': '01744e18-c8e9-924a-7f89-d4033b0bd1a4',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'source_key': '*test-labels*',
+               'source_node': '01744e18-c8c1-a267-44a2-5e7f0a86bf38',
+               'source_type': 'output',
+               'target_key': 'test-set-labels',
+               'target_node': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'target_type': 'input'},
+              {'id': '01744e18-c8ec-d09c-4e5e-c749fbbf1e80',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'source_key': 'model*',
+               'source_node': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'source_type': 'output',
+               'target_key': 'model',
+               'target_node': '01744e18-c8c9-167b-c2b6-a9f06d0c1735',
+               'target_type': 'input'}],
+    'id': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+    'log': [{'ctime': '2020-09-02T09:14:41.375499Z',
+             'identifier': 'node_started',
+             'kind': 'other',
+             'message': 'Node "preprocess" started'},
+            {'ctime': '2020-09-02T09:14:41.271304Z',
+             'identifier': 'started',
+             'kind': 'other',
+             'message': 'Pipeline started'}],
+    'nodes': [{'execution': None,
+               'id': '01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0',
+               'log': [],
+               'name': 'train',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'status': 'created',
+               'type': 'execution'},
+              {'execution': None,
+               'id': '01744e18-c8c9-167b-c2b6-a9f06d0c1735',
+               'log': [],
+               'name': 'evaluate',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'status': 'created',
+               'type': 'execution'},
+              {'execution': EXECUTION_DATA,
+               'id': '01744e18-c8c1-a267-44a2-5e7f0a86bf38',
+               'log': [{'ctime': '2020-09-02T09:14:41.372952Z',
+                        'identifier': '',
+                        'kind': 'other',
+                        'message': 'Created execution tensorflow-example/#24'}],
+               'name': 'preprocess',
+               'pipeline': '01744e18-c8bf-e6cd-d329-5de7ed61bb52',
+               'status': 'started',
+               'type': 'execution'}],
+    'project': PROJECT_DATA,
+    'status': 'started',
+    'title': 'Training Pipeline',
+    'url': 'http://127.0.0.1:8000/api/v0/pipelines/01744e18-c8bf-e6cd-d329-5de7ed61bb52/',
+    'urls': {
+        'display': 'http://127.0.0.1:8000/p/magda/tensorflow-example/pipeline/01744e18-c8bf-e6cd-d329-5de7ed61bb52/'}
+}
+
 OUTPUT_DATUM_RESPONSE_DATA = {
     "count": 1,
     "next": None,
@@ -104,6 +190,138 @@ EVENT_RESPONSE_DATA = {
         },
     ],
 }
+
+PIPELINE_YAML = """
+- step:
+    name: Preprocess dataset (MNIST)
+    image: tensorflow/tensorflow:1.13.1-gpu-py3
+    command: python preprocess.py
+    inputs:
+      - name: training-set-images
+        default: https://valohaidemo.blob.core.windows.net/mnist/train-images-idx3-ubyte.gz
+      - name: training-set-labels
+        default: https://valohaidemo.blob.core.windows.net/mnist/train-labels-idx1-ubyte.gz
+      - name: test-set-images
+        default: https://valohaidemo.blob.core.windows.net/mnist/t10k-images-idx3-ubyte.gz
+      - name: test-set-labels
+        default: https://valohaidemo.blob.core.windows.net/mnist/t10k-labels-idx1-ubyte.gz
+
+- step:
+    name: Train model (MNIST)
+    image: tensorflow/tensorflow:1.13.1-gpu-py3
+    command: python train.py {parameters}
+    parameters:
+      - name: max_steps
+        pass-as: --max_steps={v}
+        description: Number of steps to run the trainer
+        type: integer
+        default: 300
+      - name: learning_rate
+        pass-as: --learning_rate={v}
+        description: Initial learning rate
+        type: float
+        default: 0.001
+      - name: dropout
+        pass-as: --dropout={v}
+        description: Keep probability for training dropout
+        type: float
+        default: 0.9
+      - name: batch_size
+        pass-as: --batch_size={v}
+        description: Training batch size (larger batches are usually more efficient on GPUs)
+        type: integer
+        default: 200
+    inputs:
+      - name: training-set-images
+        default: https://valohaidemo.blob.core.windows.net/mnist/train-images-idx3-ubyte.gz
+      - name: training-set-labels
+        default: https://valohaidemo.blob.core.windows.net/mnist/train-labels-idx1-ubyte.gz
+      - name: test-set-images
+        default: https://valohaidemo.blob.core.windows.net/mnist/t10k-images-idx3-ubyte.gz
+      - name: test-set-labels
+        default: https://valohaidemo.blob.core.windows.net/mnist/t10k-labels-idx1-ubyte.gz
+
+- step:
+    name: Batch inference (MNIST)
+    image: tensorflow/tensorflow:1.13.1-py3
+    command:
+      - pip install --disable-pip-version-check --quiet -r requirements.txt
+      - python batch_inference.py --model-dir=/valohai/inputs/model/ --image-dir=/valohai/inputs/images
+    inputs:
+      - name: model
+      - name: images
+        default:
+          - https://valohaidemo.blob.core.windows.net/mnist/four-inverted.png
+          - https://valohaidemo.blob.core.windows.net/mnist/five-inverted.png
+          - https://valohaidemo.blob.core.windows.net/mnist/five-normal.jpg
+
+- step:
+    name: Compare predictions (MNIST)
+    image: tensorflow/tensorflow:1.13.1-py3
+    command: python compare.py --prediction-dir=/valohai/inputs/predictions/
+    inputs:
+      - name: predictions
+
+- step:
+    name: Worker environment check
+    image: tensorflow/tensorflow:1.13.1-gpu-py3
+    command:
+      - pwd
+      - ls -la
+      - nvidia-smi
+      - python --version
+      - nvcc --version | grep release
+
+- pipeline:
+    name: Training Pipeline
+    nodes:
+      - name: preprocess
+        type: execution
+        step: Preprocess dataset (MNIST)
+      - name: train
+        type: execution
+        step: Train model (MNIST)
+        override:
+          inputs:
+            - name: training-set-images
+            - name: training-set-labels
+            - name: test-set-images
+            - name: test-set-labels
+      - name: evaluate
+        type: execution
+        step: Batch inference (MNIST)
+    edges:
+      - [preprocess.output.*train-images*, train.input.training-set-images]
+      - [preprocess.output.*train-labels*, train.input.training-set-labels]
+      - [preprocess.output.*test-images*, train.input.test-set-images]
+      - [preprocess.output.*test-labels*, train.input.test-set-labels]
+      - [train.output.model*, evaluate.input.model]
+      
+- pipeline:
+    name: Train Pipeline
+    nodes:
+      - name: preprocess
+        type: execution
+        step: Preprocess dataset (MNIST)
+      - name: train
+        type: execution
+        step: Train model (MNIST)
+        override:
+          inputs:
+            - name: training-set-images
+            - name: training-set-labels
+            - name: test-set-images
+            - name: test-set-labels
+      - name: evaluate
+        type: execution
+        step: Batch inference (MNIST)
+    edges:
+      - [preprocess.output.*train-images*, train.input.training-set-images]
+      - [preprocess.output.*train-labels*, train.input.training-set-labels]
+      - [preprocess.output.*test-images*, train.input.test-set-images]
+      - [preprocess.output.*test-labels*, train.input.test-set-labels]
+      - [train.output.model*, evaluate.input.model]
+"""
 
 CONFIG_YAML = """
 ---

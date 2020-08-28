@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from tests.commands.execution.run_test_utils import run_test_setup, RunAPIMock
+from tests.commands.run_test_utils import run_test_setup, RunAPIMock
 from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
