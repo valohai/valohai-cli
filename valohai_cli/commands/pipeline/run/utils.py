@@ -1,5 +1,4 @@
 import click
-from click import BadParameter
 
 from valohai_cli.utils import match_prefix
 
@@ -60,13 +59,13 @@ def match_pipeline(config, pipeline_name):
         return pipeline_name
     matching_pipelines = match_prefix(config.pipelines, pipeline_name, return_unique=False)
     if not matching_pipelines:
-        raise BadParameter(
+        raise click.BadParameter(
             '"{pipeline}" is not a known pipeline (try one of {pipelines})'.format(
                 pipeline=pipeline_name,
                 pipelines=', '.join(click.style(t, bold=True) for t in sorted(config.pipelines))
             ), param_hint='pipeline')
     if len(matching_pipelines) > 1:
-        raise BadParameter(
+        raise click.BadParameter(
             '"{pipeline}" is ambiguous.\nIt matches {matches}.\nKnown pipelines are {pipelines}.'.format(
                 pipeline=pipeline_name,
                 matches=', '.join(click.style(t, bold=True) for t in sorted(matching_pipelines)),
