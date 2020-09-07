@@ -15,7 +15,7 @@ class CLIException(ClickException):
 
     def show(self, file=None):
         formatted_message = self.format_message()
-        if '\n' in formatted_message:
+        if formatted_message and '\n' in formatted_message:
             # If there are newlines in the message, we'll format things a little differently.
             # Namely, the entire message is on a separate line, and to avoid "color fatigue",
             # it's not all red.

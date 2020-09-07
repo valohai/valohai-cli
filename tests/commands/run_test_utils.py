@@ -6,7 +6,7 @@ import pytest
 import requests_mock
 from click.testing import CliRunner
 
-from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA
+from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA, PIPELINE_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -39,6 +39,10 @@ class RunAPIMock(requests_mock.Mocker):
         self.post(
             'https://app.valohai.com/api/v0/executions/',
             json=self.handle_create_execution,
+        )
+        self.post(
+            'https://app.valohai.com/api/v0/pipelines/',
+            json=self.handle_create_pipeline,
         )
         self.post(
             'https://app.valohai.com/api/v0/projects/{}/import-package/'.format(project_id),
@@ -79,6 +83,14 @@ class RunAPIMock(requests_mock.Mocker):
             assert body_value == expected_value, 'body[%s] = %r, expected %r' % (key, body_value, expected_value)
         context.status_code = 201
         return EXECUTION_DATA.copy()
+
+    def handle_create_pipeline(self, request, context):
+        body_json = json.loads(request.body.decode('utf-8'))
+        assert body_json['project'] == self.project_id
+        assert len(body_json['edges']) == 5
+        assert len(body_json['nodes']) == 3
+        context.status_code = 201
+        return PIPELINE_DATA.copy()
 
     def handle_create_commit(self, request, context):
         assert request.body

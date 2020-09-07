@@ -42,6 +42,10 @@ creating an execution with the `--adhoc` flag; i.e. `vh ex r --adhoc train`.
 To see the execution's progress in real time, you can add the `--watch` argument.
 This is equivalent to invoking `vh ex watch N`, where N is the number of the execution.
 
+Running a pipeline
+------------------
+In a linked project directory, you can start a pipeline run using `vh pipeline run <pipeline-name>`. 
+
 Further steps
 -------------
 
