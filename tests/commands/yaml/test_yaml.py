@@ -1,28 +1,29 @@
 import os
 from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE_USING_VALOHAI_UTILS, PYTHON_SOURCE
 from valohai_cli.commands.yaml.step import step
+from valohai_cli.ctx import get_project
 from valohai_cli.utils import get_project_directory
 
 
-def test_yaml(runner):
+def test_yaml(runner, logged_in_and_linked):
     # Try to generate YAML from random .py source code
-    source_path = os.path.join(get_project_directory(), 'mysnake.py')
-    with open(source_path, 'w') as yaml_fp:
-        yaml_fp.write(PYTHON_SOURCE)
+    source_path = os.path.join(get_project().directory, 'mysnake.py')
+    with open(source_path, 'w') as python_fp:
+        python_fp.write(PYTHON_SOURCE)
     args = ([source_path])
     rv = runner.invoke(step, args, catch_exceptions=True)
     assert isinstance(rv.exception, ValueError)
 
     # Generate YAML from .py source code that is using valohai-utils
-    source_path = os.path.join(get_project_directory(), 'mysnake.py')
-    with open(source_path, 'w') as yaml_fp:
-        yaml_fp.write(PYTHON_SOURCE_USING_VALOHAI_UTILS)
+    source_path = os.path.join(get_project().directory, 'mysnake.py')
+    with open(source_path, 'w') as python_fp:
+        python_fp.write(PYTHON_SOURCE_USING_VALOHAI_UTILS)
     args = ([source_path])
     rv = runner.invoke(step, args, catch_exceptions=False)
     assert "valohai.yaml generated." in rv.output
 
     # Update existing YAML from source code
-    config_path = os.path.join(get_project_directory(), 'valohai.yaml')
+    config_path = os.path.join(get_project().directory, 'valohai.yaml')
     with open(config_path, 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     args = ([source_path])
