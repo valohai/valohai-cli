@@ -15,9 +15,9 @@ from valohai_yaml import parse
 
 @click.command()
 @click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
-def yaml(filenames):
+def step(filenames):
     """
-    Update valohai.yaml based on Python source file(s).
+    Update a step config(s) in valohai.yaml based on Python source file(s).
 
     Example:
 
