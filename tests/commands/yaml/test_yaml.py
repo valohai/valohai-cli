@@ -1,6 +1,6 @@
 import os
 from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE_USING_VALOHAI_UTILS, PYTHON_SOURCE
-from valohai_cli.commands.yaml import yaml
+from valohai_cli.commands.yaml.step import step
 from valohai_cli.utils import get_project_directory
 
 
@@ -10,7 +10,7 @@ def test_yaml(runner):
     with open(source_path, 'w') as yaml_fp:
         yaml_fp.write(PYTHON_SOURCE)
     args = ([source_path])
-    rv = runner.invoke(yaml, args, catch_exceptions=True)
+    rv = runner.invoke(step, args, catch_exceptions=True)
     assert isinstance(rv.exception, ValueError)
 
     # Generate YAML from .py source code that is using valohai-utils
@@ -18,7 +18,7 @@ def test_yaml(runner):
     with open(source_path, 'w') as yaml_fp:
         yaml_fp.write(PYTHON_SOURCE_USING_VALOHAI_UTILS)
     args = ([source_path])
-    rv = runner.invoke(yaml, args, catch_exceptions=False)
+    rv = runner.invoke(step, args, catch_exceptions=False)
     assert "valohai.yaml generated." in rv.output
 
     # Update existing YAML from source code
@@ -26,9 +26,9 @@ def test_yaml(runner):
     with open(config_path, 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     args = ([source_path])
-    rv = runner.invoke(yaml, args, catch_exceptions=False)
+    rv = runner.invoke(step, args, catch_exceptions=False)
     assert "valohai.yaml updated." in rv.output
 
     # Try the same update again
-    rv = runner.invoke(yaml, args, catch_exceptions=False)
+    rv = runner.invoke(step, args, catch_exceptions=False)
     assert "valohai.yaml already up-to-date." in rv.output
