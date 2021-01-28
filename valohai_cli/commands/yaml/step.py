@@ -7,28 +7,23 @@ from valohai.yaml import config_to_yaml
 from valohai_yaml.objs import Config
 
 from valohai_cli.ctx import get_project
-from valohai_cli.exceptions import CLIException
 from valohai_cli.messages import info
 from valohai_cli.utils import get_project_directory
 from valohai_yaml import parse
 
 
 @click.command()
-@click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
+@click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False), required=True)
 def step(filenames):
     """
     Update a step config(s) in valohai.yaml based on Python source file(s).
 
     Example:
 
-        vh yaml hello.py
+        vh yaml step hello.py
 
     :param filenames: Path(s) of the Python source code files.
     """
-    if not filenames:
-        raise CLIException(
-            'Missing path(s) to source Python file(s). Example: vh yaml hello.py')
-
     project = get_project()
     directory = (project.directory if project else get_project_directory())
     config_path = os.path.join(directory, 'valohai.yaml')
