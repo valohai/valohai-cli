@@ -38,10 +38,13 @@ def step(filenames):
 
 
 def get_current_config(project: Project) -> Optional[Config]:
-    return project.get_config() if os.path.isfile(project.get_config_filename()) else None
+    try:
+        return project.get_config()
+    except FileNotFoundError:
+        return None
 
 
-def get_updated_config(source_path: str, project: Project) -> (Config, Config):
+def get_updated_config(source_path: str, project: Project) -> Config:
     """Opens the old valohai.yaml, parses source Python file and merges the resulting config to the old
 
     Call to valohai.prepare() will contain step name, parameters and inputs.
@@ -59,7 +62,7 @@ def get_updated_config(source_path: str, project: Project) -> (Config, Config):
     return new_config
 
 
-def update_yaml_from_source(source_path: str, project: Project):
+def update_yaml_from_source(source_path: str, project: Project) -> bool:
     """Updates valohai.yaml by parsing the source code file for a call to valohai.prepare()
 
     Call to valohai.prepare() will contain step name, parameters and inputs.
@@ -75,9 +78,10 @@ def update_yaml_from_source(source_path: str, project: Project):
     if old_config != new_config:
         with open(project.get_config_filename(), 'w') as out_file:
             out_file.write(config_to_yaml(new_config))
+        return True
+    return False
 
-
-def yaml_needs_update(source_path: str, project: Project):
+def yaml_needs_update(source_path: str, project: Project) -> bool:
     """Checks if valohai.yaml needs updating based on source Python code.
 
     Call to valohai.prepare() will contain step name, parameters and inputs.
