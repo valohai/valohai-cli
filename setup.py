@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
 
 from valohai_cli import __version__
@@ -12,7 +11,6 @@ setup(
     license='MIT',
     install_requires=[
         'click>=7.0',
-        'six>=1.10.0',
         'valohai-yaml>=0.9',
         'requests[security]>=2.0.0',
         'requests-toolbelt>=0.7.1',

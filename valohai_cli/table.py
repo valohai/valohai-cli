@@ -2,7 +2,6 @@ import json
 import sys
 
 import click
-import six
 from click import get_terminal_size
 
 from valohai_cli._vendor.tabulate import tabulate
@@ -13,17 +12,17 @@ SV_SEPARATORS = {'csv': ',', 'tsv': '\t', 'scsv': ';', 'psv': '|'}
 
 
 def n_str(s):
-    return ('' if s is None else six.text_type(s).replace('\n', ' '))
+    return ('' if s is None else str(s).replace('\n', ' '))
 
 
 def _format(datum, width, allow_rjust=True):
     if isinstance(datum, tuple):
-        datum, tp = datum
+        datum, datatype = datum
     else:
-        tp = six.text_type
+        datatype = str
     if width is None:
         return str(datum)
-    if tp in (int, float) and allow_rjust:
+    if datatype in (int, float) and allow_rjust:
         datum = datum.rjust(width)
     else:
         datum = datum.ljust(width)

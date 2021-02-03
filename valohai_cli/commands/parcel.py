@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import subprocess
 import sys
@@ -155,7 +153,7 @@ def get_docker_image_size(image):
 
 def export_docker_images(project, destination, commit, extra_docker_images=()):
     commit = expand_commit_id(project.directory, commit=(commit or 'HEAD'))
-    docker_images = set(step.image for step in project.get_config(commit).steps.values())
+    docker_images = {step.image for step in project.get_config(commit).steps.values()}
     docker_images |= set(extra_docker_images)
     for i, image in enumerate(docker_images, 1):
         output_path = os.path.join(destination, sanitize_filename('docker-{}.tar'.format(image)))

@@ -1,6 +1,6 @@
+import io
 import os
 
-import six
 import valohai_yaml
 from click import BadParameter
 
@@ -32,12 +32,12 @@ class Project:
         """
         if not commit_identifier:  # Current working directory
             filename = self.get_config_filename()
-            with open(filename, 'r') as infp:
+            with open(filename) as infp:
                 return self._parse_config(infp, filename)
         else:  # Arbitrary commit
             filename = '{}:valohai.yaml'.format(commit_identifier)
             config_bytes = get_file_at_commit(self.directory, commit_identifier, 'valohai.yaml')
-            config_sio = six.StringIO(config_bytes.decode('utf-8'))
+            config_sio = io.StringIO(config_bytes.decode('utf-8'))
             return self._parse_config(config_sio, filename)
 
     def _parse_config(self, config_fp, filename='<config file>'):
@@ -45,8 +45,8 @@ class Project:
             config = valohai_yaml.parse(config_fp)
             config.project = self
             return config
-        except IOError as ioe:
-            six.raise_from(InvalidConfig('Could not read %s' % filename), ioe)
+        except OSError as err:
+            raise InvalidConfig('Could not read %s' % filename) from err
         except valohai_yaml.ValidationErrors as ves:
             raise InvalidConfig('{filename} is invalid ({n} errors); see `vh lint`'.format(
                 filename=filename,

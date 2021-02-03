@@ -22,11 +22,11 @@ def logs(counter, status, stderr, stdout, stream, all):
     Show or stream execution event log.
     """
     execution = get_project(require=True).get_execution_from_counter(counter=counter)
-    accepted_streams = set(v for v in [
+    accepted_streams = {v for v in [
         'status' if status else None,
         'stderr' if stderr else None,
         'stdout' if stdout else None,
-    ] if v)
+    ] if v}
     lm = LogManager(execution)
     limit = (0 if all else None)
     while True:

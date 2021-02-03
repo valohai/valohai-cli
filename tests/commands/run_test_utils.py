@@ -16,7 +16,7 @@ from valohai_cli.utils import get_random_string
 class RunAPIMock(requests_mock.Mocker):
 
     def __init__(self, project_id, commit_id='f' * 16, additional_payload_values=None):
-        super(RunAPIMock, self).__init__()
+        super().__init__()
         self.project_id = project_id
         self.commit_id = commit_id
         self.additional_payload_values = (additional_payload_values or {})
@@ -80,7 +80,7 @@ class RunAPIMock(requests_mock.Mocker):
         assert body_json['commit'] == self.commit_id
         for key, expected_value in self.additional_payload_values.items():
             body_value = body_json[key]
-            assert body_value == expected_value, 'body[%s] = %r, expected %r' % (key, body_value, expected_value)
+            assert body_value == expected_value, 'body[{}] = {!r}, expected {!r}'.format(key, body_value, expected_value)
         context.status_code = 201
         return EXECUTION_DATA.copy()
 

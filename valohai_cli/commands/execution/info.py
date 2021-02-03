@@ -39,7 +39,7 @@ def info(counter):
     if settings.output_format == 'json':
         return print_json(execution)
 
-    data = dict((humanize_identifier(key), str(value)) for (key, value) in execution.items() if key not in ignored_keys)
+    data = {humanize_identifier(key): str(value) for (key, value) in execution.items() if key not in ignored_keys}
     data['project name'] = execution['project']['name']
     data['environment name'] = execution['environment']['name']
     print_table(data)

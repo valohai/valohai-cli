@@ -1,7 +1,3 @@
-import six
-from six.moves import xrange as range
-
-
 class IntegerRange:
     def __init__(self, includes, excludes):
         self.includes = set(includes)
@@ -15,7 +11,7 @@ class IntegerRange:
             if isinstance(atom, int):
                 includes.add((atom,))
                 continue
-            if isinstance(atom, six.string_types):
+            if isinstance(atom, str):
                 if atom[0] == '!':
                     negate = True
                     atom = atom[1:]

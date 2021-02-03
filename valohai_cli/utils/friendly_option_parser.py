@@ -11,7 +11,7 @@ class FriendlyOptionParser(OptionParser):
 
     def _match_long_opt(self, opt, explicit_value, state):
         try:
-            return super(FriendlyOptionParser, self)._match_long_opt(opt, explicit_value, state)
+            return super()._match_long_opt(opt, explicit_value, state)
         except NoSuchOption as nse:
             if not nse.possibilities:
                 # No possibilities were guessed, so attempt some deeper magic

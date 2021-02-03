@@ -10,7 +10,7 @@ class CLIException(ClickException):
 
     def __init__(self, *args, **kwargs):
         kind = kwargs.pop('kind', None)
-        super(CLIException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.kind = (kind or self.kind)
 
     def show(self, file=None):
@@ -47,7 +47,7 @@ class APIError(CLIException):
             text = 'Internal error'
         else:
             text = response.text
-        super(APIError, self).__init__(text)
+        super().__init__(text)
         self.response = response
         self.request = response.request
 
@@ -116,7 +116,7 @@ class NoGitRepo(CLIException):
 
     def __init__(self, directory):
         self.directory = directory
-        super(NoGitRepo, self).__init__('{} is not a Git repository'.format(directory))
+        super().__init__('{} is not a Git repository'.format(directory))
 
 
 class NoCommit(ValueError, CLIException):
@@ -124,4 +124,4 @@ class NoCommit(ValueError, CLIException):
 
     def __init__(self, directory):
         self.directory = directory
-        super(NoCommit, self).__init__('{} has no commits'.format(directory))
+        super().__init__('{} has no commits'.format(directory))

@@ -2,9 +2,8 @@ import platform
 
 import click
 import requests
-import six
 from requests.auth import AuthBase
-from six.moves.urllib_parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 
 from valohai_cli import __version__ as VERSION
 from valohai_cli.exceptions import APIError, APINotFoundError, CLIException, NotLoggedIn
@@ -15,7 +14,7 @@ from valohai_cli.utils import force_text
 class TokenAuth(AuthBase):
 
     def __init__(self, netloc, token):
-        super(TokenAuth, self).__init__()
+        super().__init__()
         self.netloc = netloc
         self.token = token
 
@@ -29,7 +28,7 @@ class TokenAuth(AuthBase):
 class APISession(requests.Session):
 
     def __init__(self, base_url, token=None):
-        super(APISession, self).__init__()
+        super().__init__()
         self.base_url = base_url
         self.base_netloc = urlparse(self.base_url).netloc
         self.auth = TokenAuth(self.base_netloc, token)
@@ -37,26 +36,26 @@ class APISession(requests.Session):
         self.headers['User-Agent'] = 'valohai-cli/{version} on {py_version} ({uname})'.format(
             version=VERSION,
             uname=';'.join(platform.uname()),
-            py_version='%s %s' % (platform.python_implementation(), platform.python_version()),
+            py_version='{} {}'.format(platform.python_implementation(), platform.python_version()),
         )
 
     def prepare_request(self, request):
         url_netloc = urlparse(request.url).netloc
         if not url_netloc:
             request.url = urljoin(self.base_url, request.url)
-        return super(APISession, self).prepare_request(request)
+        return super().prepare_request(request)
 
     def request(self, method, url, **kwargs):
         api_error_class = kwargs.pop('api_error_class', APIError)
         handle_errors = bool(kwargs.pop('handle_errors', True))
         try:
-            resp = super(APISession, self).request(method, url, **kwargs)
+            resp = super().request(method, url, **kwargs)
         except requests.ConnectionError as ce:
             host = urlparse(ce.request.url).netloc
             if 'Connection refused' in str(ce):
-                six.raise_from(CLIException(
+                raise CLIException(
                     'Unable to connect to {host} (connection refused); try again soon.'.format(host=host)
-                ), ce)
+                ) from ce
             raise
 
         if handle_errors and resp.status_code >= 400:
@@ -74,7 +73,7 @@ def _get_current_api_session():
     """
     host, token = get_host_and_token()
     ctx = click.get_current_context(silent=True) or None
-    cache_key = force_text('_api_session_%s_%s' % (host, token))
+    cache_key = force_text('_api_session_{}_{}'.format(host, token))
     session = (getattr(ctx, cache_key, None) if ctx else None)
     if not session:
         session = APISession(host, token)

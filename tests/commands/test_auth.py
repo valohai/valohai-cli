@@ -9,7 +9,7 @@ from valohai_cli.utils import get_random_string
 
 class AuthMock(requests_mock.Mocker):
     def __init__(self, username='john.smith', password='123456'):
-        super(AuthMock, self).__init__()
+        super().__init__()
         self.username = username
         self.password = password
         self.token = get_random_string()
