@@ -3,10 +3,8 @@ import json
 import os
 from errno import ENOENT
 
-import six
 
-
-class Persistence(object):
+class Persistence:
     def __init__(self, data=None):
         self._data = data
 
@@ -31,7 +29,7 @@ class Persistence(object):
 
 class FilePersistence(Persistence):
     def __init__(self, get_filename):
-        super(FilePersistence, self).__init__()
+        super().__init__()
         self.get_filename = get_filename
 
     @property
@@ -45,12 +43,12 @@ class FilePersistence(Persistence):
         try:
             with codecs.open(filename, 'r', encoding='UTF-8') as infp:
                 self._data = json.load(infp)
-        except EnvironmentError as ee:
+        except OSError as ee:
             if ee.errno != ENOENT:
                 raise
             self._data = {}
         except Exception as exc:  # pragma: no cover
-            six.raise_from(RuntimeError('could not read configuration file %s' % filename), exc)
+            raise RuntimeError('could not read configuration file %s' % filename) from exc
 
     def save(self):
         filename = self.get_filename()

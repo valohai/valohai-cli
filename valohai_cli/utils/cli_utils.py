@@ -36,7 +36,7 @@ def prompt_from_list(options, prompt, nonlist_validator=None, name_formatter=_de
 class HelpfulArgument(click.Argument):
     def __init__(self, param_decls, **kwargs):
         self.help = kwargs.pop('help', None)
-        super(HelpfulArgument, self).__init__(param_decls, **kwargs)
+        super().__init__(param_decls, **kwargs)
 
     def get_help_record(self, ctx):
         if self.help:

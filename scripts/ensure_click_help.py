@@ -31,7 +31,7 @@ class EnsureClickHelpWalker(ast.NodeVisitor):
 
 
 def process_file(filename):
-    with open(filename, "r") as infp:
+    with open(filename) as infp:
         tree = ast.parse(infp.read(), filename=filename)
 
     messages = []

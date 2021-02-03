@@ -7,7 +7,6 @@ import unicodedata
 import webbrowser
 
 import click
-import six
 
 ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
@@ -42,17 +41,17 @@ def get_random_string(length=12, keyspace=(string.ascii_letters + string.digits)
 
 
 def force_text(v, encoding='UTF-8', errors='strict'):
-    if isinstance(v, six.text_type):
+    if isinstance(v, str):
         return v
-    elif isinstance(v, six.binary_type):
+    elif isinstance(v, bytes):
         return v.decode(encoding, errors)
-    return six.text_type(v)
+    return str(v)
 
 
 def force_bytes(v, encoding='UTF-8', errors='strict'):
-    if isinstance(v, six.binary_type):
+    if isinstance(v, bytes):
         return v
-    return six.text_type(v).encode(encoding, errors)
+    return str(v).encode(encoding, errors)
 
 
 def match_prefix(choices, value, return_unique=True):
@@ -82,7 +81,7 @@ def humanize_identifier(identifier):
     return re.sub('[-_]+', ' ', force_text(identifier)).strip()
 
 
-class cached_property(object):
+class cached_property:
     """
     A property that is only computed once per instance and then replaces itself
     with an ordinary attribute. Deleting the attribute resets the property.
@@ -172,8 +171,7 @@ def sanitize_option_name(name):
     # Instead, we'll just fold everything down to ASCII with the good old
     # normalize-and-encode-and-decode dance, and then replace everything
     # non-alphanumeric into dashes to be safe.
-    name = six.text_type(name)
-    name = unicodedata.normalize('NFKD', name).encode('ascii', errors='ignore').decode()
+    name = unicodedata.normalize('NFKD', str(name)).encode('ascii', errors='ignore').decode()
     return re.sub(r'[^-a-z0-9]+', '-', name, flags=re.IGNORECASE).strip('-')
 
 

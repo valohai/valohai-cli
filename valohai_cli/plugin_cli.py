@@ -16,7 +16,7 @@ class PluginCLI(click.MultiCommand):
     def __init__(self, **kwargs):
         self._commands_module = kwargs.pop('commands_module')
         self.aliases = dict(self.aliases, **kwargs.get('aliases', {}))  # instance level copy
-        super(PluginCLI, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @cached_property
     def commands_module(self):
@@ -30,7 +30,7 @@ class PluginCLI(click.MultiCommand):
 
     @cached_property
     def command_to_canonical_map(self):
-        command_map = dict((command, command) for command in self.command_modules)
+        command_map = {command: command for command in self.command_modules}
         for alias_from, alias_to in self.aliases.items():
             if alias_to in command_map:
                 command_map[alias_from] = command_map.get(alias_to, alias_to)  # resolve aliases
@@ -73,11 +73,11 @@ class PluginCLI(click.MultiCommand):
             return None
 
     def resolve_command(self, ctx, args):
-        cmd_name, cmd, rest_args = super(PluginCLI, self).resolve_command(ctx, args)
+        cmd_name, cmd, rest_args = super().resolve_command(ctx, args)
         return (cmd.name, cmd, rest_args)  # Always use the canonical name of the command
 
     def _get_command(self, name):
-        module = import_module('%s.%s' % (self.commands_module.__name__, name))
+        module = import_module('{}.{}'.format(self.commands_module.__name__, name))
         return getattr(module, name)
 
     def _get_all_commands(self, ctx):
@@ -88,11 +88,9 @@ class PluginCLI(click.MultiCommand):
                 new_name_trail = name_trail + (cmd.name,)
                 yield (new_name_trail, cmd)
                 if isinstance(cmd, click.MultiCommand):
-                    for o in walk_commands(cmd, new_name_trail):
-                        yield o
+                    yield from walk_commands(cmd, new_name_trail)
 
-        for o in walk_commands(self):
-            yield o
+        yield from walk_commands(self)
 
 
 class RecursiveHelpPluginCLI(PluginCLI):

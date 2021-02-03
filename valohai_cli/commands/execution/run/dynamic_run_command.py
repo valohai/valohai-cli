@@ -18,10 +18,15 @@ from .excs import ExecutionCreationAPIError
 
 def generate_sanitized_options(name):
     sanitized_name = sanitize_option_name(name)
-    return set(choice for choice in (
-        '--%s' % sanitized_name,
-        ('--%s' % sanitized_name).lower(),
-    ) if ' ' not in choice)
+    return {
+        choice
+        for choice in
+        (
+            '--%s' % sanitized_name,
+            ('--%s' % sanitized_name).lower(),
+        )
+        if ' ' not in choice
+    }
 
 
 class RunCommand(click.Command):
@@ -77,7 +82,7 @@ class RunCommand(click.Command):
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
-        super(RunCommand, self).__init__(
+        super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
             epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
@@ -282,7 +287,7 @@ class RunCommand(click.Command):
         return resolved_commit_identifier
 
     def make_parser(self, ctx):
-        parser = super(RunCommand, self).make_parser(ctx)
+        parser = super().make_parser(ctx)
         # This is somewhat naughty, but allows us to easily hook into here.
         # Besides, FriendlyOptionParser does inherit from OptionParser anyway,
         # and just overrides that one piece of behavior...

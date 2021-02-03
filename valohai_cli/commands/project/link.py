@@ -51,7 +51,7 @@ def choose_project(dir, spec=None):
     prompt = 'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
         dir=click.style(dir, bold=True),
     )
-    has_multiple_owners = (len(set(p.get('owner', {}).get('id') for p in projects)) > 1)
+    has_multiple_owners = (len({p.get('owner', {}).get('id') for p in projects}) > 1)
 
     def project_name_formatter(project):
         try:
