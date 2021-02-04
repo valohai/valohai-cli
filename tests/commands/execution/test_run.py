@@ -38,6 +38,12 @@ def test_run_env(run_test_setup):
     run_test_setup.run()
 
 
+def test_run_tags(run_test_setup):
+    run_test_setup.args.extend(['--tag=bark', '--tag=bork', '--tag=vuh', '--tag=hau'])
+    run_test_setup.values['tags'] = ['bark', 'bork', 'vuh', 'hau']
+    run_test_setup.run()
+
+
 def test_run_input(run_test_setup):
     run_test_setup.args.append('--in1=http://url')
     run_test_setup.args.append('--in1=http://anotherurl')
