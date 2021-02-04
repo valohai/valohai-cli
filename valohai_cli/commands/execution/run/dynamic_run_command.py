@@ -39,7 +39,8 @@ class RunCommand(click.Command):
         'flag': click.BOOL,
     }
 
-    def __init__(self,
+    def __init__(
+        self,
         project,
         step,
         commit,
@@ -49,6 +50,7 @@ class RunCommand(click.Command):
         watch=False,
         download_directory=None,
         environment_variables=None,
+        tags=None
     ):
 
         """
@@ -65,6 +67,8 @@ class RunCommand(click.Command):
         :type environment: str|None
         :param environment_variables: Mapping of environment variables
         :type environment_variables: dict[str, str]|None
+        :param tags: Tags to apply
+        :type tags: list[str]
         :param watch: Whether to chain to `exec watch` afterwards
         :type watch: bool
         :param image: Image override
@@ -82,6 +86,7 @@ class RunCommand(click.Command):
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
+        self.tags = list(tags or [])
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -180,6 +185,8 @@ class RunCommand(click.Command):
             payload['title'] = self.title
         if self.environment_variables:
             payload['environment_variables'] = self.environment_variables
+        if self.tags:
+            payload['tags'] = self.tags
 
         resp = request(
             method='post',

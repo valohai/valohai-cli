@@ -27,12 +27,28 @@ run_epilog = (
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
+@click.option('--tag', 'tags', multiple=True, help='Tag the execution. May be repeated.')
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
-def run(ctx, step, commit, environment, watch, download_directory, title, adhoc, image, environment_variables, validate_adhoc, args):
+def run(
+    ctx,
+    *,
+    adhoc,
+    args,
+    commit,
+    download_directory,
+    environment,
+    environment_variables,
+    image,
+    step,
+    tags,
+    title,
+    validate_adhoc,
+    watch
+):
     """
     Start an execution of a step.
     """
@@ -84,6 +100,7 @@ def run(ctx, step, commit, environment, watch, download_directory, title, adhoc,
         image=image,
         title=title,
         environment_variables=parse_environment_variable_strings(environment_variables),
+        tags=tags,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
