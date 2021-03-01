@@ -56,13 +56,13 @@ def login(username, password, token, host, yes):
         click.echo('Using token {token_prefix}... to log in.'.format(token_prefix=token[:5]))
     else:
         if not (username or password):
-            click.secho('Welcome to Valohai CLI {version}!'.format(version=__version__), bold=True)
-            click.echo('\nIf you don\'t yet have an account, please create one at {host} first.\n'.format(host=host))
+            click.secho(f'Welcome to Valohai CLI {__version__}!', bold=True)
+            click.echo(f'\nIf you don\'t yet have an account, please create one at {host} first.\n')
 
         if not username:
             username = click.prompt('Username').strip()
         else:
-            click.echo('Username: {}'.format(username))
+            click.echo(f'Username: {username}')
 
         if not password:
             password = click.prompt('Password', hide_input=True)
@@ -81,7 +81,7 @@ def login(username, password, token, host, yes):
                 if code in ('has_external_identity', 'has_2fa'):
                     command = 'vh login --token TOKEN_HERE '
                     if host != default_app_host:
-                        command += '--host {}'.format(host)
+                        command += f'--host {host}'
                     banner(TOKEN_LOGIN_HELP.format(code=code, host=host, command=command))
                 raise
 

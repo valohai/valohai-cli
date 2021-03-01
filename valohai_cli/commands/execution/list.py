@@ -42,7 +42,7 @@ def list(status, count):
     if settings.output_format == 'json':
         return print_json(executions)
     if not executions:
-        info('{project}: No executions.'.format(project=project))
+        info(f'{project}: No executions.')
         return
     for execution in executions:
         execution['url'] = execution['urls']['display']

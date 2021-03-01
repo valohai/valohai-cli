@@ -21,11 +21,11 @@ class RunAPIMock(requests_mock.Mocker):
         self.commit_id = commit_id
         self.additional_payload_values = (additional_payload_values or {})
         self.get(
-            'https://app.valohai.com/api/v0/projects/{}/'.format(project_id),
+            f'https://app.valohai.com/api/v0/projects/{project_id}/',
             json=self.handle_project,
         )
         self.get(
-            'https://app.valohai.com/api/v0/projects/{}/commits/'.format(project_id),
+            f'https://app.valohai.com/api/v0/projects/{project_id}/commits/',
             json=self.handle_commits,
         )
         self.get(
@@ -45,7 +45,7 @@ class RunAPIMock(requests_mock.Mocker):
             json=self.handle_create_pipeline,
         )
         self.post(
-            'https://app.valohai.com/api/v0/projects/{}/import-package/'.format(project_id),
+            f'https://app.valohai.com/api/v0/projects/{project_id}/import-package/',
             json=self.handle_create_commit,
         )
 
@@ -80,7 +80,7 @@ class RunAPIMock(requests_mock.Mocker):
         assert body_json['commit'] == self.commit_id
         for key, expected_value in self.additional_payload_values.items():
             body_value = body_json[key]
-            assert body_value == expected_value, 'body[{}] = {!r}, expected {!r}'.format(key, body_value, expected_value)
+            assert body_value == expected_value, f'body[{key}] = {body_value!r}, expected {expected_value!r}'
         context.status_code = 201
         return EXECUTION_DATA.copy()
 

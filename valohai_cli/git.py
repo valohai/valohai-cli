@@ -54,7 +54,7 @@ def get_file_at_commit(directory, commit, path):
     :return: File contents as bytes
     :rtype: bytes
     """
-    args = ['git', 'show', '{}:{}'.format(commit, path)]
+    args = ['git', 'show', f'{commit}:{path}']
     return check_git_output(args, directory)
 
 

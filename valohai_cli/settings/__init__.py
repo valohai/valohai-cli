@@ -116,7 +116,7 @@ class Settings:
         assert mode in ('local', 'remote')
 
         try:
-            project_data = request('get', '/api/v0/projects/{id}/'.format(id=project_id)).json()
+            project_data = request('get', f'/api/v0/projects/{project_id}/').json()
             project_cls = (RemoteProject if mode == 'remote' else Project)
             project = self.override_project = project_cls(data=project_data, directory=directory)
             info('Using project {name} in {mode} (in {directory})'.format(
@@ -126,7 +126,7 @@ class Settings:
             ))
             return True
         except APINotFoundError:
-            error('No project was found with the ID {id} (via --project or VALOHAI_PROJECT)'.format(id=project_id))
+            error(f'No project was found with the ID {project_id} (via --project or VALOHAI_PROJECT)')
             return False
 
 

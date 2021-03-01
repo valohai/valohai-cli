@@ -13,7 +13,7 @@ def fetch():
     Fetch new commits for the linked project.
     """
     project = get_project(require=True)
-    resp = request('post', '/api/v0/projects/{id}/fetch/'.format(id=project.id))
+    resp = request('post', f'/api/v0/projects/{project.id}/fetch/')
     data = resp.json()
     commits = data.get('commits', ())
     if commits:

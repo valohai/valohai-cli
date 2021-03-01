@@ -13,7 +13,7 @@ def status(summary, incomplete):
     Get the general status of the linked project
     """
     project = get_project(require=True)
-    project_data = request('get', '/api/v0/projects/{id}/'.format(id=project.id)).json()
+    project_data = request('get', f'/api/v0/projects/{project.id}/').json()
 
     click.secho('# Project %s' % click.style(project.name, underline=True), bold=True)
     if 'urls' in project_data:

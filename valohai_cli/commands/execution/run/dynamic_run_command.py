@@ -247,7 +247,7 @@ class RunCommand(click.Command):
 
             if parameter_file_data:  # Not everything was popped off
                 unparsed_parameter_names = ', '.join(sorted(str(k) for k in parameter_file_data))
-                warn('Parameters ignored in parameter file: {}'.format(unparsed_parameter_names))
+                warn(f'Parameters ignored in parameter file: {unparsed_parameter_names}')
 
         missing_required_parameters = set()
         for name, parameter in self.step.parameters.items():
@@ -260,7 +260,7 @@ class RunCommand(click.Command):
                 if required:
                     missing_required_parameters.add(name)
         if missing_required_parameters:
-            raise CLIException('Required parameters missing: {}'.format(missing_required_parameters))
+            raise CLIException(f'Required parameters missing: {missing_required_parameters}')
 
     def resolve_commit(self, commit_identifier):
         if not commit_identifier:
@@ -281,7 +281,7 @@ class RunCommand(click.Command):
         try:
             commit_obj = self.project.resolve_commit(commit_identifier=commit_identifier)
         except KeyError:
-            warn('Commit {commit} is not known for the project. Have you pushed it?'.format(commit=commit_identifier))
+            warn(f'Commit {commit_identifier} is not known for the project. Have you pushed it?')
             raise click.Abort()
         except IndexError:
             warn('No commits are known for the project.')
@@ -289,7 +289,7 @@ class RunCommand(click.Command):
 
         resolved_commit_identifier = commit_obj['identifier']
         if not commit_identifier:
-            click.echo('Resolved to commit {commit}'.format(commit=resolved_commit_identifier), err=True)
+            click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
 
         return resolved_commit_identifier
 

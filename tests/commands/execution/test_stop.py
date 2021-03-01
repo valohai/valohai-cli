@@ -18,5 +18,5 @@ def test_stop(runner, logged_in_and_linked):
         })
         m.post(EXECUTION_DATA['urls']['stop'], json={'message': 'OK'})
 
-        output = runner.invoke(stop, ['#{}'.format(counter)], catch_exceptions=False).output
-        assert 'Stopping #{}'.format(counter) in output
+        output = runner.invoke(stop, [f'#{counter}'], catch_exceptions=False).output
+        assert f'Stopping #{counter}' in output

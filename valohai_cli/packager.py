@@ -43,7 +43,7 @@ def package_directory(dir, progress=False, validate=True):
     file_stats = get_files_for_package(dir)
 
     if validate and 'valohai.yaml' not in file_stats:
-        raise ConfigurationError('valohai.yaml missing from {}'.format(dir))
+        raise ConfigurationError(f'valohai.yaml missing from {dir}')
 
     if validate:
         package_size_warnings = validate_package_size(file_stats)

@@ -75,7 +75,7 @@ def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel
     if unparcel_script:
         write_unparcel_script(destination)
 
-    success('Parcel {} created!'.format(destination))
+    success(f'Parcel {destination} created!')
 
 
 def export_valohai_local_run(project, destination):
@@ -94,7 +94,7 @@ def export_valohai_local_run(project, destination):
 
 def write_unparcel_script(destination):
     unparcel_sh_path = os.path.join(destination, 'unparcel.sh')
-    print_parcel_progress('Creating unparcel script {}'.format(unparcel_sh_path))
+    print_parcel_progress(f'Creating unparcel script {unparcel_sh_path}')
     with open(unparcel_sh_path, 'w') as outf:
         outf.write(UNPARCEL_SCRIPT)
     os.chmod(unparcel_sh_path, os.stat(unparcel_sh_path).st_mode | 0o700)
@@ -156,7 +156,7 @@ def export_docker_images(project, destination, commit, extra_docker_images=()):
     docker_images = {step.image for step in project.get_config(commit).steps.values()}
     docker_images |= set(extra_docker_images)
     for i, image in enumerate(docker_images, 1):
-        output_path = os.path.join(destination, sanitize_filename('docker-{}.tar'.format(image)))
+        output_path = os.path.join(destination, sanitize_filename(f'docker-{image}.tar'))
         if image not in extra_docker_images:
             print_parcel_progress('::: Pulling image {}/{} ({})'.format(
                 i,

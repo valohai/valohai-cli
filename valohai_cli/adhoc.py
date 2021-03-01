@@ -32,9 +32,9 @@ def package_adhoc_commit(project, validate=True):
             warn('Unable to derive Git description: %s' % exc)
 
         if description:
-            click.echo('Packaging {dir} ({description})...'.format(dir=project.directory, description=description))
+            click.echo(f'Packaging {project.directory} ({description})...')
         else:
-            click.echo('Packaging {dir}...'.format(dir=project.directory))
+            click.echo(f'Packaging {project.directory}...')
         tarball = package_directory(project.directory, progress=True, validate=validate)
         return create_adhoc_commit_from_tarball(project, tarball, description)
     finally:
@@ -42,7 +42,7 @@ def package_adhoc_commit(project, validate=True):
             try:
                 os.unlink(tarball)
             except OSError as err:  # pragma: no cover
-                warn('Unable to remove temporary file: {}'.format(err))
+                warn(f'Unable to remove temporary file: {err}')
 
 
 # Compatibility alias.
@@ -79,7 +79,7 @@ def _get_pre_existing_commit(tarball):
             commit_identifier = '~{hash}'.format(hash=get_fp_sha256(tarball_fp))
 
         # See if we have a commit with that identifier
-        commit_obj = request('get', '/api/v0/commits/{id}/'.format(id=commit_identifier)).json()
+        commit_obj = request('get', f'/api/v0/commits/{commit_identifier}/').json()
         return (commit_obj if commit_obj.get('adhoc') else None)
     except APIError:
         # In the case of any API errors, let's just assume the commit doesn't exist.
@@ -104,7 +104,7 @@ def _upload_commit_code(project, tarball, description=''):
             monitor = MultipartEncoderMonitor(upload, callback)
             commit_obj = request(
                 'post',
-                '/api/v0/projects/{id}/import-package/'.format(id=project.id),
+                f'/api/v0/projects/{project.id}/import-package/',
                 data=monitor,
                 headers={'Content-Type': monitor.content_type},
             ).json()

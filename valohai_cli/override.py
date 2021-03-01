@@ -19,10 +19,10 @@ def configure_project_override(project_id, mode, directory=None):
     if not mode:
         yaml_filename = os.path.join(directory, 'valohai.yaml')
         if os.path.isfile(yaml_filename):
-            info('{yaml_filename} exists, assuming local project'.format(yaml_filename=yaml_filename))
+            info(f'{yaml_filename} exists, assuming local project')
             mode = 'local'
         else:
-            info('{yaml_filename} does not exist, assuming remote project'.format(yaml_filename=yaml_filename))
+            info(f'{yaml_filename} does not exist, assuming remote project')
             mode = 'remote'
     if not settings.set_override_project(project_id, directory=directory, mode=mode):
         raise click.Abort()

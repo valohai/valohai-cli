@@ -27,7 +27,7 @@ def create_project(directory, name, description='', owner=None, link=True, yes=F
         project_data["owner"]["username"],
         project_data["name"],
     )
-    success('Project {project} created.'.format(project=long_name))
+    success(f'Project {long_name} created.')
     if link:
         current_project = get_project(directory)
         if current_project and not yes:
@@ -50,7 +50,7 @@ class OwnerOptionsOption(click.Option):
         except APINotFoundError:  # Endpoint not there, ah well!
             return None
         except APIError as ae:
-            warn('Unable to retrieve ownership options: {}'.format(ae))
+            warn(f'Unable to retrieve ownership options: {ae}')
             return None
         if not options:
             return None
@@ -59,7 +59,7 @@ class OwnerOptionsOption(click.Option):
 
         print('Who should own this project? The options available to you are:')
         for option in options:
-            print(' * {}'.format(option))
+            print(f' * {option}')
 
         return prompt(
             self.prompt,
