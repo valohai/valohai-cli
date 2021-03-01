@@ -36,7 +36,7 @@ class APISession(requests.Session):
         self.headers['User-Agent'] = 'valohai-cli/{version} on {py_version} ({uname})'.format(
             version=VERSION,
             uname=';'.join(platform.uname()),
-            py_version='{} {}'.format(platform.python_implementation(), platform.python_version()),
+            py_version=f'{platform.python_implementation()} {platform.python_version()}',
         )
 
     def prepare_request(self, request):
@@ -54,7 +54,7 @@ class APISession(requests.Session):
             host = urlparse(ce.request.url).netloc
             if 'Connection refused' in str(ce):
                 raise CLIException(
-                    'Unable to connect to {host} (connection refused); try again soon.'.format(host=host)
+                    f'Unable to connect to {host} (connection refused); try again soon.'
                 ) from ce
             raise
 
@@ -73,7 +73,7 @@ def _get_current_api_session():
     """
     host, token = get_host_and_token()
     ctx = click.get_current_context(silent=True) or None
-    cache_key = force_text('_api_session_{}_{}'.format(host, token))
+    cache_key = force_text(f'_api_session_{host}_{token}')
     session = (getattr(ctx, cache_key, None) if ctx else None)
     if not session:
         session = APISession(host, token)

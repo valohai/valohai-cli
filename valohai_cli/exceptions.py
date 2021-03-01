@@ -19,17 +19,17 @@ class CLIException(ClickException):
             # If there are newlines in the message, we'll format things a little differently.
             # Namely, the entire message is on a separate line, and to avoid "color fatigue",
             # it's not all red.
-            click.secho('{kind}:'.format(kind=self.kind), file=file, err=True, fg=self.color)
+            click.secho(f'{self.kind}:', file=file, err=True, fg=self.color)
             click.secho(formatted_message, file=file, err=True)
         else:
-            text = '{kind}: {message}'.format(kind=self.kind, message=formatted_message)
+            text = f'{self.kind}: {formatted_message}'
             click.secho(text, file=file, err=True, fg=self.color)
 
         hints = list(self.get_hints())
         if hints:
             click.secho('\nHint:', bold=True, err=True)
             for hint in hints:
-                click.echo('* {}'.format(hint), err=True)
+                click.echo(f'* {hint}', err=True)
 
     def get_hints(self):
         return []
@@ -116,7 +116,7 @@ class NoGitRepo(CLIException):
 
     def __init__(self, directory):
         self.directory = directory
-        super().__init__('{} is not a Git repository'.format(directory))
+        super().__init__(f'{directory} is not a Git repository')
 
 
 class NoCommit(ValueError, CLIException):
@@ -124,4 +124,4 @@ class NoCommit(ValueError, CLIException):
 
     def __init__(self, directory):
         self.directory = directory
-        super().__init__('{} has no commits'.format(directory))
+        super().__init__(f'{directory} has no commits')

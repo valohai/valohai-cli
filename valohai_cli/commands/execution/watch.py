@@ -68,7 +68,7 @@ class WatchTUI:
         )
         stat_flex.add('Step: {step}'.format(step=execution['step']))
         stat_flex.add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
-        stat_flex.add('{n} events'.format(n=self.n_events), align='right')
+        stat_flex.add(f'{self.n_events} events', align='right')
         return stat_flex
 
     def get_header_flex(self, execution):

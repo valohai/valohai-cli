@@ -77,7 +77,7 @@ class PluginCLI(click.MultiCommand):
         return (cmd.name, cmd, rest_args)  # Always use the canonical name of the command
 
     def _get_command(self, name):
-        module = import_module('{}.{}'.format(self.commands_module.__name__, name))
+        module = import_module(f'{self.commands_module.__name__}.{name}')
         return getattr(module, name)
 
     def _get_all_commands(self, ctx):

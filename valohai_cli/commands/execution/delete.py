@@ -24,14 +24,14 @@ def delete(counters, purge_outputs=False):
         if delete_execution(project, counter, purge_outputs):
             n += 1
     if n:
-        success('Deleted {n} executions.'.format(n=n))
+        success(f'Deleted {n} executions.')
     else:
         warn('Nothing was deleted.')
         sys.exit(1)
 
 
 def delete_execution(project, counter, purge_outputs=False):
-    execution_url = '/api/v0/executions/{project_id}:{counter}/'.format(project_id=project.id, counter=counter)
+    execution_url = f'/api/v0/executions/{project.id}:{counter}/'
     try:
         execution = request('get', execution_url).json()
     except APIError as ae:  # pragma: no cover
@@ -48,11 +48,11 @@ def delete_execution(project, counter, purge_outputs=False):
                 purge_url = '/api/v0/data/{datum_id}/purge/'.format(datum_id=output_datum['id'])
                 resp = request('post', purge_url, handle_errors=False)
                 if resp.status_code >= 400:  # pragma: no cover
-                    warn('Error purging output: {error}; leaving this execution alone!'.format(error=resp.text))
+                    warn(f'Error purging output: {resp.text}; leaving this execution alone!')
                     return False
     progress('Deleting #{counter}... '.format(counter=execution['counter']))
     resp = request('delete', execution_url, handle_errors=False)
     if resp.status_code >= 400:  # pragma: no cover
-        warn('Error deleting execution: {error}'.format(error=resp.text))
+        warn(f'Error deleting execution: {resp.text}')
         return False
     return True

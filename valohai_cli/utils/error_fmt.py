@@ -11,7 +11,7 @@ class ErrorFormatter:
 
     def write(self, prefix, line):
         indent_str = self.indent * self.level
-        self.buffer.append("{}{}{}".format(indent_str, prefix, line))
+        self.buffer.append(f"{indent_str}{prefix}{line}")
 
     def format(self, data, indent=0, prefix=''):
         self.level += indent
@@ -44,9 +44,9 @@ class ErrorFormatter:
         # Then format the rest
         for key, value in sorted(data.items()):
             if isinstance(value, str):
-                self.write(prefix, '{key}: {value}'.format(key=key, value=value))
+                self.write(prefix, f'{key}: {value}')
             else:
-                self.write(prefix, '{key}:'.format(key=key))
+                self.write(prefix, f'{key}:')
                 self.format(value, indent=1)
 
 

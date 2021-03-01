@@ -41,7 +41,7 @@ def get_image_suggestions():
             in data.get('suggestions', [])
         ]
     except Exception as exc:
-        warn('Could not load online image suggestions: {exc}'.format(exc=exc))
+        warn(f'Could not load online image suggestions: {exc}')
         return []
 
 
@@ -61,7 +61,7 @@ def yaml_wizard(directory):
             continue
         with codecs.open(yaml_path, 'w', 'UTF-8') as out_fp:
             out_fp.write(yaml)
-            success('All done! Wrote {path}.'.format(path=yaml_path))
+            success(f'All done! Wrote {yaml_path}.')
             break
 
 
@@ -90,7 +90,7 @@ def choose_image():
             image = image['name']
         if click.confirm('Is {image} correct?'.format(image=click.style(image, bold=True))):
             break
-    success('Great! Using {image}.'.format(image=image))
+    success(f'Great! Using {image}.')
     return image
 
 
@@ -105,7 +105,7 @@ def choose_command(directory):
             )
             command = prompt_from_list(
                 [
-                    {'name': '{} {}'.format(interpreter, script)}
+                    {'name': f'{interpreter} {script}'}
                     for (interpreter, script)
                     in scripts
                 ],
@@ -124,5 +124,5 @@ def choose_command(directory):
             continue
         if click.confirm('Is {command} correct?'.format(command=click.style(command, bold=True))):
             break
-    success('Got it! Using {command} as the command.'.format(command=command))
+    success(f'Got it! Using {command} as the command.')
     return command

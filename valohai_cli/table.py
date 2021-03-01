@@ -103,7 +103,7 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         writer.writerow(headers)
         writer.writerows(pluck_printable_data(data, columns, lambda col_val: n_str(col_val)))
     else:
-        raise RuntimeError('Unknown print_table format: {}'.format(format))
+        raise RuntimeError(f'Unknown print_table format: {format}')
 
 
 def print_json(data):

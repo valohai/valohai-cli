@@ -38,7 +38,7 @@ def test_auth(runner, mode):
                 '-p', m.password,
             ], catch_exceptions=False)
         elif mode == 'interactive':
-            result = runner.invoke(login, input='{}\n{}'.format(m.username, m.password))
+            result = runner.invoke(login, input=f'{m.username}\n{m.password}')
         assert 'Logged in' in result.output
         assert settings.token == m.token
 

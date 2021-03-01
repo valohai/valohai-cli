@@ -3,13 +3,14 @@ workflows:
   version: 2
   test:
     jobs:
-      - test-3.5
       - test-3.6
       - test-3.7
+      - test-3.8
+      - test-3.9
 jobs:
-  test-3.5: &test-template
+  test-3.6: &test-template
     docker:
-      - image: circleci/python:3.5.7-stretch
+      - image: circleci/python:3.6.13-buster
     working_directory: ~/valohai/valohai-cli
     parallelism: 1
     shell: /bin/bash --login
@@ -20,7 +21,7 @@ jobs:
       EMAIL: foo@example.com
       GIT_AUTHOR_NAME: Foo Bar
       GIT_COMMITTER_NAME: Foo Bar
-      TOX_ENV: py35
+      TOX_ENV: py36
     steps:
     - checkout
     - run: mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
@@ -40,17 +41,24 @@ jobs:
     - run: bash <(curl -s https://codecov.io/bash) -t 624f70bb-b7c4-4972-ba3f-f90923b8840c
     - store_test_results:
         path: /tmp/circleci-test-results
-  test-3.6:
-    <<: *test-template
-    environment:
-      <<: *env-template
-      TOX_ENV: py36
-    docker:
-      - image: circleci/python:3.6.8-stretch
   test-3.7:
     <<: *test-template
     environment:
       <<: *env-template
       TOX_ENV: py37
     docker:
-      - image: circleci/python:3.7.3-stretch
+      - image: circleci/python:3.7.10-buster
+  test-3.8:
+    <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py37
+    docker:
+      - image: circleci/python:3.8.8-buster
+  test-3.9:
+    <<: *test-template
+    environment:
+      <<: *env-template
+      TOX_ENV: py39
+    docker:
+      - image: circleci/python:3.9.2-buster

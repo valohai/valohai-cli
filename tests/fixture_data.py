@@ -52,7 +52,7 @@ EXECUTION_DATA = {
     'duration': 777,
     'status': 'complete',
     'step': 'run training',
-    'url': 'https://app.valohai.com/api/v0/executions/{id}/'.format(id=execution_id),
+    'url': f'https://app.valohai.com/api/v0/executions/{execution_id}/',
     'urls': {
         'copy': 'https://app.valohai.com/api/v0/executions/34/copy/',
         'display': 'https://app.valohai.com/p/test/mnist/execution/34/',

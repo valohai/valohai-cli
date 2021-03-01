@@ -12,7 +12,7 @@ def commits():
     List the commits for the linked project.
     """
     project = get_project(require=True)
-    commits_data = request('get', '/api/v0/projects/{id}/commits/'.format(id=project.id)).json()
+    commits_data = request('get', f'/api/v0/projects/{project.id}/commits/').json()
     try:
         current_commit = get_current_commit(project.directory)
     except:

@@ -35,7 +35,7 @@ class Project:
             with open(filename) as infp:
                 return self._parse_config(infp, filename)
         else:  # Arbitrary commit
-            filename = '{}:valohai.yaml'.format(commit_identifier)
+            filename = f'{commit_identifier}:valohai.yaml'
             config_bytes = get_file_at_commit(self.directory, commit_identifier, 'valohai.yaml')
             config_sio = io.StringIO(config_bytes.decode('utf-8'))
             return self._parse_config(config_sio, filename)
@@ -61,17 +61,17 @@ class Project:
             counter = counter.lstrip('#')
             if not (counter.isdigit() or counter == 'latest'):
                 raise BadParameter(
-                    '{counter} is not a valid counter value; it must be an integer or "latest"'.format(counter=counter),
+                    f'{counter} is not a valid counter value; it must be an integer or "latest"',
                 )
         try:
             return request(
                 method='get',
-                url='/api/v0/executions/{project_id}:{counter}/'.format(project_id=self.id, counter=counter),
+                url=f'/api/v0/executions/{self.id}:{counter}/',
                 params=(params or {}),
             ).json()
         except APIError as ae:
             if ae.response.status_code == 404:
-                raise NoExecution('Execution #{counter} does not exist'.format(counter=counter))
+                raise NoExecution(f'Execution #{counter} does not exist')
             raise
 
     def load_commit_list(self):
