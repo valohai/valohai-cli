@@ -369,3 +369,31 @@ INVALID_CONFIG_YAML = """
 BROKEN_CONFIG_YAML = """'"""
 
 CONFIG_DATA = yaml.safe_load(CONFIG_YAML)
+
+PYTHON_SOURCE_USING_VALOHAI_UTILS = """
+import os
+
+import valohai
+
+params = {
+    "param1": True,
+    "param2": "asdf",
+    "param3": 123,
+    "param4": 0.0001,
+}
+
+inputs = {"input1": "asdf", "input2": ["yolol", "yalala"]}
+
+
+def prepare(a, b):
+    print("this is fake method %s %s" % (a, b))
+
+
+valohai.prepare(step="foobar1", parameters=params, inputs=inputs)
+"""
+
+PYTHON_SOURCE = """
+import os
+
+print("I'm just a poor boy without any utils.")
+"""
