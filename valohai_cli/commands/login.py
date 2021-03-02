@@ -45,15 +45,13 @@ def login(username, password, token, host, yes):
             ).format(username=current_username)
             click.confirm(message, abort=True)
         else:
-            info('--yes set: ignoring pre-existing login for {username}'.format(
-                username=current_username,
-            ))
+            info(f'--yes set: ignoring pre-existing login for {current_username}')
 
     if token:
         if username or password:
             error('Token is mutually exclusive with username/password')
             raise Exit(1)
-        click.echo('Using token {token_prefix}... to log in.'.format(token_prefix=token[:5]))
+        click.echo(f'Using token {token[:5]}... to log in.')
     else:
         if not (username or password):
             click.secho(f'Welcome to Valohai CLI {__version__}!', bold=True)
@@ -91,4 +89,4 @@ def login(username, password, token, host, yes):
         user_data = sess.get('/api/v0/users/me/').json()
     settings.persistence.update(host=host, user=user_data, token=token)
     settings.persistence.save()
-    success('Logged in. Hey {name}!'.format(name=user_data.get('username', 'there')))
+    success(f"Logged in. Hey {user_data.get('username', 'there')}!")

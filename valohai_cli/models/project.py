@@ -46,7 +46,7 @@ class Project:
             config.project = self
             return config
         except OSError as err:
-            raise InvalidConfig('Could not read %s' % filename) from err
+            raise InvalidConfig(f'Could not read {filename}') from err
         except valohai_yaml.ValidationErrors as ves:
             raise InvalidConfig('{filename} is invalid ({n} errors); see `vh lint`'.format(
                 filename=filename,
@@ -124,7 +124,7 @@ class Project:
             if not identifier or commit['identifier'] == identifier:
                 return request(method='get', url=commit['url'], params={'include': 'config'}).json()
 
-        raise ValueError('No commit found for commit %s' % identifier)
+        raise ValueError(f'No commit found for commit {identifier}')
 
     def __str__(self):
         return self.name

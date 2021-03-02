@@ -26,7 +26,7 @@ class IntegerRange:
                     start, end = map(int, atom.split('-', 1))
                     target.add(range(start, end + 1))
                     continue
-            raise ValueError('Not a valid range atom: %s' % atom)  # pragma: no cover
+            raise ValueError(f'Not a valid range atom: {atom}')  # pragma: no cover
         return cls(includes=includes, excludes=excludes)
 
     def as_set(self):

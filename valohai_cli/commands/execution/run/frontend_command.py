@@ -60,7 +60,7 @@ def run(
             if config.steps:
                 click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
                 for step in sorted(config.steps):
-                    click.echo('   * %s' % step, color=ctx.color)
+                    click.echo(f'   * {step}', color=ctx.color)
         except:  # If we fail to extract the step list, it's not that big of a deal.
             pass
         ctx.exit()

@@ -20,7 +20,7 @@ def get_project(dir=None, require=False):
     dir = dir or get_project_directory()
     project = settings.get_project(dir)
     if not project and require:
-        raise NoProject('No project is linked to %s' % dir)
+        raise NoProject(f'No project is linked to {dir}')
     return project
 
 

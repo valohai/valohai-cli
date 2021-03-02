@@ -21,5 +21,5 @@ def filesizeformat(value, binary=False):
         for i, prefix in enumerate(prefixes):
             unit = base ** (i + 2)
             if bytes < unit:
-                return '{:.1f} {}'.format((base * bytes / unit), prefix)
-        return '{:.1f} {}'.format((base * bytes / unit), prefix)
+                return f'{base * bytes / unit:.1f} {prefix}'
+        return f'{base * bytes / unit:.1f} {prefix}'

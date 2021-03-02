@@ -12,7 +12,7 @@ def test_status(runner, logged_in_and_linked):
                 'count': 10,
             }
         )
-        m.get('https://app.valohai.com/api/v0/projects/{id}/'.format(id=project_data['id']), json=project_data)
+        m.get(f"https://app.valohai.com/api/v0/projects/{project_data['id']}/", json=project_data)
         m.get('https://app.valohai.com/api/v0/executions/', json={'results': []})
         runner.invoke(status, catch_exceptions=False)
         # TODO: Maybe check the output further?

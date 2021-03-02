@@ -126,7 +126,7 @@ def open_browser(object, url_name='display'):
     if 'urls' not in object:
         return False
     url = object['urls'][url_name]
-    click.echo('Opening {} ...'.format(click.style(url, bold=True)))
+    click.echo(f'Opening {click.style(url, bold=True)} ...')
     webbrowser.open(url)
     return True
 

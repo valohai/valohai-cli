@@ -15,7 +15,7 @@ def test_execution_outputs(runner, logged_in_and_linked, tmpdir, download):
         m.get(OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA['url'], content=b'0' * 100)
         params = [str(EXECUTION_DATA['counter'])]
         if download:
-            params.append('--download=%s' % tmpdir)
+            params.append(f'--download={tmpdir}')
         output = runner.invoke(outputs, params, catch_exceptions=False).output
         assert all(o['name'] in output for o in EXECUTION_DATA['outputs'])
         if download:

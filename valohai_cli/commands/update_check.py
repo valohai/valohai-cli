@@ -47,7 +47,7 @@ def determine_upgrade_status(current_version, latest_version):
         elif latest_version == current_version:
             return 'current'
     except Exception as exc:
-        warn('Unable to determine whether the version is older or newer (%s)' % exc)
+        warn(f'Unable to determine whether the version is older or newer ({exc})')
     return None
 
 

@@ -21,7 +21,7 @@ class TokenAuth(AuthBase):
     def __call__(self, request):
         if not request.headers.get('Authorization') and urlparse(request.url).netloc == self.netloc:
             if self.token:
-                request.headers['Authorization'] = 'Token %s' % self.token
+                request.headers['Authorization'] = f'Token {self.token}'
         return request
 
 

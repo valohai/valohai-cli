@@ -64,7 +64,7 @@ def outputs(counter, download_directory, filter_download, force, sync):
         warn('The execution has no outputs.')
         return
     for output in outputs:
-        output['datum_url'] = 'datum://{}'.format(output['id'])
+        output['datum_url'] = f"datum://{output['id']}"
     print_table(outputs, ('name', 'datum_url', 'size'))
     if download_directory:
         outputs = filter_outputs(outputs, download_directory, filter_download, force)
@@ -73,7 +73,7 @@ def outputs(counter, download_directory, filter_download, force, sync):
 
 def watch(counter, force, filter_download, download_directory):
     if download_directory:
-        info("Downloading to: %s\nWaiting for new outputs..." % download_directory)
+        info(f"Downloading to: {download_directory}\nWaiting for new outputs...")
     else:
         warn('Target folder is not set. Use --download to set it.')
         return
@@ -113,7 +113,7 @@ def download_outputs(outputs, output_path, show_success_message=True):
         for i, output in enumerate(outputs, 1):
             url = request(
                 method='get',
-                url='/api/v0/data/{id}/download/'.format(id=output['id']),
+                url=f"/api/v0/data/{output['id']}/download/",
             ).json()['url']
             out_path = os.path.join(output_path, output['name'])
             out_dir = os.path.dirname(out_path)

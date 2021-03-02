@@ -48,7 +48,7 @@ class FilePersistence(Persistence):
                 raise
             self._data = {}
         except Exception as exc:  # pragma: no cover
-            raise RuntimeError('could not read configuration file %s' % filename) from exc
+            raise RuntimeError(f'could not read configuration file {filename}') from exc
 
     def save(self):
         filename = self.get_filename()

@@ -56,7 +56,7 @@ def yaml_wizard(directory):
         click.secho('Here\'s a preview of the Valohai.yaml file I\'m going to create.', fg='cyan')
         print(yaml)
         yaml_path = os.path.join(directory, 'valohai.yaml')
-        if not click.confirm('Write this to {path}?'.format(path=click.style(yaml_path, bold=True))):  # pragma: no cover
+        if not click.confirm(f'Write this to {click.style(yaml_path, bold=True)}?'):  # pragma: no cover
             click.echo('Okay, let\'s try again...')
             continue
         with codecs.open(yaml_path, 'w', 'UTF-8') as out_fp:
@@ -88,7 +88,7 @@ def choose_image():
         )
         if isinstance(image, dict):
             image = image['name']
-        if click.confirm('Is {image} correct?'.format(image=click.style(image, bold=True))):
+        if click.confirm(f'Is {click.style(image, bold=True)} correct?'):
             break
     success(f'Great! Using {image}.')
     return image
@@ -122,7 +122,7 @@ def choose_command(directory):
         if not command:  # pragma: no cover
             error('Please try again.')
             continue
-        if click.confirm('Is {command} correct?'.format(command=click.style(command, bold=True))):
+        if click.confirm(f'Is {click.style(command, bold=True)} correct?'):
             break
     success(f'Got it! Using {command} as the command.')
     return command

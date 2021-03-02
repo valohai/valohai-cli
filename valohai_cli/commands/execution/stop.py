@@ -35,7 +35,7 @@ def stop(counters, all=False):
     executions = get_executions_for_stop(project, counters, all)
 
     for execution in executions:
-        progress('Stopping #{counter}... '.format(counter=execution['counter']))
+        progress(f"Stopping #{execution['counter']}... ")
         resp = request('post', execution['urls']['stop'])
         info(resp.text)
     success('Done.')

@@ -45,10 +45,10 @@ def test_unlink_not_linked(runner):
 def test_link_no_projs(runner, logged_in, create):
     name = get_random_string()
     with get_project_mock(existing_projects=0, create_project_name=(name if create else None)):
-        result = runner.invoke(link, input=('y\n%s\n' % name if create else 'n\n'))
+        result = runner.invoke(link, input=(f'y\n{name}\n' if create else 'n\n'))
         assert 'Create one instead?' in result.output
         if create:
-            assert ('%s created' % name) in result.output
+            assert (f'{name} created') in result.output
 
 
 def test_link_no_match(runner, logged_in):
@@ -60,6 +60,6 @@ def test_link_no_match(runner, logged_in):
 def test_link_projs_create_one_instead(runner, logged_in):
     name = get_random_string()
     with get_project_mock(existing_projects=1, create_project_name=name):
-        result = runner.invoke(link, input='n\n%s\n' % name)
+        result = runner.invoke(link, input=f'n\n{name}\n')
         assert 'Name the new project:' in result.output
-        assert ('%s created' % name) in result.output
+        assert (f'{name} created') in result.output
