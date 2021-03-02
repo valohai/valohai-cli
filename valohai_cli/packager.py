@@ -133,7 +133,7 @@ def _get_files(dir, allow_git=True):
         try:
             return (True, _get_files_with_git(dir))  # return the generator
         except subprocess.CalledProcessError as cpe:
-            warn('.git exists, but we could not use git ls-files (error %d), falling back to non-git' % cpe.returncode)
+            warn(f'.git exists, but we could not use git ls-files (error {cpe.returncode}), falling back to non-git')
     return (False, _get_files_walk(dir))  # return the generator
 
 

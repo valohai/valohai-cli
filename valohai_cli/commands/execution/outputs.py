@@ -111,17 +111,18 @@ def download_outputs(outputs, output_path, show_success_message=True):
         click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
         requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
+            name = output['name']
             url = request(
                 method='get',
                 url=f"/api/v0/data/{output['id']}/download/",
             ).json()['url']
-            out_path = os.path.join(output_path, output['name'])
+            out_path = os.path.join(output_path, name)
             out_dir = os.path.dirname(out_path)
             if not os.path.isdir(out_dir):
                 os.makedirs(out_dir)
             resp = dl_sess.get(url, stream=True)
             resp.raise_for_status()
-            prog.current_item = '(%*d/%-*d) %s' % (num_width, i, num_width, len(outputs), output['name'])
+            prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'
             prog.short_limit = 0  # Force visible bar for the smallest of files
             with open(out_path, 'wb') as outf:
                 for chunk in resp.iter_content(chunk_size=131072):

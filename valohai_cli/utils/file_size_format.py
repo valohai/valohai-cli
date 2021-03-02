@@ -16,7 +16,7 @@ def filesizeformat(value, binary=False):
     if bytes == 1:
         return '1 Byte'
     elif bytes < base:
-        return '%d Bytes' % bytes
+        return f'{bytes} Bytes'
     else:
         for i, prefix in enumerate(prefixes):
             unit = base ** (i + 2)
