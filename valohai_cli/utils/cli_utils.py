@@ -10,10 +10,10 @@ def _default_name_formatter(option):
 def prompt_from_list(options, prompt, nonlist_validator=None, name_formatter=_default_name_formatter):
     for i, option in enumerate(options, 1):
         click.echo('{number} {name} {description}'.format(
-            number=click.style('[%3d]' % i, fg='cyan'),
+            number=click.style(f'[{i:3d}]', fg='cyan'),
             name=name_formatter(option),
             description=(
-                click.style('(%s)' % option['description'], dim=True)
+                click.style(f'({option["description"]})', dim=True)
                 if option.get('description')
                 else ''
             ),

@@ -35,7 +35,7 @@ def print_incomplete_executions(project):
     if not incomplete_executions:
         return
 
-    click.secho('## %d Incomplete Executions\n' % len(incomplete_executions), bold=True)
+    click.secho(f'## {len(incomplete_executions)} Incomplete Executions\n', bold=True)
 
     print_table(incomplete_executions, ['counter', 'status', 'step'], headers=['#', 'Status', 'Step'])
 
@@ -48,7 +48,7 @@ def print_execution_summary(project_data):
     if not total:
         click.secho('No executions yet.', fg='cyan')
         return
-    click.secho('## Summary of %d executions\n' % total, bold=True)
+    click.secho(f'## Summary of {total} executions\n', bold=True)
     print_table(
         [
             {'status': key.replace('_count', ''), 'count': value}

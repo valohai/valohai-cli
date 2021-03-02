@@ -53,5 +53,5 @@ def lint(filenames):
     for filename in filenames:
         total_errors += validate_file(filename)
     if total_errors:
-        warn('There were %d total errors.' % total_errors)
+        warn(f'There were {total_errors} total errors.')
     click.get_current_context().exit(total_errors)
