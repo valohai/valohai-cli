@@ -12,7 +12,7 @@ from valohai_cli.table import TABLE_FORMATS
 @click.command(cls=RecursiveHelpPluginCLI, commands_module='valohai_cli.commands')
 @click.option('--debug/--no-debug', default=False, envvar='VALOHAI_DEBUG', help='Enable debug logging.')
 @click.option('--output-format', '--table-format', type=click.Choice(TABLE_FORMATS), default='human', envvar=('VALOHAI_TABLE_FORMAT', 'VALOHAI_OUTPUT_FORMAT'), help='Set the output format for various data.')
-@click.option('--valohai-host', envvar='VALOHAI_HOST', metavar='URL', help='Override the Valohai API host (default %s)' % default_app_host, show_envvar=True)
+@click.option('--valohai-host', envvar='VALOHAI_HOST', metavar='URL', help=f'Override the Valohai API host (default {default_app_host})', show_envvar=True)
 @click.option('--valohai-token', envvar='VALOHAI_TOKEN', metavar='SECRET', help='Use this Valohai authentication token', show_envvar=True)
 @click.option('--project', 'project_id', envvar='VALOHAI_PROJECT', type=click.UUID, help='(Advanced) Override the project ID', show_envvar=True)
 @click.option('--project-mode', 'project_mode', envvar='VALOHAI_PROJECT_MODE', metavar='local|remote', help='(Advanced) When using --project, set the project mode', show_envvar=True)
@@ -34,6 +34,6 @@ def cli(ctx, debug, output_format, valohai_host, valohai_token, project_id, proj
         configure_project_override(project_id, mode=project_mode, directory=project_root)
     else:
         if project_mode:
-            raise click.UsageError('--project-mode (currently %s) must not be set without --project' % project_mode)
+            raise click.UsageError(f'--project-mode (currently {project_mode}) must not be set without --project')
         if project_root:
-            raise click.UsageError('--project-root (currently %s) must not be set without --project' % project_root)
+            raise click.UsageError(f'--project-root (currently {project_root}) must not be set without --project')

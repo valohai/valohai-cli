@@ -21,7 +21,7 @@ def validate_file(filename):
     lr = lint_file(filename)
 
     if not lr.messages:
-        success('%s: No errors' % filename)
+        success(f'{filename}: No errors')
         return 0
     click.secho('{filename}: {error_count} errors, {warning_count} warnings'.format(
         filename=filename,
@@ -47,7 +47,7 @@ def lint(filenames):
         directory = (project.directory if project else get_project_directory())
         config_file = os.path.join(directory, 'valohai.yaml')
         if not os.path.exists(config_file):
-            raise CLIException('There is no %s file. Pass in the names of configuration files to lint?' % config_file)
+            raise CLIException(f'There is no {config_file} file. Pass in the names of configuration files to lint?')
         filenames = [config_file]
     total_errors = 0
     for filename in filenames:

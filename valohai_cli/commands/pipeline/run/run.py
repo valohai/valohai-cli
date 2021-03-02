@@ -26,7 +26,7 @@ def run(ctx, name, commit, title):
             if config.pipelines:
                 click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
                 for pipeline in sorted(config.pipelines):
-                    click.echo('   * %s' % pipeline, color=ctx.color)
+                    click.echo(f'   * {pipeline}', color=ctx.color)
         except:  # If we fail to extract the pipeline list, it's not that big of a deal.
             pass
         ctx.exit()
@@ -57,4 +57,4 @@ def start_pipeline(config, pipeline, project_id, commit, title=None):
         json=payload,
     ).json()
 
-    success('Pipeline ={} queued. See {}'.format(resp.get("counter"), resp.get("urls").get("display")))
+    success(f"Pipeline ={resp.get('counter')} queued. See {resp.get('urls').get('display')}")

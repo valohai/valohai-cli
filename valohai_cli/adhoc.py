@@ -29,7 +29,7 @@ def package_adhoc_commit(project, validate=True):
         except (NoGitRepo, NoCommit):
             pass
         except Exception as exc:
-            warn('Unable to derive Git description: %s' % exc)
+            warn(f'Unable to derive Git description: {exc}')
 
         if description:
             click.echo(f'Packaging {project.directory} ({description})...')
@@ -65,7 +65,7 @@ def create_adhoc_commit_from_tarball(project, tarball, description=''):
     """
     commit_obj = _get_pre_existing_commit(tarball)
     if commit_obj:
-        success('Ad-hoc code {identifier} already uploaded'.format(identifier=commit_obj['identifier']))
+        success(f"Ad-hoc code {commit_obj['identifier']} already uploaded")
     else:
         commit_obj = _upload_commit_code(project, tarball, description)
     return commit_obj
@@ -76,7 +76,7 @@ def _get_pre_existing_commit(tarball):
         # This is the same mechanism used by the server to
         # calculate the identifier for an ad-hoc tarball.
         with open(tarball, 'rb') as tarball_fp:
-            commit_identifier = '~{hash}'.format(hash=get_fp_sha256(tarball_fp))
+            commit_identifier = f'~{get_fp_sha256(tarball_fp)}'
 
         # See if we have a commit with that identifier
         commit_obj = request('get', f'/api/v0/commits/{commit_identifier}/').json()
@@ -88,7 +88,7 @@ def _get_pre_existing_commit(tarball):
 
 def _upload_commit_code(project, tarball, description=''):
     size = os.stat(tarball).st_size
-    click.echo('Uploading {size}...'.format(size=filesizeformat(size)))
+    click.echo(f'Uploading {filesizeformat(size)}...')
     with open(tarball, 'rb') as tarball_fp:
         upload = MultipartEncoder({
             'data': ('data.tgz', tarball_fp, 'application/gzip'),
@@ -108,5 +108,5 @@ def _upload_commit_code(project, tarball, description=''):
                 data=monitor,
                 headers={'Content-Type': monitor.content_type},
             ).json()
-    success('Uploaded ad-hoc code {identifier}'.format(identifier=commit_obj['identifier']))
+    success(f"Uploaded ad-hoc code {commit_obj['identifier']}")
     return commit_obj

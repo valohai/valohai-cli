@@ -45,12 +45,12 @@ def delete_execution(project, counter, purge_outputs=False):
                     counter=execution['counter'],
                     name=output_datum['name'],
                 ))
-                purge_url = '/api/v0/data/{datum_id}/purge/'.format(datum_id=output_datum['id'])
+                purge_url = f"/api/v0/data/{output_datum['id']}/purge/"
                 resp = request('post', purge_url, handle_errors=False)
                 if resp.status_code >= 400:  # pragma: no cover
                     warn(f'Error purging output: {resp.text}; leaving this execution alone!')
                     return False
-    progress('Deleting #{counter}... '.format(counter=execution['counter']))
+    progress(f"Deleting #{execution['counter']}... ")
     resp = request('delete', execution_url, handle_errors=False)
     if resp.status_code >= 400:  # pragma: no cover
         warn(f'Error deleting execution: {resp.text}')

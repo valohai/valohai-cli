@@ -8,7 +8,7 @@ def test_fetch(runner, logged_in_and_linked):
     with requests_mock.mock() as m:
         commit_data = EXECUTION_DATA['commit']
         m.post(
-            'https://app.valohai.com/api/v0/projects/{id}/fetch/'.format(id=PROJECT_DATA['id']),
+            f"https://app.valohai.com/api/v0/projects/{PROJECT_DATA['id']}/fetch/",
             json={
                 'commits': [commit_data],
                 'errors': ['oops'],

@@ -22,8 +22,8 @@ def generate_sanitized_options(name):
         choice
         for choice in
         (
-            '--%s' % sanitized_name,
-            ('--%s' % sanitized_name).lower(),
+            f'--{sanitized_name}',
+            f'--{sanitized_name}'.lower(),
         )
         if ' ' not in choice
     }
@@ -132,7 +132,7 @@ class RunCommand(click.Command):
             help=parameter.description,
             type=self.parameter_type_map.get(parameter.type, click.STRING),
         )
-        option.name = '~%s' % parameter.name  # Tildify so we can pick these out of kwargs easily
+        option.name = f'~{parameter.name}'  # Tildify so we can pick these out of kwargs easily
         option.help_group = 'Parameter Options'
         return option
 
@@ -152,10 +152,10 @@ class RunCommand(click.Command):
             default=(default_as_list if input.default else []),
             metavar='URL',
             multiple=True,
-            help='Input "%s"' % humanize_identifier(input.name),
+            help=f'Input "{humanize_identifier(input.name)}"',
         )
         option.help_group = 'Input Options'
-        option.name = '^%s' % input.name  # Caretize so we can pick these out of kwargs easily
+        option.name = f'^{input.name}'  # Caretize so we can pick these out of kwargs easily
         return option
 
     def execute(self, **kwargs):

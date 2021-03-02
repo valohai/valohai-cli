@@ -39,7 +39,7 @@ def choose_project(dir, spec=None):
     if spec:
         projects = filter_projects(projects, spec)
         if not projects:
-            warn('No projects match %s' % spec)
+            warn(f'No projects match {spec}')
             return None
         if len(projects) == 1:
             return projects[0]

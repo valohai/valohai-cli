@@ -34,7 +34,7 @@ class WatchTUI:
             self.log_manager.update_execution()
             event_response = self.log_manager.fetch_events(limit=100)
         except (RequestException, APIError) as err:
-            self.status_text = 'Failed fetch: %s' % err
+            self.status_text = f'Failed fetch: {err}'
         else:
             self.status_text = None
             self.n_events = event_response['total']
@@ -63,11 +63,11 @@ class WatchTUI:
     def get_stat_flex(self, execution):
         stat_flex = Flex()
         stat_flex.add(
-            'Status: {status}'.format(status=execution['status']),
+            f"Status: {execution['status']}",
             style=self.status_styles.get(execution['status'], {}),
         )
-        stat_flex.add('Step: {step}'.format(step=execution['step']))
-        stat_flex.add('Commit: {commit}'.format(commit=execution['commit']['identifier']))
+        stat_flex.add(f"Step: {execution['step']}")
+        stat_flex.add(f"Commit: {execution['commit']['identifier']}")
         stat_flex.add(f'{self.n_events} events', align='right')
         return stat_flex
 

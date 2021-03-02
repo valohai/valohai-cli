@@ -52,7 +52,7 @@ class RunAPIMock(requests_mock.Mocker):
     def handle_project(self, request, context):
         return {
             'id': self.project_id,
-            'name': 'Project %s' % self.project_id,
+            'name': f'Project {self.project_id}',
         }
 
     def handle_commits_list(self, request, context):
@@ -69,7 +69,7 @@ class RunAPIMock(requests_mock.Mocker):
         return {
             'identifier': self.commit_id,
             'commit_time': datetime.datetime.now().isoformat(),
-            'url': '/api/v0/commits/%s/' % self.commit_id,
+            'url': f'/api/v0/commits/{self.commit_id}/',
             'config': CONFIG_DATA,
         }
 
@@ -94,7 +94,7 @@ class RunAPIMock(requests_mock.Mocker):
 
     def handle_create_commit(self, request, context):
         assert request.body
-        commit_id = "~%s" % get_random_string()
+        commit_id = f"~{get_random_string()}"
         self.commit_id = commit_id  # Only accept the new commit
         return {
             'repository': '8',
@@ -125,7 +125,7 @@ class RunTestSetup:
             output = CliRunner().invoke(run, self.args, catch_exceptions=False).output
             # Making sure that non-adhoc executions don't turn adhoc or vice versa.
             assert ('Uploaded ad-hoc code' in output) == self.adhoc
-            assert '#{counter}'.format(counter=EXECUTION_DATA['counter']) in output
+            assert f"#{EXECUTION_DATA['counter']}" in output
 
 
 @pytest.fixture(params=['regular', 'adhoc'], ids=('regular', 'adhoc'))

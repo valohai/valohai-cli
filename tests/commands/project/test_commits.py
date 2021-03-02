@@ -8,7 +8,7 @@ def test_commits(runner, logged_in_and_linked):
     with requests_mock.mock() as m:
         commit_data = EXECUTION_DATA['commit']
         m.get(
-            'https://app.valohai.com/api/v0/projects/{id}/commits/'.format(id=PROJECT_DATA['id']),
+            f"https://app.valohai.com/api/v0/projects/{PROJECT_DATA['id']}/commits/",
             json=[commit_data],
         )
         result = runner.invoke(commits)

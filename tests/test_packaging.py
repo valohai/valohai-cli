@@ -24,7 +24,7 @@ def write_temp_files(tmpdir, with_yaml=True, large_file_size=0):
 
 
 def get_tar_files(tarball):
-    return set(check_output('tar tf %s' % tarball, shell=True).decode('utf8').splitlines())
+    return set(check_output(f'tar tf {tarball}', shell=True).decode('utf8').splitlines())
 
 
 @pytest.mark.parametrize('with_commit', (False, True))

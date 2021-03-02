@@ -9,7 +9,7 @@ class RemoteProject(Project):
             raise ValueError('RemoteProjects require an explicit commit identifier')
         commit = self.load_full_commit(commit_identifier)
         if not commit:
-            raise ValueError('No configuration found for commit %s' % commit_identifier)
+            raise ValueError(f'No configuration found for commit {commit_identifier}')
         return self._parse_config(commit['config'], filename='<remote config>')
 
     def get_config_filename(self):  # pragma: no cover

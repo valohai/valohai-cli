@@ -66,7 +66,7 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
     if pass_param in ('file', 'mix'):
         params_yaml = tmpdir.join('params.yaml')
         params_yaml.write(yaml.safe_dump({'learning-rate': 1700}))
-        run_test_setup.args.append('--parameter-file=%s' % params_yaml)
+        run_test_setup.args.append(f'--parameter-file={params_yaml}')
         values['parameters']['learning_rate'] = 1700
     run_test_setup.values.update(values)
     run_test_setup.run()
@@ -100,7 +100,7 @@ def test_flag_param_coercion(tmpdir, run_test_setup, value, result):
         'learning_rate': 0.1337,
         'enable_mega_boost': result,
     }
-    run_test_setup.args.append('--enable-mega-boost=%s' % value)
+    run_test_setup.args.append(f'--enable-mega-boost={value}')
     run_test_setup.run()
 
 

@@ -93,7 +93,7 @@ def package_files_into(dest_fp, file_stats, progress=False):
             progress_bar = click.progressbar(
                 files,
                 show_pos=True,
-                item_show_func=lambda i: ('Packaging: %s' % i if i else ''),
+                item_show_func=lambda i: (f'Packaging: {i}' if i else ''),
                 width=0,
             )
             if not progress:
@@ -167,9 +167,9 @@ def get_files_for_package(dir, allow_git=True, ignore_patterns=()):
                 ))
 
     if using_git:
-        info('Used git to find {n} files to package'.format(n=len(files_and_paths)))
+        info(f'Used git to find {len(files_and_paths)} files to package')
     else:
-        info('Git not available, found {n} files to package'.format(n=len(files_and_paths)))
+        info(f'Git not available, found {len(files_and_paths)} files to package')
 
     output_stats = {}
     for file, file_path in files_and_paths:
@@ -187,10 +187,7 @@ def validate_package_size(file_stats):
         stat = pfi.stat
         total_uncompressed_size += stat.st_size
         if stat.st_size >= FILE_SIZE_WARN_THRESHOLD:
-            warnings.append('Large file {file}: {size}'.format(
-                file=file,
-                size=filesizeformat(stat.st_size),
-            ))
+            warnings.append(f'Large file {file}: {filesizeformat(stat.st_size)}')
     if total_uncompressed_size >= UNCOMPRESSED_PACKAGE_SIZE_SOFT_THRESHOLD:
         warnings.append('The total uncompressed size of the package is {size}'.format(
             size=filesizeformat(total_uncompressed_size),

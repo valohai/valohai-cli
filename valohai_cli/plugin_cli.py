@@ -104,7 +104,7 @@ class RecursiveHelpPluginCLI(PluginCLI):
 
         for prefix, rows in sorted(rows_by_prefix.items()):
             title = (
-                'Commands (%s ...)' % prefix
+                f'Commands ({prefix} ...)'
                 if prefix
                 else 'Commands'
             )

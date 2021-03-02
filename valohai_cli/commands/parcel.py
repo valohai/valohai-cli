@@ -30,7 +30,7 @@ cd $WORKING_COPY_DIR
 
 
 def print_parcel_progress(text):
-    click.secho('::: %s' % text, bold=True, fg='cyan', err=True)
+    click.secho(f'::: {text}', bold=True, fg='cyan', err=True)
 
 
 @click.command()
@@ -121,7 +121,7 @@ def export_code(project, destination, mode):
                 'cvf',
                 os.path.join(destination, 'code.tar'),
                 '--exclude=.git',
-                '--exclude=%s' % os.path.basename(destination),  # In case we're being run in the same dir
+                f'--exclude={os.path.basename(destination)}',  # In case we're being run in the same dir
                 '.',  # Correct directory taken care of with cwd
             ],
             cwd=project.directory,
@@ -164,11 +164,7 @@ def export_docker_images(project, destination, commit, extra_docker_images=()):
                 image,
             ))
             subprocess.check_call(['docker', 'pull', image])
-        print_parcel_progress('::: Exporting image {}/{} ({})'.format(
-            i,
-            len(docker_images),
-            image,
-        ))
+        print_parcel_progress(f'::: Exporting image {i}/{len(docker_images)} ({image})')
         export_docker_image(image, output_path)
 
 
@@ -204,7 +200,4 @@ def export_docker_image(image, output_path, print_progress=True):
                 click.echo(status_text.ljust(width - 1), nl=False, err=True)
     if proc.returncode:
         raise subprocess.CalledProcessError(proc.returncode, 'docker save ' + image)
-    success('{} exported: {}'.format(
-        image,
-        filesizeformat(os.stat(output_path).st_size),
-    ))
+    success(f'{image} exported: {filesizeformat(os.stat(output_path).st_size)}')

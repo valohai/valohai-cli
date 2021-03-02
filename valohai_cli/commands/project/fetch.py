@@ -18,8 +18,8 @@ def fetch():
     commits = data.get('commits', ())
     if commits:
         for commit in commits:
-            success('Fetched: {ref} ({identifier})'.format(ref=commit['ref'], identifier=commit['identifier']))
-        success('{n} new commits were fetched!'.format(n=len(commits)))
+            success(f"Fetched: {commit['ref']} ({commit['identifier']})")
+        success(f'{len(commits)} new commits were fetched!')
     else:
         info('No new commits.')
     errors = data.get('errors', ())

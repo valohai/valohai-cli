@@ -11,7 +11,7 @@ def test_create(runner, logged_in, link):
     name = get_random_string()
     with get_project_mock(name):
         result = runner.invoke(create, ['-n', name, ('--link' if link else '--no-link')])
-        assert ('%s created' % name) in result.output
+        assert (f'{name} created') in result.output
         if link:
             assert 'Linked' in result.output
 
@@ -22,5 +22,5 @@ def test_create_linked(runner, logged_in_and_linked, input):
     with get_project_mock(name):
         result = runner.invoke(create, ['-n', name], input=input)
         if input == 'y':
-            assert ('%s created' % name) in result.output
+            assert (f'{name} created') in result.output
             assert 'Linked' in result.output
