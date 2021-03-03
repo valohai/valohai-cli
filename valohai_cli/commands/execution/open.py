@@ -11,5 +11,7 @@ def open(counter):
     """
     Open an execution in a web browser.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    project = get_project(require=True)
+    assert project
+    execution = project.get_execution_from_counter(counter=counter)
     open_browser(execution)

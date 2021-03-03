@@ -17,10 +17,10 @@ def delete(counters, purge_outputs=False):
     Delete one or more executions, optionally purging their outputs as well.
     """
     project = get_project(require=True)
-    counters = IntegerRange.parse(counters).as_set()
+    assert project
 
     n = 0
-    for counter in sorted(counters):
+    for counter in sorted(IntegerRange.parse(counters).as_set()):
         if delete_execution(project, counter, purge_outputs):
             n += 1
     if n:

@@ -21,7 +21,9 @@ def logs(counter, status, stderr, stdout, stream, all):
     """
     Show or stream execution event log.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    project = get_project(require=True)
+    assert project
+    execution = project.get_execution_from_counter(counter=counter)
     accepted_streams = {v for v in [
         'status' if status else None,
         'stderr' if stderr else None,

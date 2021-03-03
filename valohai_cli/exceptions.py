@@ -58,7 +58,8 @@ class APIError(CLIException):
             if isinstance(error_json, (dict, list)):
                 return error_json
         except Exception:
-            return None
+            pass
+        return None
 
     @property
     def code(self):
@@ -66,7 +67,7 @@ class APIError(CLIException):
         Attempt to retrieve a top-level error code from the response.
         """
         error_json = self.error_json
-        if error_json:
+        if isinstance(error_json, dict):
             return error_json.get('code')
         return None
 
@@ -77,10 +78,11 @@ class APIError(CLIException):
                 from .utils.error_fmt import format_error_data
                 try:
                     return format_error_data(error_json)
-                except:
+                except Exception:
                     return pformat(error_json, indent=2)  # This should be more readable than raw JSON
         except Exception:
-            return super().format_message()
+            pass
+        return super().format_message()
 
 
 class APINotFoundError(APIError):

@@ -17,7 +17,7 @@ def unlink(yes):
     project = get_project()
     if not project:
         warn(f'{dir} or its parents do not seem linked to a project.')
-        return 1
+        return
     if not yes:
         click.confirm(
             'Unlink {dir} from {name}?'.format(

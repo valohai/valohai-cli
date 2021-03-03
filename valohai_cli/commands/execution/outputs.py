@@ -55,6 +55,7 @@ def outputs(counter, download_directory, filter_download, force, sync):
         return
 
     project = get_project(require=True)
+    assert project
     execution = project.get_execution_from_counter(
         counter=counter,
         params={'exclude': 'outputs'},

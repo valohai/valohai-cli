@@ -74,7 +74,10 @@ class Settings:
         """
         Dictionary of directory <-> project object dicts.
         """
-        return self._get('links', {})
+        links = self._get('links')
+        if isinstance(links, dict):
+            return links
+        return {}
 
     def get_project(self, directory):
         """
@@ -98,6 +101,7 @@ class Settings:
             if project_obj:
                 from valohai_cli.models.project import Project
                 return Project(data=project_obj, directory=directory)
+        return None  # No project.
 
     def set_project_link(self, directory, project):
         if self.override_project:
@@ -106,7 +110,8 @@ class Settings:
         links = self.links.copy()
         links[directory] = project
         self.persistence.set('links', links)
-        assert self.get_project(directory).id == project['id']
+        project_for_dir = self.get_project(directory)
+        assert project_for_dir and project_for_dir.id == project['id']
         self.persistence.save()
 
     def set_override_project(self, project_id, directory, mode):

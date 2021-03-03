@@ -20,4 +20,4 @@ def match_step(config, step):
                 matches=', '.join(click.style(t, bold=True) for t in sorted(step_matches)),
                 steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps)),
             ), param_hint='step')
-    return step_matches[0]
+    return str(step_matches[0])

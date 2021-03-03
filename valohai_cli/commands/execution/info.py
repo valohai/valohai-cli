@@ -30,7 +30,9 @@ def info(counter):
     """
     Show execution info.
     """
-    execution = get_project(require=True).get_execution_from_counter(
+    project = get_project(require=True)
+    assert project
+    execution = project.get_execution_from_counter(
         counter=counter,
         params={
             'exclude': 'metadata,events',

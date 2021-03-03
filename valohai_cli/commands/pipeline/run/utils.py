@@ -71,4 +71,4 @@ def match_pipeline(config, pipeline_name):
                 matches=', '.join(click.style(t, bold=True) for t in sorted(matching_pipelines)),
                 pipelines=', '.join(click.style(t, bold=True) for t in sorted(config.pipelines)),
             ), param_hint='pipeline')
-    return matching_pipelines[0]
+    return str(matching_pipelines[0])

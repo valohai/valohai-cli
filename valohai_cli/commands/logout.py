@@ -15,7 +15,7 @@ def logout(yes):
         click.echo('You\'re not logged in.')
         return
 
-    if not yes:
+    if user and not yes:
         message = (
             'You are logged in as {username} (on {host}).\n'
             'Are you sure you wish to remove the authentication token?'

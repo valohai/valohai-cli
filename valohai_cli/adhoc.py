@@ -21,21 +21,22 @@ def package_adhoc_commit(project, validate=True):
     :return: Commit response object from API
     :rtype: dict[str, object]
     """
+    directory = project.directory
     tarball = None
     try:
         description = ''
         try:
-            description = describe_current_commit(project.directory)
+            description = describe_current_commit(directory)
         except (NoGitRepo, NoCommit):
             pass
         except Exception as exc:
             warn(f'Unable to derive Git description: {exc}')
 
         if description:
-            click.echo(f'Packaging {project.directory} ({description})...')
+            click.echo(f'Packaging {directory} ({description})...')
         else:
-            click.echo(f'Packaging {project.directory}...')
-        tarball = package_directory(project.directory, progress=True, validate=validate)
+            click.echo(f'Packaging {directory}...')
+        tarball = package_directory(directory, progress=True, validate=validate)
         return create_adhoc_commit_from_tarball(project, tarball, description)
     finally:
         if tarball:

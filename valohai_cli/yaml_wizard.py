@@ -87,11 +87,13 @@ def choose_image():
             nonlist_validator=lambda s: s.strip()
         )
         if isinstance(image, dict):
-            image = image['name']
-        if click.confirm(f'Is {click.style(image, bold=True)} correct?'):
+            image_name = str(image['name'])
+        else:
+            image_name = str(image)
+        if click.confirm(f'Is {click.style(image_name, bold=True)} correct?'):
             break
-    success(f'Great! Using {image}.')
-    return image
+    success(f'Great! Using {image_name}.')
+    return image_name
 
 
 def choose_command(directory):
@@ -125,4 +127,4 @@ def choose_command(directory):
         if click.confirm(f'Is {click.style(command, bold=True)} correct?'):
             break
     success(f'Got it! Using {command} as the command.')
-    return command
+    return str(command)

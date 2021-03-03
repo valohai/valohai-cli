@@ -24,7 +24,7 @@ def cli(ctx, debug, output_format, valohai_host, valohai_token, project_id, proj
     """
     if debug:
         logging.basicConfig(level=logging.DEBUG)
-    ctx.debug = debug
+    ctx.meta["debug"] = debug
     settings.output_format = output_format
     if valohai_host:
         settings.overrides['host'] = valohai_host

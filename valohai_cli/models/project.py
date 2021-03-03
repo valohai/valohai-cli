@@ -14,11 +14,18 @@ class Project:
 
     def __init__(self, data, directory=None):
         self.data = data
+        if not os.path.isdir(directory):
+            raise ValueError(f"Invalid directory: {directory}")
         self.directory = directory
         self._commit_list = None
 
-    id = property(lambda p: p.data['id'])
-    name = property(lambda p: p.data['name'])
+    @property
+    def id(self) -> str:
+        return str(self.data['id'])
+
+    @property
+    def name(self) -> str:
+        return str(self.data['name'])
 
     def get_config(self, commit_identifier=None):
         """
@@ -64,11 +71,13 @@ class Project:
                     f'{counter} is not a valid counter value; it must be an integer or "latest"',
                 )
         try:
-            return request(
+            data = request(
                 method='get',
                 url=f'/api/v0/executions/{self.id}:{counter}/',
                 params=(params or {}),
             ).json()
+            assert isinstance(data, dict)
+            return data
         except APIError as ae:
             if ae.response.status_code == 404:
                 raise NoExecution(f'Execution #{counter} does not exist')
@@ -88,7 +97,7 @@ class Project:
                     'limit': 9000,
                 },
             ).json()['results'])
-            commits.sort(key=lambda c: c['commit_time'], reverse=True)
+            commits.sort(key=lambda c: str(c['commit_time']), reverse=True)
             self._commit_list = commits
         return self._commit_list
 
@@ -106,7 +115,7 @@ class Project:
             return by_identifier[commit_identifier]
         newest_commit = sorted(
             [c for c in commits if not c.get('adhoc')],
-            key=lambda c: c['commit_time'],
+            key=lambda c: str(c['commit_time']),
             reverse=True,
         )[0]
         assert newest_commit['identifier']
@@ -122,7 +131,9 @@ class Project:
             if commit.get('adhoc'):
                 continue
             if not identifier or commit['identifier'] == identifier:
-                return request(method='get', url=commit['url'], params={'include': 'config'}).json()
+                data = request(method='get', url=commit['url'], params={'include': 'config'}).json()
+                assert isinstance(data, dict)
+                return data
 
         raise ValueError(f'No commit found for commit {identifier}')
 

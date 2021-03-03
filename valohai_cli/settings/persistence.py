@@ -36,6 +36,7 @@ class FilePersistence(Persistence):
     def data(self):
         if self._data is None:
             self._load()
+        assert self._data is not None
         return self._data
 
     def _load(self):

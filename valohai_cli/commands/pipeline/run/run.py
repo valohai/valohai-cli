@@ -22,7 +22,9 @@ def run(ctx, name, commit, title):
     if name == '--help' or not name:
         click.echo(ctx.get_help(), color=ctx.color)
         try:
-            config = get_project(require=True).get_config(commit_identifier=commit)
+            project = get_project(require=True)
+            assert project
+            config = project.get_config(commit_identifier=commit)
             if config.pipelines:
                 click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
                 for pipeline in sorted(config.pipelines):
@@ -32,6 +34,7 @@ def run(ctx, name, commit, title):
         ctx.exit()
 
     project = get_project(require=True)
+    assert project
     commit = commit or project.resolve_commit()['identifier']
     config = project.get_config()
 

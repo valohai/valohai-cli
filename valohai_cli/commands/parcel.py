@@ -178,6 +178,8 @@ def export_docker_image(image, output_path, print_progress=True):
     """
 
     proc = subprocess.Popen(['docker', 'save', image], bufsize=-1, stdout=subprocess.PIPE)
+    if not proc.stdout:
+        raise RuntimeError("No output stream")
     print_progress = (print_progress and sys.stdout.isatty())
     # Don't bother with acquiring the image size if we're not going to print it anyway
     image_size = (get_docker_image_size(image) if print_progress else None)

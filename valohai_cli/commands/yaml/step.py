@@ -24,6 +24,7 @@ def step(filenames):
     :param filenames: Path(s) of the Python source code files.
     """
     project = get_project()
+    assert project
     config_path = project.get_config_filename()
 
     for source_path in filenames:
@@ -98,4 +99,4 @@ def yaml_needs_update(source_path: str, project: Project) -> bool:
     if not old_config or not new_config:
         return True
 
-    return old_config.serialize() != new_config.serialize()
+    return bool(old_config.serialize() != new_config.serialize())

@@ -30,6 +30,7 @@ def list(status, count):
     Show a list of executions for the project.
     """
     project = get_project(require=True)
+    assert project
     params = {
         'project': project.id,
         'limit': count,

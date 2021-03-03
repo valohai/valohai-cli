@@ -21,8 +21,9 @@ def stop(counters, all=False):
     Stop one or more in-progress executions.
     """
     project = get_project(require=True)
+    assert project
 
-    if counters == 'all':  # pragma: no cover
+    if counters and len(counters) == 1 and counters[0] == 'all':  # pragma: no cover
         # Makes sense to support this spelling too.
         counters = None
         all = True
@@ -54,4 +55,6 @@ def get_executions_for_stop(project, counters, all):
         warn('Nothing to stop (pass #s or `--all`)')
         return []
 
-    return request('get', '/api/v0/executions/', params=params).json()['results']
+    data = request('get', '/api/v0/executions/', params=params).json()['results']
+    assert isinstance(data, list)
+    return data

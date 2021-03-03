@@ -20,13 +20,14 @@ def download_execution_data(project, counters):
 
 @click.command()
 @click.argument('counters', required=True, nargs=-1)
-def summarize(counters):
+def summarize(counters: List[str]) -> None:
     """
     Summarize execution metadata.
 
     Use the global `--table-format` switch to output JSON/TSV/CSV/...
     """
     project = get_project(require=True)
+    assert project
     executions = download_execution_data(project, counters)
     all_metadata_keys = set()
     all_metadata = {}

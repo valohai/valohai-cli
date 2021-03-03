@@ -61,13 +61,13 @@ class OwnerOptionsOption(click.Option):
         for option in options:
             print(f' * {option}')
 
-        return prompt(
+        return str(prompt(
             self.prompt,
             default=options[0],
             type=click.Choice(options),
             show_choices=False,
             value_proc=lambda x: self.process_value(ctx, x),
-        )
+        ))
 
 
 @click.command()
@@ -79,7 +79,7 @@ class OwnerOptionsOption(click.Option):
 @yes_option
 def create(name, description, link, owner, yes):
     """Create a new project and optionally link it to the directory."""
-    return create_project(
+    create_project(
         directory=get_project_directory(),
         name=name,
         description=description,

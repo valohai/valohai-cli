@@ -54,12 +54,14 @@ def choose_project(dir, spec=None):
     has_multiple_owners = (len({p.get('owner', {}).get('id') for p in projects}) > 1)
 
     def project_name_formatter(project):
+        name: str = project['name']
         try:
             if has_multiple_owners:
-                return click.style(project['owner']['username'] + '/', dim=True) + project['name']
-        except:
+                dim_owner = click.style(project['owner']['username'] + '/', dim=True)
+                return f'{dim_owner}{name}'
+        except Exception:
             pass
-        return project['name']
+        return name
 
     projects.sort(key=lambda project: project_name_formatter(project).lower())
     return prompt_from_list(projects, prompt, nonlist_validator, name_formatter=project_name_formatter)
@@ -83,10 +85,10 @@ def link(project, yes):
             abort=True,
         )
     try:
-        project = choose_project(dir, spec=project)
-        if not project:
+        project_obj = choose_project(dir, spec=project)
+        if not project_obj:
             return 1
-        set_project_link(dir, project, inform=True)
+        set_project_link(dir, project_obj, inform=True)
     except NewProjectInstead:
         name = click.prompt('Name the new project')
         if name:

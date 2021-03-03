@@ -31,7 +31,7 @@ def validate_file(filename):
     for message in lr.messages:
         click.echo('  {type}: {message}'.format(**message))
     click.echo()
-    return lr.error_count
+    return int(lr.error_count)
 
 
 @click.command()

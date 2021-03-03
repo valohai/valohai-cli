@@ -29,12 +29,12 @@ def init():
     """
     Interactively initialize a Valohai project.
     """
-    project = get_project()
-    if project:
+    current_project = get_project()
+    if current_project:
         error(
             'The directory {directory} is already linked to {name}. Please unlink the directory first.'.format(
-                directory=project.directory,
-                name=project.name,
+                directory=current_project.directory,
+                name=current_project.name,
             )
         )
         sys.exit(1)
