@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 
 import click
 import requests
@@ -8,7 +9,7 @@ from valohai_cli.messages import warn
 
 
 @click.command()
-def update_check():
+def update_check() -> None:
     data = get_pypi_info()
     current_version = valohai_cli.__version__
     latest_version = data['info']['version']
@@ -35,7 +36,7 @@ def update_check():
         click.echo('\nYou seem to be running the latest and greatest. Good on you!')
 
 
-def determine_upgrade_status(current_version, latest_version):
+def determine_upgrade_status(current_version: str, latest_version: str) -> Optional[str]:
     try:
         from distutils.version import LooseVersion
         parsed_current_version = LooseVersion(current_version)
@@ -51,7 +52,7 @@ def determine_upgrade_status(current_version, latest_version):
     return None
 
 
-def get_pypi_info():
+def get_pypi_info() -> dict:
     resp = requests.get('https://pypi.org/pypi/valohai-cli/json')
     resp.raise_for_status()
     return dict(resp.json())

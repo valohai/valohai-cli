@@ -1,13 +1,25 @@
+from typing import List, Callable, Optional, Any, Tuple, Sequence, Union
+
 import click
 
 from valohai_cli.help_texts import EXECUTION_COUNTER_HELP
+from typing import Any, Callable, TypeVar
+
+FuncT = TypeVar('FuncT', bound=Callable[..., Any])
 
 
-def _default_name_formatter(option):
-    return option['name']
+def _default_name_formatter(option: Any) -> str:
+    if isinstance(option, dict) and 'name' in option:
+        return str(option['name'])
+    return str(option)
 
 
-def prompt_from_list(options, prompt, nonlist_validator=None, name_formatter=_default_name_formatter):
+def prompt_from_list(
+    options: Sequence[dict],
+    prompt: str,
+    nonlist_validator: Optional[Callable[[str], Optional[Any]]] = None,
+    name_formatter: Callable[[dict], str] = _default_name_formatter,
+) -> Union[Any, dict]:
     for i, option in enumerate(options, 1):
         click.echo('{number} {name} {description}'.format(
             number=click.style(f'[{i:3d}]', fg='cyan'),
@@ -34,15 +46,17 @@ def prompt_from_list(options, prompt, nonlist_validator=None, name_formatter=_de
 
 
 class HelpfulArgument(click.Argument):
-    def __init__(self, param_decls, **kwargs):
-        self.help = kwargs.pop('help', None)
+    def __init__(self, param_decls: List[str], help: Optional[str] = None, **kwargs: Any) -> None:
+        self.help = help
         super().__init__(param_decls, **kwargs)
 
-    def get_help_record(self, ctx):
+    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # type: ignore[override]
         if self.help:
             return (self.name, self.help)
+        return None
 
 
-def counter_argument(fn):
+def counter_argument(fn: FuncT) -> FuncT:
     # Extra gymnastics needed because `click.arguments` mutates the kwargs here
-    return click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)(fn)
+    arg = click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)  # type: ignore[call-arg]
+    return arg(fn)

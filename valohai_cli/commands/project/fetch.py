@@ -8,7 +8,7 @@ from valohai_cli.messages import success
 
 
 @click.command()
-def fetch():
+def fetch() -> None:
     """
     Fetch new commits for the linked project.
     """

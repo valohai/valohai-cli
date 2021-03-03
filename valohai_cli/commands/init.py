@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Optional
 
 import click
 
@@ -11,6 +12,7 @@ from valohai_cli.exceptions import NotLoggedIn
 from valohai_cli.messages import error, warn
 from valohai_cli.utils import get_project_directory
 from valohai_cli.yaml_wizard import yaml_wizard
+from valohai_cli.models.project import Project
 
 DONE_TEXT = """
 All done! You can now create an ad-hoc execution with
@@ -25,7 +27,7 @@ Happy (machine) learning!
 
 
 @click.command()
-def init():
+def init() -> None:
     """
     Interactively initialize a Valohai project.
     """
@@ -77,7 +79,7 @@ def init():
     click.secho('*' * width, fg='green', bold=True)
 
 
-def link_or_create_prompt(cwd):
+def link_or_create_prompt(cwd: str) -> Optional[Project]:
     while True:
         response = click.prompt(
             'Do you want to link this directory to a pre-existing project, or create a new one? [L/C]\n'

@@ -1,12 +1,12 @@
 import hashlib
+from typing import BinaryIO
 
 
-def get_fp_sha256(fp):
+def get_fp_sha256(fp: BinaryIO) -> str:
     """
     Get the SHA-256 checksum of the data in the file `fp`.
-    :param fp: file descriptor
-    :type fp: file
-    :return: hexdigest
+
+    :return: hex string
     """
     fp.seek(0)
     hasher = hashlib.sha256()

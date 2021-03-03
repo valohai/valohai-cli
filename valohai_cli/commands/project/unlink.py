@@ -9,7 +9,7 @@ from valohai_cli.utils import get_project_directory
 
 @click.command()
 @yes_option
-def unlink(yes):
+def unlink(yes: bool) -> None:
     """
     Unlink a linked Valohai project.
     """

@@ -1,5 +1,6 @@
 import codecs
 import os
+from typing import List
 
 import click
 import requests
@@ -26,7 +27,7 @@ YAML_SKELLINGTON = """---
 """
 
 
-def get_image_suggestions():
+def get_image_suggestions() -> List[dict]:
     try:
         resp = requests.get('https://raw.githubusercontent.com/valohai/images/master/images.yaml')
         resp.raise_for_status()
@@ -45,7 +46,7 @@ def get_image_suggestions():
         return []
 
 
-def yaml_wizard(directory):
+def yaml_wizard(directory: str) -> None:
     while True:
         command = choose_command(directory)
         image = choose_image()
@@ -65,7 +66,7 @@ def yaml_wizard(directory):
             break
 
 
-def choose_image():
+def choose_image() -> str:
     image_suggestions = get_image_suggestions()
     click.echo(
         'Now let\'s pick a Docker image to use with your code.\n' +
@@ -96,7 +97,7 @@ def choose_image():
     return image_name
 
 
-def choose_command(directory):
+def choose_command(directory: str) -> str:
     scripts = sorted(find_scripts(directory))
     while True:
         if scripts:

@@ -7,16 +7,17 @@ from valohai_cli.table import print_table
 
 
 @click.command()
-def commits():
+def commits() -> None:
     """
     List the commits for the linked project.
     """
     project = get_project(require=True)
     commits_data = request('get', f'/api/v0/projects/{project.id}/commits/').json()
+    current_commit = None
     try:
         current_commit = get_current_commit(project.directory)
-    except:
-        current_commit = None
+    except Exception:
+        pass
 
     # Filter out ad-hoc executions (and remove the adhocness marker)
     commits_data = [commit for commit in commits_data if not commit.pop('adhoc', False)]

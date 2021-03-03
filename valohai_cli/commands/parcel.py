@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import time
+from typing import Optional, Iterable, List
 
 import click
 
@@ -11,6 +12,7 @@ from valohai_cli.messages import success
 from valohai_cli.tui import get_spinner_character
 from valohai_cli.utils import ensure_makedirs, sanitize_filename
 from valohai_cli.utils.file_size_format import filesizeformat
+from valohai_cli.models.project import Project
 
 MINIMUM_VALOHAI_LOCAL_RUN_VERSION = '0.2.1'
 
@@ -29,7 +31,7 @@ cd $WORKING_COPY_DIR
 """.strip()
 
 
-def print_parcel_progress(text):
+def print_parcel_progress(text: str) -> None:
     click.secho(f'::: {text}', bold=True, fg='cyan', err=True)
 
 
@@ -45,7 +47,14 @@ def print_parcel_progress(text):
 @click.option('--docker-images/--no-docker-images', default=True, help='Package Docker images?')
 @click.option('--valohai-local-run/--no-valohai-local-run', default=True, help='Download valohai-local-run + deps?')
 @click.option('--unparcel-script/--no-unparcel-script', default=True, help='Add unparcel script?')
-def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel_script):
+def parcel(
+    destination: Optional[str],
+    commit: Optional[str],
+    code: str,
+    valohai_local_run: bool,
+    docker_images: bool,
+    unparcel_script: bool,
+) -> None:
     project = get_project(require=True)
 
     if not destination:
@@ -61,7 +70,7 @@ def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel
 
     ensure_makedirs(destination)
 
-    extra_docker_images = []
+    extra_docker_images: List[str] = []
 
     if code in ('bundle', 'archive', 'tarball'):
         export_code(project, destination, mode=code)
@@ -78,7 +87,7 @@ def parcel(destination, commit, code, valohai_local_run, docker_images, unparcel
     success(f'Parcel {destination} created!')
 
 
-def export_valohai_local_run(project, destination):
+def export_valohai_local_run(project: Project, destination: str) -> None:
     print_parcel_progress('Downloading valohai-local-run and dependencies')
     destination = os.path.join(destination, 'python-archives')
     subprocess.check_call(
@@ -92,7 +101,7 @@ def export_valohai_local_run(project, destination):
     )
 
 
-def write_unparcel_script(destination):
+def write_unparcel_script(destination: str) -> None:
     unparcel_sh_path = os.path.join(destination, 'unparcel.sh')
     print_parcel_progress(f'Creating unparcel script {unparcel_sh_path}')
     with open(unparcel_sh_path, 'w') as outf:
@@ -100,7 +109,7 @@ def write_unparcel_script(destination):
     os.chmod(unparcel_sh_path, os.stat(unparcel_sh_path).st_mode | 0o700)
 
 
-def export_code(project, destination, mode):
+def export_code(project: Project, destination: str, mode: str) -> None:
     if mode == 'bundle':
         print_parcel_progress('Creating Git repository bundle')
         subprocess.check_call(
@@ -130,12 +139,11 @@ def export_code(project, destination, mode):
         raise NotImplementedError('...')
 
 
-def get_docker_image_size(image):
+def get_docker_image_size(image: str) -> Optional[int]:
     """
     Try to get the size of the given Docker image in bytes.
     :param image: The image name.
     :return: Number of bytes, or None if not available.
-    :rtype: int|None
     """
     try:
         size = subprocess.check_output(
@@ -151,7 +159,12 @@ def get_docker_image_size(image):
     return None
 
 
-def export_docker_images(project, destination, commit, extra_docker_images=()):
+def export_docker_images(
+    project: Project,
+    destination: str,
+    commit: Optional[str],
+    extra_docker_images: Iterable[str] = (),
+) -> None:
     commit = expand_commit_id(project.directory, commit=(commit or 'HEAD'))
     docker_images = {step.image for step in project.get_config(commit).steps.values()}
     docker_images |= set(extra_docker_images)
@@ -168,7 +181,7 @@ def export_docker_images(project, destination, commit, extra_docker_images=()):
         export_docker_image(image, output_path)
 
 
-def export_docker_image(image, output_path, print_progress=True):
+def export_docker_image(image: str, output_path: str, print_progress: bool=True) -> None:
     """
     Export the Docker image `image` to the tar file `output_path`,
     with visual progress.

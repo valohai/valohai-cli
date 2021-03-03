@@ -7,7 +7,7 @@ from valohai_cli.utils.cli_utils import counter_argument
 
 @click.command()
 @counter_argument
-def open(counter):
+def open(counter: str) -> None:
     """
     Open an execution in a web browser.
     """

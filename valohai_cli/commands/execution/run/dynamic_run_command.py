@@ -2,21 +2,26 @@ import collections
 
 import click
 from click import get_current_context
-from valohai_yaml.objs import Parameter, Step
+from valohai_yaml.objs import Step
 from valohai_yaml.objs.input import Input
 
 from valohai_cli import git as git
 from valohai_cli.api import request
 from valohai_cli.exceptions import CLIException, NoGitRepo
 from valohai_cli.messages import success, warn
+from valohai_cli.models.project import Project
 from valohai_cli.utils import humanize_identifier, sanitize_option_name
 from valohai_cli.utils.file_input import read_data_file
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 
 from .excs import ExecutionCreationAPIError
+from click.core import Context, Option
+from click.formatting import HelpFormatter
+from typing import Any, Dict, Optional, Sequence, Set, Tuple
+from valohai_yaml.objs.parameter import Parameter
 
 
-def generate_sanitized_options(name):
+def generate_sanitized_options(name: str) -> Set[str]:
     sanitized_name = sanitize_option_name(name)
     return {
         choice
@@ -41,16 +46,16 @@ class RunCommand(click.Command):
 
     def __init__(
         self,
-        project,
-        step,
-        commit,
-        environment=None,
-        image=None,
-        title=None,
-        watch=False,
-        download_directory=None,
-        environment_variables=None,
-        tags=None
+        project: Project,
+        step: Step,
+        commit: Optional[str],
+        environment: Optional[str] = None,
+        image: Optional[str] = None,
+        title: Optional[str] = None,
+        watch: bool = False,
+        download_directory: Optional[str] = None,
+        environment_variables: Optional[Dict[str, str]] = None,
+        tags: Optional[Sequence[str]] = None
     ):
 
         """
@@ -58,23 +63,14 @@ class RunCommand(click.Command):
 
         :param environment_variables:
         :param project: Project object
-        :type project: valohai_cli.models.project.Project
         :param step: YAML step object
-        :type step: valohai_yaml.objs.Step
         :param commit: Commit identifier
-        :type commit: str
         :param environment: Environment identifier (slug or UUID)
-        :type environment: str|None
         :param environment_variables: Mapping of environment variables
-        :type environment_variables: dict[str, str]|None
         :param tags: Tags to apply
-        :type tags: list[str]
         :param watch: Whether to chain to `exec watch` afterwards
-        :type watch: bool
         :param image: Image override
-        :type image: str|None
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
-        :param download_directory: str|None
         """
         assert isinstance(step, Step)
         self.project = project
@@ -106,7 +102,7 @@ class RunCommand(click.Command):
             if name not in self.environment_variables:
                 self.environment_variables[name] = value.default
 
-    def format_options(self, ctx, formatter):
+    def format_options(self, ctx: Context, formatter: HelpFormatter) -> None:
         opts_by_group = collections.defaultdict(list)
         for param in self.get_params(ctx):
             rv = param.get_help_record(ctx)
@@ -117,12 +113,9 @@ class RunCommand(click.Command):
             with formatter.section(group_name or 'Options'):
                 formatter.write_dl(opts)
 
-    def convert_param_to_option(self, parameter):
+    def convert_param_to_option(self, parameter: Parameter) -> Option:
         """
         Convert a Parameter into a click Option.
-
-        :type parameter: valohai_yaml.objs.Parameter
-        :rtype: click.Option
         """
         assert isinstance(parameter, Parameter)
         option = click.Option(
@@ -133,15 +126,12 @@ class RunCommand(click.Command):
             type=self.parameter_type_map.get(parameter.type, click.STRING),
         )
         option.name = f'~{parameter.name}'  # Tildify so we can pick these out of kwargs easily
-        option.help_group = 'Parameter Options'
+        option.help_group = 'Parameter Options'  # type: ignore[attr-defined]
         return option
 
-    def convert_input_to_option(self, input):
+    def convert_input_to_option(self, input: Input) -> Option:
         """
         Convert an Input into a click Option.
-
-        :type input: valohai_yaml.objs.input.Input
-        :rtype: click.Option
         """
         assert isinstance(input, Input)
         default_as_list = input.default if isinstance(input.default, list) else [input.default]
@@ -154,11 +144,11 @@ class RunCommand(click.Command):
             multiple=True,
             help=f'Input "{humanize_identifier(input.name)}"',
         )
-        option.help_group = 'Input Options'
         option.name = f'^{input.name}'  # Caretize so we can pick these out of kwargs easily
+        option.help_group = 'Input Options'  # type: ignore[attr-defined]
         return option
 
-    def execute(self, **kwargs):
+    def execute(self, **kwargs: Any) -> None:
         """
         Execute the creation of the execution. (Heh.)
 
@@ -214,7 +204,7 @@ class RunCommand(click.Command):
             from valohai_cli.commands.execution.watch import watch
             ctx.invoke(watch, counter=resp['counter'])
 
-    def _sift_kwargs(self, kwargs):
+    def _sift_kwargs(self, kwargs: Dict[str, str]) -> Tuple[dict, dict, dict]:
         # Sift kwargs into params, options, and inputs
         options = {}
         params = {}
@@ -229,7 +219,7 @@ class RunCommand(click.Command):
         self._process_parameters(params, parameter_file=options.get('parameter_file'))
         return (options, params, inputs)
 
-    def _process_parameters(self, parameters, parameter_file):
+    def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:
         if parameter_file:
             parameter_file_data = read_data_file(parameter_file)
             if not isinstance(parameter_file_data, dict):
@@ -262,7 +252,7 @@ class RunCommand(click.Command):
         if missing_required_parameters:
             raise CLIException(f'Required parameters missing: {missing_required_parameters}')
 
-    def resolve_commit(self, commit_identifier):
+    def resolve_commit(self, commit_identifier: Optional[str]) -> str:
         if not commit_identifier:
             try:
                 commit_identifier = git.get_current_commit(self.project.directory)
@@ -287,14 +277,14 @@ class RunCommand(click.Command):
             warn('No commits are known for the project.')
             raise click.Abort()
 
-        resolved_commit_identifier = commit_obj['identifier']
+        resolved_commit_identifier: str = commit_obj['identifier']
         if not commit_identifier:
             click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
 
         return resolved_commit_identifier
 
-    def make_parser(self, ctx):
-        parser = super().make_parser(ctx)
+    def make_parser(self, ctx: Context) -> FriendlyOptionParser:
+        parser: FriendlyOptionParser = super().make_parser(ctx)  # type: ignore[assignment]
         # This is somewhat naughty, but allows us to easily hook into here.
         # Besides, FriendlyOptionParser does inherit from OptionParser anyway,
         # and just overrides that one piece of behavior...

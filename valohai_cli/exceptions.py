@@ -2,18 +2,19 @@ from pprint import pformat
 
 import click
 from click import ClickException
+from requests.models import Response
+from typing import Any, Iterable, Optional, Union
 
 
 class CLIException(ClickException):
-    kind = 'Error'
-    color = 'red'
+    kind: str = 'Error'
+    color: str = 'red'
 
-    def __init__(self, *args, **kwargs):
-        kind = kwargs.pop('kind', None)
-        super().__init__(*args, **kwargs)
-        self.kind = (kind or self.kind)
+    def __init__(self, message: str, kind: Optional[str] = None) -> None:
+        super().__init__(message)
+        self.kind = str(kind or self.kind)
 
-    def show(self, file=None):
+    def show(self, file: Optional[Any] = None) -> None:
         formatted_message = self.format_message()
         if formatted_message and '\n' in formatted_message:
             # If there are newlines in the message, we'll format things a little differently.
@@ -31,17 +32,14 @@ class CLIException(ClickException):
             for hint in hints:
                 click.echo(f'* {hint}', err=True)
 
-    def get_hints(self):
+    def get_hints(self) -> Iterable[str]:
         return []
 
 
 class APIError(CLIException):
     kind = 'API Error'
 
-    def __init__(self, response):
-        """
-        :type response: requests.Response
-        """
+    def __init__(self, response: Response) -> None:
         if '<!DOCTYPE html>' in response.text:
             # Don't shower the user with a blob of HTML
             text = 'Internal error'
@@ -52,7 +50,7 @@ class APIError(CLIException):
         self.request = response.request
 
     @property
-    def error_json(self):
+    def error_json(self) -> Union[None, dict, list]:
         try:
             error_json = self.response.json()
             if isinstance(error_json, (dict, list)):
@@ -62,7 +60,7 @@ class APIError(CLIException):
         return None
 
     @property
-    def code(self):
+    def code(self) -> Optional[Any]:
         """
         Attempt to retrieve a top-level error code from the response.
         """
@@ -71,7 +69,7 @@ class APIError(CLIException):
             return error_json.get('code')
         return None
 
-    def format_message(self):
+    def format_message(self) -> str:
         try:
             error_json = self.error_json
             if error_json:
@@ -116,7 +114,7 @@ class PackageTooLarge(CLIException):
 class NoGitRepo(CLIException):
     color = 'yellow'
 
-    def __init__(self, directory):
+    def __init__(self, directory: str) -> None:
         self.directory = directory
         super().__init__(f'{directory} is not a Git repository')
 
@@ -124,6 +122,6 @@ class NoGitRepo(CLIException):
 class NoCommit(ValueError, CLIException):
     color = 'yellow'
 
-    def __init__(self, directory):
+    def __init__(self, directory: str) -> None:
         self.directory = directory
         super().__init__(f'{directory} has no commits')

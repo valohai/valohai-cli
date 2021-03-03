@@ -26,7 +26,7 @@ ignored_keys = {
 
 @click.command()
 @counter_argument
-def info(counter):
+def info(counter: str) -> None:
     """
     Show execution info.
     """

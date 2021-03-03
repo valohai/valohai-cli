@@ -1,6 +1,7 @@
 import os
 import time
 from fnmatch import fnmatch
+from typing import List, Optional
 
 import click
 import requests
@@ -26,7 +27,7 @@ GLOB_HELP = (
 )
 
 
-def get_execution_outputs(execution):
+def get_execution_outputs(execution: dict) -> List[dict]:
     return list(request(
         method='get',
         url='/api/v0/data/',
@@ -39,11 +40,13 @@ def get_execution_outputs(execution):
 
 @click.command()
 @counter_argument
-@click.option('--download', '-d', 'download_directory', type=click.Path(file_okay=False), help=DOWNLOAD_HELP, default=None)
+@click.option('--download', '-d', 'download_directory', type=click.Path(file_okay=False), help=DOWNLOAD_HELP,
+              default=None)
 @click.option('--filter-download', '-f', help=GLOB_HELP, default=None)
 @click.option('--force', is_flag=True, help='Download all files even if they already exist.')
 @click.option('--sync', '-s', is_flag=True, help='Keep watching for new output files to download.')
-def outputs(counter, download_directory, filter_download, force, sync):
+def outputs(counter: str, download_directory: Optional[str], filter_download: Optional[str], force: bool,
+            sync: bool) -> None:
     """
     List and download execution outputs.
     """
@@ -72,7 +75,7 @@ def outputs(counter, download_directory, filter_download, force, sync):
         download_outputs(outputs, download_directory, show_success_message=True)
 
 
-def watch(counter, force, filter_download, download_directory):
+def watch(counter: str, force: bool, filter_download: Optional[str], download_directory: Optional[str]) -> None:
     if download_directory:
         info(f"Downloading to: {download_directory}\nWaiting for new outputs...")
     else:
@@ -95,7 +98,12 @@ def watch(counter, force, filter_download, download_directory):
         time.sleep(1)
 
 
-def filter_outputs(outputs, download_directory, filter_download, force):
+def filter_outputs(
+    outputs: List[dict],
+    download_directory: str,
+    filter_download: Optional[str],
+    force: bool,
+) -> List[dict]:
     if filter_download:
         outputs = [output for output in outputs if fnmatch(output['name'], filter_download)]
     if not force:
@@ -104,7 +112,7 @@ def filter_outputs(outputs, download_directory, filter_download, force):
     return outputs
 
 
-def download_outputs(outputs, output_path, show_success_message=True):
+def download_outputs(outputs: List[dict], output_path: str, show_success_message: bool = True) -> None:
     total_size = sum(o['size'] for o in outputs)
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
@@ -123,8 +131,9 @@ def download_outputs(outputs, output_path, show_success_message=True):
                 os.makedirs(out_dir)
             resp = dl_sess.get(url, stream=True)
             resp.raise_for_status()
-            prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'
-            prog.short_limit = 0  # Force visible bar for the smallest of files
+            prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'  # type: ignore[attr-defined]
+            # Force visible bar for the smallest of files:
+            prog.short_limit = 0   # type: ignore[attr-defined]
             with open(out_path, 'wb') as outf:
                 for chunk in resp.iter_content(chunk_size=131072):
                     prog.update(len(chunk))

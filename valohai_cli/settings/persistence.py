@@ -2,44 +2,45 @@ import codecs
 import json
 import os
 from errno import ENOENT
+from typing import Any, Callable, Optional
 
 
 class Persistence:
-    def __init__(self, data=None):
+    def __init__(self, data: Optional[dict] = None) -> None:
         self._data = data
 
     @property
-    def data(self):
+    def data(self) -> dict:
         if self._data is None:
             self._data = {}
         return self._data
 
-    def update(self, data=None, **kwargs):
+    def update(self, data: Optional[dict] = None, **kwargs: Any) -> None:
         self.data.update((data or {}), **kwargs)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default: Optional[Any] = None) -> Optional[Any]:
         return self.data.get(key, default)
 
-    def set(self, key, value):
+    def set(self, key: str, value: Any) -> None:
         self.data[key] = value
 
-    def save(self):
+    def save(self) -> None:
         pass
 
 
 class FilePersistence(Persistence):
-    def __init__(self, get_filename):
+    def __init__(self, get_filename: Callable[[], str]) -> None:
         super().__init__()
         self.get_filename = get_filename
 
     @property
-    def data(self):
+    def data(self) -> dict:
         if self._data is None:
             self._load()
         assert self._data is not None
         return self._data
 
-    def _load(self):
+    def _load(self) -> None:
         filename = self.get_filename()
         try:
             with codecs.open(filename, 'r', encoding='UTF-8') as infp:
@@ -51,7 +52,7 @@ class FilePersistence(Persistence):
         except Exception as exc:  # pragma: no cover
             raise RuntimeError(f'could not read configuration file {filename}') from exc
 
-    def save(self):
+    def save(self) -> None:
         filename = self.get_filename()
         first_save = not os.path.isfile(filename)
         with codecs.open(filename, 'w', encoding='UTF-8') as outfp:

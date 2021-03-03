@@ -1,4 +1,4 @@
-import sys
+from typing import Optional
 
 import click
 from click.exceptions import Exit
@@ -28,7 +28,7 @@ Use a login token instead:
 @click.option('--token', '-t', envvar='VALOHAI_TOKEN', help='A Valohai API token (instead of username and password)')
 @click.option('--host', '-h', help='Valohai host to login on (for private installations)')
 @yes_option
-def login(username, password, token, host, yes):
+def login(username: str, password: str, token: Optional[str], host: Optional[str], yes: bool) -> None:
     """Log in into Valohai."""
     host = (
         host  # Explicitly set for this command, ...

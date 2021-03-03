@@ -4,18 +4,20 @@ import sys
 import click
 from click import get_terminal_size
 
-from valohai_cli._vendor.tabulate import tabulate
 from valohai_cli.settings import settings
+from typing import Union, Tuple, Any, Iterable, Optional, Callable, List, Type, Sequence
 
 TABLE_FORMATS = ('human', 'csv', 'tsv', 'scsv', 'psv', 'json')
 SV_SEPARATORS = {'csv': ',', 'tsv': '\t', 'scsv': ';', 'psv': '|'}
 
 
-def n_str(s):
-    return ('' if s is None else str(s).replace('\n', ' '))
+def n_str(s: Union[float, str, int]) -> str:
+    if s is None:
+        return ''
+    return str(s).replace('\n', ' ')
 
 
-def _format(datum, width, allow_rjust=True):
+def _format(datum: Union[Tuple[str, Any], str], width: Optional[int], allow_rjust: bool = True) -> str:
     if isinstance(datum, tuple):
         datum, datatype = datum
     else:
@@ -30,7 +32,7 @@ def _format(datum, width, allow_rjust=True):
 
 
 class HumanTableFormatter:
-    def __init__(self, data, columns, headers, sep=' | '):
+    def __init__(self, data: Sequence[dict], columns: Sequence[str], headers: Sequence[str], sep: str =' | ') -> None:
         self.columns = columns
         self.headers = headers
         self.sep = sep
@@ -48,7 +50,7 @@ class HumanTableFormatter:
 
         self.vertical_format = (sum(self.column_widths) >= self.terminal_width)
 
-    def _generate_vertical(self):
+    def _generate_vertical(self) -> Iterable[Tuple[bool, str]]:
         header_width = max(len(header) for header in self.headers)
         for row in self.printable_data:
             for header, value in zip(self.headers, row):
@@ -59,7 +61,7 @@ class HumanTableFormatter:
                 ).rstrip())
             yield (True, '-' * header_width)
 
-    def _echo_vertical(self):
+    def _echo_vertical(self) -> None:
         sep_width = 0
         for y, (is_header, row) in enumerate(self._generate_vertical()):
             sep_width = max(sep_width, len(row))
@@ -67,19 +69,34 @@ class HumanTableFormatter:
                 click.secho('-' * sep_width, bold=True)
             click.secho(row, bold=(is_header))
 
-    def echo(self):
+    def echo(self) -> None:
         if self.vertical_format:
             self._echo_vertical()
-        else:
-            print(tabulate([[val for (val, typ) in row] for row in self.printable_data], headers=self.headers))
+            return
+        from valohai_cli._vendor.tabulate import tabulate  # type: ignore[attr-defined]
+        tabulable_data = [[val for (val, typ) in row] for row in self.printable_data]
+        print(tabulate(tabulable_data, headers=self.headers))
 
 
-def pluck_printable_data(data, columns, col_formatter):
+StringAndType = Tuple[str, Type]
+
+
+def pluck_printable_data(
+    data: Sequence[dict],
+    columns: Sequence[str],
+    col_formatter: Callable[[Any], StringAndType],
+) -> Iterable[List[StringAndType]]:
     for datum in data:
         yield [col_formatter(col_val) for col_val in (datum.get(column) for column in columns)]
 
 
-def print_table(data, columns=(), headers=None, format=None, **kwargs):
+def print_table(
+    data: Any,
+    columns: Sequence[str] = (),
+    headers: Optional[Sequence[str]] = None,
+    format: Optional[str] = None,
+    **kwargs: Any,
+) -> None:
     if isinstance(data, dict) and not columns:
         data = [{'key': key, 'value': value} for (key, value) in sorted(data.items())]
         columns = ('key', 'value')
@@ -101,10 +118,10 @@ def print_table(data, columns=(), headers=None, format=None, **kwargs):
         import csv
         writer = csv.writer(sys.stdout, delimiter=SV_SEPARATORS[format], quoting=csv.QUOTE_MINIMAL)
         writer.writerow(headers)
-        writer.writerows(pluck_printable_data(data, columns, lambda col_val: n_str(col_val)))
+        writer.writerows(pluck_printable_data(data, columns, lambda col_val: (n_str(col_val), str)))
     else:
         raise RuntimeError(f'Unknown print_table format: {format}')
 
 
-def print_json(data):
+def print_json(data: Any) -> None:
     json.dump(data, sys.stdout, ensure_ascii=False, indent=2, sort_keys=True)

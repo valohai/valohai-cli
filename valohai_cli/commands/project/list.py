@@ -7,7 +7,7 @@ from valohai_cli.table import print_table
 
 
 @click.command()
-def list():
+def list() -> None:
     """
     List all projects.
     """

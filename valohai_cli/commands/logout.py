@@ -7,7 +7,7 @@ from valohai_cli.settings import settings
 
 @click.command()
 @yes_option
-def logout(yes):
+def logout(yes: bool) -> None:
     """Remove local authentication token."""
     user = settings.user
     token = settings.token

@@ -1,13 +1,16 @@
+from typing import List, Optional, Union, Dict, Any
+
 import click
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info, progress, success, warn
+from valohai_cli.models.project import Project
 from valohai_cli.range import IntegerRange
 from valohai_cli.utils.cli_utils import HelpfulArgument
 
 
-@click.argument(
+@click.argument(  # type: ignore[call-arg]
     'counters',
     help='Range of execution counters, or "latest"',
     required=False,
@@ -16,7 +19,7 @@ from valohai_cli.utils.cli_utils import HelpfulArgument
 )
 @click.option('--all', default=None, is_flag=True, help='Stop all in-progress executions.')
 @click.command()
-def stop(counters, all=False):
+def stop(counters: Optional[List[str]] = None, all: bool = False) -> None:
     """
     Stop one or more in-progress executions.
     """
@@ -42,8 +45,8 @@ def stop(counters, all=False):
     success('Done.')
 
 
-def get_executions_for_stop(project, counters, all):
-    params = {'project': project.id}
+def get_executions_for_stop(project: Project, counters: Optional[Union[str, List[str]]], all: bool) -> List[dict]:
+    params: Dict[str, Any] = {'project': project.id}
     if counters == 'latest':
         return [project.get_execution_from_counter('latest')]
 

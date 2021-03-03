@@ -3,7 +3,7 @@
 # From http://hetland.org/coding/python/levenshtein.py, which is in the public domain.
 
 
-def levenshtein(a, b):
+def levenshtein(a: str, b: str) -> int:
     "Calculates the Levenshtein distance between a and b."
     n, m = len(a), len(b)
     if n > m:
@@ -11,7 +11,7 @@ def levenshtein(a, b):
         a, b = b, a
         n, m = m, n
 
-    current = range(n + 1)
+    current = list(range(n + 1))
     for i in range(1, m + 1):
         previous, current = current, [i] + [0] * n
         for j in range(1, n + 1):
