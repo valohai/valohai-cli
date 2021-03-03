@@ -4,7 +4,7 @@ from importlib import import_module
 
 import click
 
-from valohai_cli.utils import cached_property, match_prefix
+from valohai_cli.utils import match_prefix
 
 
 class PluginCLI(click.MultiCommand):
@@ -15,28 +15,35 @@ class PluginCLI(click.MultiCommand):
 
     def __init__(self, **kwargs):
         self._commands_module = kwargs.pop('commands_module')
+        self._command_modules: List[str] = []
+        self._command_to_canonical_map: Dict[str, str] = {}
         self.aliases = dict(self.aliases, **kwargs.get('aliases', {}))  # instance level copy
         super().__init__(**kwargs)
 
-    @cached_property
+    @property
     def commands_module(self):
         if isinstance(self._commands_module, str):
-            return import_module(self._commands_module)
-        return self._commands_module
+            self._commands_module = import_module(self._commands_module)
+        return self._commands_module  # type: ignore
 
-    @cached_property
+    @property
     def command_modules(self):
-        return sorted(c[1] for c in pkgutil.iter_modules(self.commands_module.__path__))
+        if not self._command_modules:
+            mod_path = self.commands_module.__path__  # type: ignore[attr-defined]
+            self._command_modules = sorted(c[1] for c in pkgutil.iter_modules(mod_path))
+        return self._command_modules
 
-    @cached_property
+    @property
     def command_to_canonical_map(self):
-        command_map = {command: command for command in self.command_modules}
-        for alias_from, alias_to in self.aliases.items():
-            if alias_to in command_map:
-                command_map[alias_from] = command_map.get(alias_to, alias_to)  # resolve aliases
-        return command_map
+        if not self._command_to_canonical_map:
+            command_map = {command: command for command in self.command_modules}
+            for alias_from, alias_to in self.aliases.items():
+                if alias_to in command_map:
+                    command_map[alias_from] = command_map.get(alias_to, alias_to)  # resolve aliases
+            self._command_to_canonical_map = command_map
+        return self._command_to_canonical_map
 
-    def list_commands(self, ctx):
+    def list_commands(self, ctx: Context):
         return self.command_modules
 
     def get_command(self, ctx, name):
