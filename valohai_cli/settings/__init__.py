@@ -5,7 +5,12 @@ from valohai_cli.messages import error, info
 from valohai_cli.utils import walk_directory_parents
 
 from .paths import get_settings_file_name
-from .persistence import FilePersistence
+from .persistence import FilePersistence, Persistence
+from typing import Optional, Union, Any, Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models.project import Project
+    from ..models.remote_project import RemoteProject
 
 
 class Settings:
@@ -13,49 +18,44 @@ class Settings:
     output_format = 'human'
     override_project = None
 
-    def __init__(self, persistence=None):
-        """
-
-        :param persistence:
-        """
+    def __init__(self, persistence: Optional[Persistence] = None) -> None:
         if not persistence:
             persistence = FilePersistence(get_filename=lambda: get_settings_file_name('config.json'))
 
-        self.persistence = persistence
-        self.overrides = {}
+        self.persistence: Persistence = persistence
+        self.overrides: Dict[str, Any] = {}
 
-    def reset(self):
+    def reset(self) -> None:
         self.override_project = None
         self.overrides.clear()
 
-    def _get(self, key, default=None):
+    def _get(self, key: str, default: Any = None) -> Optional[Any]:
         if key in self.overrides:
             return self.overrides[key]
         return self.persistence.get(key, default)
 
     @property
-    def table_format(self):
+    def table_format(self) -> str:
         warnings.warn('table_format is deprecated; use output_format', category=PendingDeprecationWarning)
         return self.output_format
 
     @table_format.setter
-    def table_format(self, value):
+    def table_format(self, value: str) -> None:
         self.output_format = value
 
     @property
-    def is_human_output(self):
+    def is_human_output(self) -> bool:
         return (self.output_format == 'human')
 
     @property
-    def user(self):
+    def user(self) -> Optional[dict]:
         """
         The logged in user (dictionary or None).
-        :rtype: dict|None
         """
         return self._get('user')
 
     @property
-    def host(self):
+    def host(self) -> Optional[str]:
         """
         The host we're logged in to (string or None if not logged in).
         :return:
@@ -63,20 +63,23 @@ class Settings:
         return self._get('host')
 
     @property
-    def token(self):
+    def token(self) -> Optional[str]:
         """
         The authentication token we have for the host we're logged in to.
         """
         return self._get('token')
 
     @property
-    def links(self):
+    def links(self) -> dict:
         """
         Dictionary of directory <-> project object dicts.
         """
-        return self._get('links', {})
+        links = self._get('links')
+        if isinstance(links, dict):
+            return links
+        return {}
 
-    def get_project(self, directory):
+    def get_project(self, directory: str) -> Optional[Union['RemoteProject', 'Project']]:
         """
         Get the Valohai project object for a directory context.
         The directory tree is walked upwards to find an actual linked directory.
@@ -85,7 +88,6 @@ class Settings:
 
         :param dir: Directory
         :return: Project object, or None.
-        :rtype: valohai_cli.models.project.Project|None
         """
         if self.override_project:
             return self.override_project
@@ -98,18 +100,20 @@ class Settings:
             if project_obj:
                 from valohai_cli.models.project import Project
                 return Project(data=project_obj, directory=directory)
+        return None  # No project.
 
-    def set_project_link(self, directory, project):
+    def set_project_link(self, directory: str, project: dict) -> None:
         if self.override_project:
             raise ValueError('Can not call set_project_link() when an override project is active')
 
         links = self.links.copy()
         links[directory] = project
         self.persistence.set('links', links)
-        assert self.get_project(directory).id == project['id']
+        project_for_dir = self.get_project(directory)
+        assert project_for_dir and project_for_dir.id == project['id']
         self.persistence.save()
 
-    def set_override_project(self, project_id, directory, mode):
+    def set_override_project(self, project_id: str, directory: str, mode: str) -> bool:
         from valohai_cli.api import request
         from valohai_cli.models.project import Project
         from valohai_cli.models.remote_project import RemoteProject

@@ -1,3 +1,5 @@
+from typing import Optional, List, Any, Sequence
+
 import click
 
 from valohai_cli.api import request
@@ -13,7 +15,7 @@ class NewProjectInstead(Exception):
     pass
 
 
-def filter_projects(projects, spec):
+def filter_projects(projects: Sequence[dict], spec: str) -> List[dict]:
     spec = str(spec).lower()
     return [
         project
@@ -22,7 +24,7 @@ def filter_projects(projects, spec):
     ]
 
 
-def choose_project(dir, spec=None):
+def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
     """
     Choose a project, possibly interactively.
 
@@ -30,7 +32,7 @@ def choose_project(dir, spec=None):
     :param spec: An optional search string
     :return: project object or None
     """
-    projects = request('get', '/api/v0/projects/', params={'limit': '1000'}).json()['results']
+    projects: List[dict] = request('get', '/api/v0/projects/', params={'limit': '1000'}).json()['results']
     if not projects:
         if click.confirm('You don\'t have any projects. Create one instead?'):
             raise NewProjectInstead()
@@ -44,7 +46,7 @@ def choose_project(dir, spec=None):
         if len(projects) == 1:
             return projects[0]
 
-    def nonlist_validator(answer):
+    def nonlist_validator(answer: str) -> Any:
         if answer.startswith('n'):
             raise NewProjectInstead()
 
@@ -53,13 +55,15 @@ def choose_project(dir, spec=None):
     )
     has_multiple_owners = (len({p.get('owner', {}).get('id') for p in projects}) > 1)
 
-    def project_name_formatter(project):
+    def project_name_formatter(project: dict) -> str:
+        name: str = project['name']
         try:
             if has_multiple_owners:
-                return click.style(project['owner']['username'] + '/', dim=True) + project['name']
-        except:
+                dim_owner = click.style(project['owner']['username'] + '/', dim=True)
+                return f'{dim_owner}{name}'
+        except Exception:
             pass
-        return project['name']
+        return name
 
     projects.sort(key=lambda project: project_name_formatter(project).lower())
     return prompt_from_list(projects, prompt, nonlist_validator, name_formatter=project_name_formatter)
@@ -68,7 +72,7 @@ def choose_project(dir, spec=None):
 @click.command()
 @click.argument('project', default=None, required=False)
 @yes_option
-def link(project, yes):
+def link(project: Optional[str], yes: bool) -> Any:
     """
     Link a directory with a Valohai project.
     """
@@ -83,10 +87,10 @@ def link(project, yes):
             abort=True,
         )
     try:
-        project = choose_project(dir, spec=project)
-        if not project:
+        project_obj = choose_project(dir, spec=project)
+        if not project_obj:
             return 1
-        set_project_link(dir, project, inform=True)
+        set_project_link(dir, project_obj, inform=True)
     except NewProjectInstead:
         name = click.prompt('Name the new project')
         if name:

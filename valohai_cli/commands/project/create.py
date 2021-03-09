@@ -7,6 +7,8 @@ from valohai_cli.ctx import get_project, set_project_link
 from valohai_cli.exceptions import APINotFoundError, APIError
 from valohai_cli.messages import info, success, warn
 from valohai_cli.utils import get_project_directory, compact_dict
+from click.core import Context
+from typing import Optional, List
 
 OWNER_HELP = (
     'The owner for the project. Either the name of an organization you belong to, '
@@ -14,7 +16,7 @@ OWNER_HELP = (
 )
 
 
-def create_project(directory, name, description='', owner=None, link=True, yes=False):
+def create_project(directory: str, name: str, description: str='', owner: Optional[str]=None, link: bool=True, yes: bool=False) -> None:
     """
     Internal API for creating a project.
     """
@@ -44,9 +46,9 @@ def create_project(directory, name, description='', owner=None, link=True, yes=F
 
 class OwnerOptionsOption(click.Option):
 
-    def prompt_for_value(self, ctx):
+    def prompt_for_value(self, ctx: Context) -> Optional[str]:
         try:
-            options = request('get', '/api/v0/projects/ownership_options/').json()
+            options: List[str] = request('get', '/api/v0/projects/ownership_options/').json()
         except APINotFoundError:  # Endpoint not there, ah well!
             return None
         except APIError as ae:
@@ -61,13 +63,13 @@ class OwnerOptionsOption(click.Option):
         for option in options:
             print(f' * {option}')
 
-        return prompt(
+        return str(prompt(
             self.prompt,
             default=options[0],
             type=click.Choice(options),
             show_choices=False,
             value_proc=lambda x: self.process_value(ctx, x),
-        )
+        ))
 
 
 @click.command()
@@ -77,9 +79,9 @@ class OwnerOptionsOption(click.Option):
 @click.option('--link/--no-link', '-l', default=True,
     help='Link the directory to the newly created project? Default yes.')
 @yes_option
-def create(name, description, link, owner, yes):
+def create(name: str, description: str, link: bool, owner: Optional[str], yes: bool) -> None:
     """Create a new project and optionally link it to the directory."""
-    return create_project(
+    create_project(
         directory=get_project_directory(),
         name=name,
         description=description,

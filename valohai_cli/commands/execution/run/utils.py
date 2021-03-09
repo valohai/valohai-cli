@@ -1,9 +1,10 @@
 import click
 
 from valohai_cli.utils import match_prefix
+from valohai_yaml.objs.config import Config
 
 
-def match_step(config, step):
+def match_step(config: Config, step: str) -> str:
     if step in config.steps:
         return step
     step_matches = match_prefix(config.steps, step, return_unique=False)
@@ -20,4 +21,4 @@ def match_step(config, step):
                 matches=', '.join(click.style(t, bold=True) for t in sorted(step_matches)),
                 steps=', '.join(click.style(t, bold=True) for t in sorted(config.steps)),
             ), param_hint='step')
-    return step_matches[0]
+    return str(step_matches[0])

@@ -6,7 +6,7 @@ from valohai_cli.utils import open_browser
 
 
 @click.command()
-def open():
+def open() -> None:
     """
     Open the project's view in a web browser.
     """

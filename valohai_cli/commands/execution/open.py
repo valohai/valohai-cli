@@ -7,9 +7,11 @@ from valohai_cli.utils.cli_utils import counter_argument
 
 @click.command()
 @counter_argument
-def open(counter):
+def open(counter: str) -> None:
     """
     Open an execution in a web browser.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    project = get_project(require=True)
+    assert project
+    execution = project.get_execution_from_counter(counter=counter)
     open_browser(execution)

@@ -1,3 +1,5 @@
+from typing import List, Optional, Any
+
 import click
 
 from valohai_cli.adhoc import package_adhoc_commit
@@ -34,21 +36,21 @@ run_epilog = (
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(
-    ctx,
+    ctx: click.Context,
     *,
-    adhoc,
-    args,
-    commit,
-    download_directory,
-    environment,
-    environment_variables,
-    image,
-    step,
-    tags,
-    title,
-    validate_adhoc,
-    watch
-):
+    adhoc: bool,
+    args: List[str],
+    commit: Optional[str],
+    download_directory: Optional[str],
+    environment: Optional[str],
+    environment_variables: List[str],
+    image: Optional[str],
+    step: Optional[str],
+    tags: List[str],
+    title: Optional[str],
+    validate_adhoc: bool,
+    watch: bool,
+) -> Any:
     """
     Start an execution of a step.
     """
@@ -102,7 +104,7 @@ def run(
         environment_variables=parse_environment_variable_strings(environment_variables),
         tags=tags,
     )
-    with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
+    with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:  # type: ignore[attr-defined]
         if adhoc:
             rc.commit = package_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)

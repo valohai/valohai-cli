@@ -11,7 +11,7 @@ from valohai_cli.table import print_table
 @click.option('--price/--no-price', '-p/-P', is_flag=True, help='Show price.')
 @click.option('--queue/--no-queue', '-q/-Q', is_flag=True, help='Show queue.')
 @click.option('--description/--no-description', '-d/-D', default=True, is_flag=True, help='Show description.')
-def environments(gpu, price, queue, description):
+def environments(gpu: bool, price: bool, queue: bool, description: bool) -> None:
     """
     List all available execution environments.
     """

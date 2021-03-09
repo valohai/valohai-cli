@@ -1,3 +1,4 @@
+-r ./requirements-typecheck.in
 autoflake
 autopep8
 isort

@@ -17,11 +17,13 @@ from valohai_cli.utils.cli_utils import counter_argument
 @click.option('--stdout/--no-stdout', default=True, help='Show stdout messages')
 @click.option('--stream/--no-stream', default=False, help='Watch and wait for new messages?')
 @click.option('--all/--no-all', default=False, help='Get all messages? This may take a while.')
-def logs(counter, status, stderr, stdout, stream, all):
+def logs(counter: str, status: bool, stderr: bool, stdout: bool, stream: bool, all: bool) -> None:
     """
     Show or stream execution event log.
     """
-    execution = get_project(require=True).get_execution_from_counter(counter=counter)
+    project = get_project(require=True)
+    assert project
+    execution = project.get_execution_from_counter(counter=counter)
     accepted_streams = {v for v in [
         'status' if status else None,
         'stderr' if stderr else None,
@@ -47,7 +49,7 @@ def logs(counter, status, stderr, stdout, stream, all):
                 text=clean_log_line(event['message']),
             )
             style = stream_styles.get(event['stream'], {})
-            click.echo(click.style(message, **style))
+            click.echo(click.style(message, **style))  # type: ignore[arg-type]
         if stream:
             lm.update_execution()
             if lm.execution['status'] in complete_execution_statuses:

@@ -1,5 +1,6 @@
 import random
 import sys
+from typing import Optional, List
 
 import click
 
@@ -50,7 +51,8 @@ if sys.platform != 'win32':
     ]
 
 
-def _format_message(message, emoji=None, prefix=None, color=None):
+def _format_message(message: str, emoji: Optional[List[str]] = None, prefix: Optional[str] = None,
+                    color: Optional[str] = None) -> str:
     return '{emoji}  {prefix} {message}'.format(
         emoji=random.choice(emoji or ['']),
         prefix=(click.style(prefix, fg=color, bold=True) if prefix else ''),
@@ -58,30 +60,30 @@ def _format_message(message, emoji=None, prefix=None, color=None):
     )
 
 
-def info(message, err=True):
+def info(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, ['=>'], color='cyan'), err=err)
 
 
-def success(message, err=True):
+def success(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, SUCCESS_EMOJI, 'Success!', 'green'), err=err)
 
 
-def warn(message, err=True):
+def warn(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'), err=err)
 
 
-def error(message, err=True):
+def error(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, ERROR_EMOJI, 'ERROR:', 'red'), err=err)
 
 
-def progress(message, err=True):
+def progress(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, PROGRESS_EMOJI, None, None), err=err)
 
 
 DEFAULT_BANNER_STYLE = dict(fg='magenta', bold=True)
 
 
-def banner(message, banner_char='=', banner_style=None):
+def banner(message: str, banner_char: str = '=', banner_style: Optional[dict] = None) -> None:
     if banner_style is None:
         banner_style = DEFAULT_BANNER_STYLE
 

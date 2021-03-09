@@ -1,4 +1,5 @@
 import os
+from typing import Any, Optional, Dict
 
 import click
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
@@ -7,35 +8,34 @@ from valohai_cli.api import request
 from valohai_cli.exceptions import APIError, NoCommit, NoGitRepo
 from valohai_cli.git import describe_current_commit
 from valohai_cli.messages import success, warn
+from valohai_cli.models.project import Project
 from valohai_cli.packager import package_directory
 from valohai_cli.utils.file_size_format import filesizeformat
 from valohai_cli.utils.hashing import get_fp_sha256
 
 
-def package_adhoc_commit(project, validate=True):
+def package_adhoc_commit(project: Project, validate: bool = True) -> Dict[str, Any]:
     """
     Create an ad-hoc tarball and commit of the project directory.
 
-    :param project: Project
-    :type project: valohai_cli.models.project.Project
     :return: Commit response object from API
-    :rtype: dict[str, object]
     """
+    directory = project.directory
     tarball = None
     try:
         description = ''
         try:
-            description = describe_current_commit(project.directory)
+            description = describe_current_commit(directory)
         except (NoGitRepo, NoCommit):
             pass
         except Exception as exc:
             warn(f'Unable to derive Git description: {exc}')
 
         if description:
-            click.echo(f'Packaging {project.directory} ({description})...')
+            click.echo(f'Packaging {directory} ({description})...')
         else:
-            click.echo(f'Packaging {project.directory}...')
-        tarball = package_directory(project.directory, progress=True, validate=validate)
+            click.echo(f'Packaging {directory}...')
+        tarball = package_directory(directory, progress=True, validate=validate)
         return create_adhoc_commit_from_tarball(project, tarball, description)
     finally:
         if tarball:
@@ -50,18 +50,14 @@ def package_adhoc_commit(project, validate=True):
 create_adhoc_commit = package_adhoc_commit
 
 
-def create_adhoc_commit_from_tarball(project, tarball, description=''):
+def create_adhoc_commit_from_tarball(project: Project, tarball: str, description: str = '') -> Dict[str, Any]:
     """
     Using a precreated ad-hoc tarball, create or retrieve an ad-hoc commit of it on the Valohai host.
 
     :param project: Project
-    :type project: valohai_cli.models.project.Project
     :param tarball: Tgz tarball path, likely created by the packager
-    :type tarball: str
     :param description: Optional description for the commit
-    :type description: str
     :return: Commit response object from API
-    :rtype: dict[str, object]
     """
     commit_obj = _get_pre_existing_commit(tarball)
     if commit_obj:
@@ -71,7 +67,7 @@ def create_adhoc_commit_from_tarball(project, tarball, description=''):
     return commit_obj
 
 
-def _get_pre_existing_commit(tarball):
+def _get_pre_existing_commit(tarball: str) -> Optional[dict]:
     try:
         # This is the same mechanism used by the server to
         # calculate the identifier for an ad-hoc tarball.
@@ -79,14 +75,14 @@ def _get_pre_existing_commit(tarball):
             commit_identifier = f'~{get_fp_sha256(tarball_fp)}'
 
         # See if we have a commit with that identifier
-        commit_obj = request('get', f'/api/v0/commits/{commit_identifier}/').json()
+        commit_obj: Dict[str, Any] = request('get', f'/api/v0/commits/{commit_identifier}/').json()
         return (commit_obj if commit_obj.get('adhoc') else None)
     except APIError:
         # In the case of any API errors, let's just assume the commit doesn't exist.
         return None
 
 
-def _upload_commit_code(project, tarball, description=''):
+def _upload_commit_code(project: Project, tarball: str, description: str = '') -> dict:
     size = os.stat(tarball).st_size
     click.echo(f'Uploading {filesizeformat(size)}...')
     with open(tarball, 'rb') as tarball_fp:
@@ -95,14 +91,15 @@ def _upload_commit_code(project, tarball, description=''):
             'description': description,
         })
         prog = click.progressbar(length=upload.len, width=0)
-        prog.is_hidden = (size < 524288)  # Don't bother with the bar if the upload is small
+        # Don't bother with the bar if the upload is small
+        prog.is_hidden = (size < 524288)  # type: ignore[attr-defined]
         with prog:
-            def callback(upload):
-                prog.pos = upload.bytes_read
+            def callback(upload: Any) -> None:
+                prog.pos = upload.bytes_read  # type: ignore[attr-defined]
                 prog.update(0)  # Step is 0 because we set pos above
 
             monitor = MultipartEncoderMonitor(upload, callback)
-            commit_obj = request(
+            commit_obj: dict = request(
                 'post',
                 f'/api/v0/projects/{project.id}/import-package/',
                 data=monitor,

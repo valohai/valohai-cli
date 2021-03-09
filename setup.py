@@ -15,6 +15,7 @@ setup(
         'valohai-utils>=0.1.2',
         'requests[security]>=2.0.0',
         'requests-toolbelt>=0.7.1',
+        'typing-extensions>=3.7',
     ],
     python_requires='>=3.6',
     packages=find_packages(include=('valohai_cli*',)),

@@ -3,12 +3,13 @@ import click
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.table import print_table
+from valohai_cli.models.project import Project
 
 
 @click.command()
 @click.option('--summary/--no-summary', default=True, help='Show execution summary')
 @click.option('--incomplete/--no-incomplete', default=True, help='Show details of incomplete executions')
-def status(summary, incomplete):
+def status(summary: bool, incomplete: bool) -> None:
     """
     Get the general status of the linked project
     """
@@ -26,7 +27,7 @@ def status(summary, incomplete):
         print_incomplete_executions(project)
 
 
-def print_incomplete_executions(project):
+def print_incomplete_executions(project: Project) -> None:
     incomplete_executions = request('get', '/api/v0/executions/', params={
         'project': project.id,
         'status': 'incomplete',
@@ -40,7 +41,7 @@ def print_incomplete_executions(project):
     print_table(incomplete_executions, ['counter', 'status', 'step'], headers=['#', 'Status', 'Step'])
 
 
-def print_execution_summary(project_data):
+def print_execution_summary(project_data: dict) -> None:
     execution_summary = project_data.get('execution_summary', {}).copy()
     if not execution_summary:
         return
@@ -56,7 +57,7 @@ def print_execution_summary(project_data):
             in sorted(execution_summary.items())
             if value
         ],
-        columns=('status', 'count'),
-        headers=('Status', 'Count'),
+        columns=['status', 'count'],
+        headers=['Status', 'Count'],
     )
     click.secho('\n')

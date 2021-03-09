@@ -1,5 +1,6 @@
 import math
 import time
+from typing import Dict, Any, List, Optional, Callable
 
 import click
 
@@ -7,8 +8,11 @@ from valohai_cli.utils import force_text
 
 
 class LayoutElement:
-    style = {}
-    layout = None
+    style: Dict[str, Any] = {}
+    layout: 'Layout'
+
+    def draw(self) -> None:
+        raise NotImplementedError(f'{self.__class__} must implement draw()')
 
 
 class Divider(LayoutElement):
@@ -16,16 +20,15 @@ class Divider(LayoutElement):
     Full-width divider.
     """
 
-    def __init__(self, ch='#', style=None):
+    def __init__(self, ch: str = '#', style: Optional[Dict[str, Any]] = None) -> None:
         """
         :param ch: The character (or characters) to fill the line with
-        :type ch: str
         :param style: Click style dictionary
         """
         self.ch = force_text(ch)
         self.style = (style or {})
 
-    def draw(self):
+    def draw(self) -> None:
         chs = (self.ch * int(math.ceil(self.layout.width / len(self.ch))))[:self.layout.width]
         click.echo(click.style(chs, **self.style))
 
@@ -34,30 +37,32 @@ class Flex(LayoutElement):
     """
     A columnar layout element.
     """
-    aligners = {
+    aligners: Dict[str, Callable[[str, int], str]] = {
         'left': lambda content, width: content.ljust(width),
         'right': lambda content, width: content.rjust(width),
         'center': lambda content, width: content.center(width),
     }
 
-    def __init__(self, style=None):
-        self.cells = []
+    def __init__(self, style: Optional[Dict[str, Any]] = None) -> None:
+        self.cells: List[dict] = []
         self.style = (style or {})
 
-    def add(self, content, flex=1, style=None, align='left'):
+    def add(
+        self,
+        content: str = '',
+        *,
+        flex: int = 1,
+        style: Optional[dict] = None,
+        align: str = 'left',
+    ) -> 'Flex':
         """
         Add a content column to the flex.
 
         :param content: String content
-        :type content: str
         :param flex: Flex value; if 0, the column will always take as much space as its content needs.
-        :type flex: int
         :param style: Click style dictionary
-        :type style: dict
         :param align: Alignment for the content (left/right/center).
-        :type align: str
         :return: The Flex, for chaining
-        :rtype: Flex
         """
         self.cells.append({
             'content': force_text(content),
@@ -67,7 +72,7 @@ class Flex(LayoutElement):
         })
         return self
 
-    def draw(self):
+    def draw(self) -> None:
         if not self.cells:
             return
         total_flex = sum(cell['flex'] for cell in self.cells)
@@ -96,25 +101,23 @@ class Layout:
     Row-oriented layout.
     """
 
-    def __init__(self):
-        self.rows = []
+    def __init__(self) -> None:
+        self.rows: List[LayoutElement] = []
         self.width, self.height = click.get_terminal_size()
 
-    def add(self, element):
+    def add(self, element: LayoutElement) -> 'Layout':
         """
         Add a LayoutElement to the Layout.
 
         :param element: The layout element to add
-        :type element: LayoutElement
         :return: The Layout, for chaining
-        :rtype: Layout
         """
         assert isinstance(element, LayoutElement)
         element.layout = self
         self.rows.append(element)
         return self
 
-    def draw(self):
+    def draw(self) -> None:
         """
         Draw the Layout onto screen.
         """
@@ -123,5 +126,5 @@ class Layout:
             element.draw()
 
 
-def get_spinner_character():
+def get_spinner_character() -> str:
     return '|/-\\'[int(time.time() * 3) % 4]

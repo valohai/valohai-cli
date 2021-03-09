@@ -9,16 +9,18 @@ from valohai_cli import __version__ as VERSION
 from valohai_cli.exceptions import APIError, APINotFoundError, CLIException, NotLoggedIn
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
+from requests.models import PreparedRequest, Request, Response
+from typing import Any, Optional, Tuple
 
 
 class TokenAuth(AuthBase):
 
-    def __init__(self, netloc, token):
+    def __init__(self, netloc: str, token: Optional[str]) -> None:
         super().__init__()
         self.netloc = netloc
         self.token = token
 
-    def __call__(self, request):
+    def __call__(self, request: PreparedRequest) -> PreparedRequest:
         if not request.headers.get('Authorization') and urlparse(request.url).netloc == self.netloc:
             if self.token:
                 request.headers['Authorization'] = f'Token {self.token}'
@@ -27,7 +29,7 @@ class TokenAuth(AuthBase):
 
 class APISession(requests.Session):
 
-    def __init__(self, base_url, token=None):
+    def __init__(self, base_url: str, token: Optional[str]=None) -> None:
         super().__init__()
         self.base_url = base_url
         self.base_netloc = urlparse(self.base_url).netloc
@@ -39,13 +41,14 @@ class APISession(requests.Session):
             py_version=f'{platform.python_implementation()} {platform.python_version()}',
         )
 
-    def prepare_request(self, request):
-        url_netloc = urlparse(request.url).netloc
+    def prepare_request(self, request: Request) -> PreparedRequest:
+        url_netloc: str = urlparse(request.url).netloc
         if not url_netloc:
             request.url = urljoin(self.base_url, request.url)
-        return super().prepare_request(request)
+        prepared_request: PreparedRequest = super().prepare_request(request)  # type: ignore[no-untyped-call]
+        return prepared_request
 
-    def request(self, method, url, **kwargs):
+    def request(self, method, url, **kwargs) -> Response:  # type: ignore
         api_error_class = kwargs.pop('api_error_class', APIError)
         handle_errors = bool(kwargs.pop('handle_errors', True))
         try:
@@ -64,17 +67,14 @@ class APISession(requests.Session):
         return resp
 
 
-def _get_current_api_session():
+def _get_current_api_session() -> APISession:
     """
     Get an API session, either from the Click context cache, or a new one from the config.
-
-    :return: API session
-    :rtype: APISession
     """
     host, token = get_host_and_token()
     ctx = click.get_current_context(silent=True) or None
-    cache_key = force_text(f'_api_session_{host}_{token}')
-    session = (getattr(ctx, cache_key, None) if ctx else None)
+    cache_key: str = force_text(f'_api_session_{host}_{token}')
+    session: Optional[APISession] = (getattr(ctx, cache_key, None) if ctx else None)
     if not session:
         session = APISession(host, token)
         if ctx:
@@ -82,7 +82,7 @@ def _get_current_api_session():
     return session
 
 
-def get_host_and_token():
+def get_host_and_token() -> Tuple[str, str]:
     host = settings.host
     token = settings.token
     if not (host and token):
@@ -90,7 +90,7 @@ def get_host_and_token():
     return (host, token)
 
 
-def request(method, url, **kwargs):
+def request(method: str, url: str, **kwargs: Any) -> Response:
     """
     Make an authenticated API request.
 
@@ -100,7 +100,6 @@ def request(method, url, **kwargs):
     :param url: URL
     :param kwargs: Other kwargs, see `APISession.request()`
     :return: requests.Response
-    :rtype: requests.Response
     """
     session = _get_current_api_session()
     if url.startswith(session.base_url):

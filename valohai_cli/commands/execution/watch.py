@@ -1,5 +1,6 @@
 import datetime
 import time
+from typing import List, Dict, Optional
 
 import click
 from click import get_current_context
@@ -15,21 +16,21 @@ from valohai_cli.utils.cli_utils import counter_argument
 
 
 class WatchTUI:
-    status_styles = {
+    status_styles: Dict[str, dict] = {
         'started': {'fg': 'blue', 'bold': True},
         'crashed': {'fg': 'white', 'bg': 'red'},
         'stopped': {'fg': 'red'},
         'complete': {'fg': 'green', 'bold': True},
     }
 
-    def __init__(self, execution):
+    def __init__(self, execution: dict) -> None:
         self.execution = execution
         self.log_manager = LogManager(execution)
-        self.events = []
+        self.events: List[dict] = []
         self.n_events = 0
-        self.status_text = None
+        self.status_text: Optional[str] = None
 
-    def refresh(self):
+    def refresh(self) -> None:
         try:
             self.log_manager.update_execution()
             event_response = self.log_manager.fetch_events(limit=100)
@@ -42,7 +43,7 @@ class WatchTUI:
             self.events = self.events[-500:]  # Only keep the last 500 events
         self.draw()
 
-    def draw(self):
+    def draw(self) -> None:
         execution = self.log_manager.execution
         events = self.events
         l = Layout()
@@ -60,7 +61,7 @@ class WatchTUI:
         click.clear()
         l.draw()
 
-    def get_stat_flex(self, execution):
+    def get_stat_flex(self, execution: dict) -> Flex:
         stat_flex = Flex()
         stat_flex.add(
             f"Status: {execution['status']}",
@@ -71,7 +72,7 @@ class WatchTUI:
         stat_flex.add(f'{self.n_events} events', align='right')
         return stat_flex
 
-    def get_header_flex(self, execution):
+    def get_header_flex(self, execution: dict) -> Flex:
         header_flex = Flex(style={'bg': 'blue', 'fg': 'white'})
         header_flex.add(
             content='({project}) #{counter}'.format(
@@ -82,7 +83,6 @@ class WatchTUI:
         )
         if self.status_text:
             header_flex.add(
-                content=self.status_text,
                 align='center',
                 style={'fg': 'black', 'bg': 'yellow'},
             )
@@ -95,7 +95,7 @@ class WatchTUI:
 
 @click.command()
 @counter_argument
-def watch(counter):
+def watch(counter: str) -> None:
     """
     Watch execution progress in a console UI.
     """

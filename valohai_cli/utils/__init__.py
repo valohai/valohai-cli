@@ -7,19 +7,19 @@ import unicodedata
 import webbrowser
 
 import click
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 
 ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
 control_characters_re = re.compile(control_character_re.pattern + '+')
 
 
-def walk_directory_parents(dir):
+def walk_directory_parents(dir: str) -> Iterator[str]:
     """
     Yield the passed directory and its parents' names, all the way up until filesystem root.
 
     :param dir: A directory path.
     :return: directories!
-    :rtype: Iterable[str]
     """
     assert os.path.isdir(dir)
     dir = os.path.realpath(dir)
@@ -31,16 +31,16 @@ def walk_directory_parents(dir):
         dir = new_dir
 
 
-def get_project_directory():
+def get_project_directory() -> str:
     dir = os.environ.get('VALOHAI_PROJECT_DIR') or os.getcwd()
     return os.path.realpath(dir)
 
 
-def get_random_string(length=12, keyspace=(string.ascii_letters + string.digits)):
+def get_random_string(length: int = 12, keyspace: str = (string.ascii_letters + string.digits)) -> str:
     return ''.join(random.choice(keyspace) for x in range(length))
 
 
-def force_text(v, encoding='UTF-8', errors='strict'):
+def force_text(v: Union[str, bytes], encoding: str = 'UTF-8', errors: str = 'strict') -> str:
     if isinstance(v, str):
         return v
     elif isinstance(v, bytes):
@@ -48,13 +48,13 @@ def force_text(v, encoding='UTF-8', errors='strict'):
     return str(v)
 
 
-def force_bytes(v, encoding='UTF-8', errors='strict'):
+def force_bytes(v: Union[str, int], encoding: str = 'UTF-8', errors: str = 'strict') -> bytes:
     if isinstance(v, bytes):
         return v
     return str(v).encode(encoding, errors)
 
 
-def match_prefix(choices, value, return_unique=True):
+def match_prefix(choices: Iterable[Any], value: str, return_unique: bool = True) -> Union[List[Any], Any, None]:
     """
     Match `value` in `choices` by case-insensitive prefix matching.
 
@@ -66,7 +66,6 @@ def match_prefix(choices, value, return_unique=True):
     :param return_unique: If only one option was found, return it; otherwise return None.
                           If this is not true, all of the filtered choices are returned.
     :return: list, object or none; see the `return_unique` option.
-    :rtype: list[object]|object|None
     """
     if return_unique and value in choices:
         return value
@@ -77,30 +76,11 @@ def match_prefix(choices, value, return_unique=True):
     return choices
 
 
-def humanize_identifier(identifier):
+def humanize_identifier(identifier: str) -> str:
     return re.sub('[-_]+', ' ', force_text(identifier)).strip()
 
 
-class cached_property:
-    """
-    A property that is only computed once per instance and then replaces itself
-    with an ordinary attribute. Deleting the attribute resets the property.
-    Source: https://github.com/bottlepy/bottle/commit/fa7733e075da0d790d809aa3d2f53071897e6f76
-    Source: https://github.com/pydanny/cached-property/blob/d4d48d2b3415c0d8f60936284109729dcbd406e6/cached_property.py
-    """
-
-    def __init__(self, func):
-        self.__doc__ = getattr(func, '__doc__')
-        self.func = func
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return self
-        value = obj.__dict__[self.func.__name__] = self.func(obj)
-        return value
-
-
-extension_to_interpreter = {
+extension_to_interpreter: Dict[str, str] = {
     '.lua': 'lua',
     '.py': 'python',
     '.rb': 'ruby',
@@ -108,13 +88,12 @@ extension_to_interpreter = {
 }
 
 
-def find_scripts(directory):
+def find_scripts(directory: str) -> Iterator[Tuple[str, str]]:
     """
     Yield pairs of (interpreter, filename) for scripts found in `directory`.
 
     :param directory: Directory to look in
     :return: Pairs of interpreter and filename
-    :rtype: Iterable[tuple[str, str]]
     """
     for filename in glob.glob(os.path.join(directory, '*.*')):
         interpreter = extension_to_interpreter.get(os.path.splitext(filename.lower())[1])
@@ -122,7 +101,7 @@ def find_scripts(directory):
             yield (interpreter, os.path.basename(filename))
 
 
-def open_browser(object, url_name='display'):
+def open_browser(object: Dict[str, Any], url_name: str = 'display') -> bool:
     if 'urls' not in object:
         return False
     url = object['urls'][url_name]
@@ -131,18 +110,18 @@ def open_browser(object, url_name='display'):
     return True
 
 
-def subset_keys(dict, keys):
+def subset_keys(dict: Dict[Any, Any], keys: Iterable[Any]) -> Dict[Any, Any]:
     return {key: dict[key] for key in dict if key in keys}
 
 
-def clean_log_line(line):
+def clean_log_line(line: str) -> str:
     line = force_text(line)
     line = ansi_escape_re.sub('', line)
     line = control_characters_re.sub(' ', line)
     return line.strip()
 
 
-def ensure_makedirs(path, mode=0o744):
+def ensure_makedirs(path: str, mode: int = 0o744) -> None:
     # http://stackoverflow.com/questions/5231901/permission-problems-when-creating-a-dir-with-os-makedirs-python
     original_umask = os.umask(0)
     try:
@@ -155,12 +134,12 @@ def ensure_makedirs(path, mode=0o744):
         os.umask(original_umask)
 
 
-def sanitize_filename(name, replacement='-'):
+def sanitize_filename(name: str, replacement: str = '-') -> str:
     # Via https://github.com/parshap/node-sanitize-filename/blob/0d21bf13be419fcde5bc3f241672bd29f7e72c63/index.js
     return re.sub(r'[\x00-\x1f\x80-\x9f/?<>\\:*|"]', replacement, name)
 
 
-def sanitize_option_name(name):
+def sanitize_option_name(name: str) -> str:
     # In order to comply with `click.core.Option#_parse_decls`, this should
     # actually ensure `name` is a valid Python identifier (`s.isidentifier()`)
     # after dashes are replaced with underscores.
@@ -175,7 +154,7 @@ def sanitize_option_name(name):
     return re.sub(r'[^-a-z0-9]+', '-', name, flags=re.IGNORECASE).strip('-')
 
 
-def parse_environment_variable_strings(envvar_strings):
+def parse_environment_variable_strings(envvar_strings: Iterable[str]) -> Dict[str, str]:
     """
     Parse a list of environment variable strings into a dict.
     """

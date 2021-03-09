@@ -1,9 +1,13 @@
 import click
+from click import Context
 
 from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success, error
+from valohai_cli.messages import success
+from typing import Optional
+from valohai_yaml.objs.config import Config
+from valohai_yaml.objs.pipelines.pipeline import Pipeline
 
 
 @click.command(
@@ -14,7 +18,7 @@ from valohai_cli.messages import success, error
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
 @click.pass_context
-def run(ctx, name, commit, title):
+def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str]) -> None:
     """
     Start a pipeline run.
     """
@@ -22,7 +26,9 @@ def run(ctx, name, commit, title):
     if name == '--help' or not name:
         click.echo(ctx.get_help(), color=ctx.color)
         try:
-            config = get_project(require=True).get_config(commit_identifier=commit)
+            project = get_project(require=True)
+            assert project
+            config = project.get_config(commit_identifier=commit)
             if config.pipelines:
                 click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
                 for pipeline in sorted(config.pipelines):
@@ -32,6 +38,7 @@ def run(ctx, name, commit, title):
         ctx.exit()
 
     project = get_project(require=True)
+    assert project
     commit = commit or project.resolve_commit()['identifier']
     config = project.get_config()
 
@@ -41,7 +48,7 @@ def run(ctx, name, commit, title):
     start_pipeline(config, pipeline, project.id, commit, title)
 
 
-def start_pipeline(config, pipeline, project_id, commit, title=None):
+def start_pipeline(config: Config, pipeline: Pipeline, project_id: str, commit: str, title: Optional[str]=None) -> None:
     edges = build_edges(pipeline)
     nodes = build_nodes(commit, config, pipeline)
     payload = {

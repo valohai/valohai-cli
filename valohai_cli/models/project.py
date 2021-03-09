@@ -7,28 +7,35 @@ from click import BadParameter
 from valohai_cli.api import request
 from valohai_cli.exceptions import APIError, InvalidConfig, NoExecution
 from valohai_cli.git import get_file_at_commit
+from typing import Optional, TextIO, Union, List
+from valohai_yaml.objs.config import Config
 
 
 class Project:
     is_remote = False
 
-    def __init__(self, data, directory=None):
+    def __init__(self, data: dict, directory: str) -> None:
         self.data = data
+        if not os.path.isdir(directory):
+            raise ValueError(f"Invalid directory: {directory}")
         self.directory = directory
-        self._commit_list = None
+        self._commit_list: Optional[List[dict]] = None
 
-    id = property(lambda p: p.data['id'])
-    name = property(lambda p: p.data['name'])
+    @property
+    def id(self) -> str:
+        return str(self.data['id'])
 
-    def get_config(self, commit_identifier=None):
+    @property
+    def name(self) -> str:
+        return str(self.data['name'])
+
+    def get_config(self, commit_identifier: Optional[str] = None) -> Config:
         """
         Get the `valohai_yaml.Config` object from the current working directory,
         or a given commit.
 
         :param commit_identifier: Hexadecimal commit identifier; optional.
-        :type commit_identifier: str|None
         :return: valohai_yaml.Config
-        :rtype: valohai_yaml.Config
         """
         if not commit_identifier:  # Current working directory
             filename = self.get_config_filename()
@@ -36,11 +43,12 @@ class Project:
                 return self._parse_config(infp, filename)
         else:  # Arbitrary commit
             filename = f'{commit_identifier}:valohai.yaml'
-            config_bytes = get_file_at_commit(self.directory, commit_identifier, 'valohai.yaml')
+            directory = self.directory
+            config_bytes = get_file_at_commit(directory, commit_identifier, 'valohai.yaml')
             config_sio = io.StringIO(config_bytes.decode('utf-8'))
             return self._parse_config(config_sio, filename)
 
-    def _parse_config(self, config_fp, filename='<config file>'):
+    def _parse_config(self, config_fp: TextIO, filename: str = '<config file>') -> Config:
         try:
             config = valohai_yaml.parse(config_fp)
             config.project = self
@@ -53,10 +61,14 @@ class Project:
                 n=len(ves.errors),
             ))
 
-    def get_config_filename(self):
+    def get_config_filename(self) -> str:
         return os.path.join(self.directory, 'valohai.yaml')
 
-    def get_execution_from_counter(self, counter, params=None):
+    def get_execution_from_counter(
+        self,
+        counter: Union[int, str],
+        params: Optional[dict] = None,
+    ) -> dict:
         if isinstance(counter, str):
             counter = counter.lstrip('#')
             if not (counter.isdigit() or counter == 'latest'):
@@ -64,22 +76,24 @@ class Project:
                     f'{counter} is not a valid counter value; it must be an integer or "latest"',
                 )
         try:
-            return request(
+            data = request(
                 method='get',
                 url=f'/api/v0/executions/{self.id}:{counter}/',
                 params=(params or {}),
             ).json()
+            assert isinstance(data, dict)
+            return data
         except APIError as ae:
             if ae.response.status_code == 404:
                 raise NoExecution(f'Execution #{counter} does not exist')
             raise
 
-    def load_commit_list(self):
+    def load_commit_list(self) -> List[dict]:
         """
         Get a list of non-adhoc commits, newest first.
         """
         if self._commit_list is None:
-            commits = list(request(
+            commits: List[dict] = list(request(
                 method='get',
                 url='/api/v0/commits/',
                 params={
@@ -88,15 +102,14 @@ class Project:
                     'limit': 9000,
                 },
             ).json()['results'])
-            commits.sort(key=lambda c: c['commit_time'], reverse=True)
+            commits.sort(key=lambda c: str(c['commit_time']), reverse=True)
             self._commit_list = commits
         return self._commit_list
 
-    def resolve_commit(self, commit_identifier=None):
+    def resolve_commit(self, commit_identifier: Optional[str] = None) -> dict:
         """
         Resolve a commit identifier to a commit dict.
-        :param commit_identifier:
-        :return: dict
+
         :raises KeyError: if an explicitly named identifier is not found
         :raises IndexError: if there are no commits
         """
@@ -106,13 +119,13 @@ class Project:
             return by_identifier[commit_identifier]
         newest_commit = sorted(
             [c for c in commits if not c.get('adhoc')],
-            key=lambda c: c['commit_time'],
+            key=lambda c: str(c['commit_time']),
             reverse=True,
         )[0]
         assert newest_commit['identifier']
         return newest_commit
 
-    def load_full_commit(self, identifier=None):
+    def load_full_commit(self, identifier: Optional[str] = None) -> dict:
         """
         Load the commit object including config data (as a dict) from the Valohai host for the given commit identifier.
 
@@ -122,9 +135,11 @@ class Project:
             if commit.get('adhoc'):
                 continue
             if not identifier or commit['identifier'] == identifier:
-                return request(method='get', url=commit['url'], params={'include': 'config'}).json()
+                data = request(method='get', url=commit['url'], params={'include': 'config'}).json()
+                assert isinstance(data, dict)
+                return data
 
         raise ValueError(f'No commit found for commit {identifier}')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

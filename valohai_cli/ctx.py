@@ -4,9 +4,26 @@ from valohai_cli.exceptions import NoProject
 from valohai_cli.messages import success
 from valohai_cli.settings import settings
 from valohai_cli.utils import get_project_directory
+from typing import Optional, Union, overload
+from typing_extensions import Literal
+from valohai_cli.models.project import Project
+from valohai_cli.models.remote_project import RemoteProject
+
+ProjectOrRemoteProject = Union[RemoteProject, Project]
 
 
-def get_project(dir=None, require=False):
+
+@overload
+def get_project(dir: Optional[str] = None, require: Literal[True] = True) -> ProjectOrRemoteProject:
+    ...
+
+
+@overload
+def get_project(dir: Optional[str] = None, require: Literal[False] = False) -> Optional[ProjectOrRemoteProject]:
+    ...
+
+
+def get_project(dir: Optional[str] = None, require: bool = False) -> Optional[ProjectOrRemoteProject]:
     """
     Get the Valohai project object for a directory context.
 
@@ -15,7 +32,6 @@ def get_project(dir=None, require=False):
     :param dir: Directory (defaults to cwd)
     :param require: Raise an exception if no project is found
     :return: Project object, or None.
-    :rtype: valohai_cli.models.project.Project|None
     """
     dir = dir or get_project_directory()
     project = settings.get_project(dir)
@@ -24,7 +40,7 @@ def get_project(dir=None, require=False):
     return project
 
 
-def set_project_link(dir, project, inform=False):
+def set_project_link(dir: str, project: dict, inform: bool = False) -> None:
     settings.set_project_link(dir, project)
     if inform:
         success('Linked {dir} to {name}.'.format(

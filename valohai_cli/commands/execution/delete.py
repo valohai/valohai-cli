@@ -1,4 +1,5 @@
 import sys
+from typing import Sequence
 
 import click
 
@@ -7,20 +8,21 @@ from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import APIError
 from valohai_cli.messages import progress, success, warn
 from valohai_cli.range import IntegerRange
+from valohai_cli.models.project import Project
 
 
 @click.argument('counters', required=False, nargs=-1)
 @click.option('--purge-outputs/--no-purge-outputs', help='purge outputs of the executions too')
 @click.command()
-def delete(counters, purge_outputs=False):
+def delete(counters: Sequence[str], purge_outputs: bool = False) -> None:
     """
     Delete one or more executions, optionally purging their outputs as well.
     """
     project = get_project(require=True)
-    counters = IntegerRange.parse(counters).as_set()
+    assert project
 
     n = 0
-    for counter in sorted(counters):
+    for counter in sorted(IntegerRange.parse(counters).as_set()):
         if delete_execution(project, counter, purge_outputs):
             n += 1
     if n:
@@ -30,7 +32,7 @@ def delete(counters, purge_outputs=False):
         sys.exit(1)
 
 
-def delete_execution(project, counter, purge_outputs=False):
+def delete_execution(project: Project, counter: int, purge_outputs: bool = False) -> bool:
     execution_url = f'/api/v0/executions/{project.id}:{counter}/'
     try:
         execution = request('get', execution_url).json()

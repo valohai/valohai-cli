@@ -4,6 +4,7 @@ import os
 import subprocess
 import tarfile
 import tempfile
+from typing import IO, Dict, List, Iterable, Tuple
 from collections import namedtuple
 from subprocess import check_output
 
@@ -39,7 +40,7 @@ You can disable this validation with the `--no-validate-adhoc` option.
 PackageFileInfo = namedtuple('PackageFileInfo', ('source_path', 'stat'))
 
 
-def package_directory(dir, progress=False, validate=True):
+def package_directory(dir: str, progress: bool = False, validate: bool = True) -> str:
     file_stats = get_files_for_package(dir)
 
     if validate and 'valohai.yaml' not in file_stats:
@@ -66,7 +67,11 @@ def package_directory(dir, progress=False, validate=True):
     return fp.name
 
 
-def package_files_into(dest_fp, file_stats, progress=False):
+def package_files_into(
+    dest_fp: IO[bytes],
+    file_stats: Dict[str, PackageFileInfo],
+    progress: bool = False,
+) -> None:
     """
     Package (gzipped tarball) files from `file_stats` (which is a dict mapping names within the package
     to their PackageFileInfo tuples) into the open writable binary file `dest_fp`.
@@ -89,7 +94,7 @@ def package_files_into(dest_fp, file_stats, progress=False):
 
     # Manually creating the gzipfile to force mtime to 0.
     with gzip.GzipFile('data.tar', mode='w', fileobj=dest_fp, mtime=0) as gzf:
-        with tarfile.open(name='data.tar', mode='w', fileobj=gzf) as tarball:
+        with tarfile.open(name='data.tar', mode='w', fileobj=gzf) as tarball:  # type: ignore[arg-type]
             progress_bar = click.progressbar(
                 files,
                 show_pos=True,
@@ -97,7 +102,7 @@ def package_files_into(dest_fp, file_stats, progress=False):
                 width=0,
             )
             if not progress:
-                progress_bar.is_hidden = True
+                progress_bar.is_hidden = True  # type: ignore[attr-defined]
 
             with progress_bar:
                 for file in progress_bar:
@@ -107,7 +112,7 @@ def package_files_into(dest_fp, file_stats, progress=False):
     dest_fp.flush()
 
 
-def _get_files_with_git(dir):
+def _get_files_with_git(dir: str) -> Iterable[Tuple[str, str]]:
     for line in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0'):
         if line.startswith(b'.'):
             continue
@@ -115,7 +120,7 @@ def _get_files_with_git(dir):
         yield (file, os.path.join(dir, file))
 
 
-def _get_files_walk(dir):
+def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
     for dirpath, dirnames, filenames in os.walk(dir):
         dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith('.')]
         for filename in filenames:
@@ -127,7 +132,7 @@ def _get_files_walk(dir):
             yield (file_rel_path, file_abs_path)
 
 
-def _get_files(dir, allow_git=True):
+def _get_files(dir: str, allow_git: bool = True) -> Tuple[bool, Iterable[Tuple[str, str]]]:
     if allow_git and os.path.exists(os.path.join(dir, '.git')):
         # We have .git, so we can try to use Git to figure out a file list of nonignored files
         try:
@@ -137,14 +142,18 @@ def _get_files(dir, allow_git=True):
     return (False, _get_files_walk(dir))  # return the generator
 
 
-def is_valid_path(path, ignore_patterns):
+def is_valid_path(path: str, ignore_patterns: Iterable[str]) -> bool:
     for pat in ignore_patterns:
         if fnmatch.fnmatch(path, pat) or pat in path:
             return False
     return True
 
 
-def get_files_for_package(dir, allow_git=True, ignore_patterns=()):
+def get_files_for_package(
+    dir: str,
+    allow_git: bool = True,
+    ignore_patterns: Iterable[str] = (),
+) -> Dict[str, PackageFileInfo]:
     """
     Get files to package for ad-hoc packaging from the file system.
 
@@ -177,10 +186,7 @@ def get_files_for_package(dir, allow_git=True, ignore_patterns=()):
     return output_stats
 
 
-def validate_package_size(file_stats):
-    """
-    :type file_stats: Dict[str, PackageFileInfo]
-    """
+def validate_package_size(file_stats: Dict[str, PackageFileInfo]) -> List[str]:
     warnings = []
     total_uncompressed_size = 0
     for file, pfi in sorted(file_stats.items()):

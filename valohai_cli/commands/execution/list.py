@@ -25,11 +25,12 @@ from valohai_cli.table import print_json, print_table
     default=9001,
     help='How many executions to show',
 )
-def list(status, count):
+def list(status: str, count: int) -> None:
     """
     Show a list of executions for the project.
     """
     project = get_project(require=True)
+    assert project
     params = {
         'project': project.id,
         'limit': count,

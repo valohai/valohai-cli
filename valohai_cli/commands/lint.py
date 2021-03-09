@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import click
 from valohai_yaml.lint import lint_file
@@ -9,14 +10,12 @@ from valohai_cli.messages import success, warn
 from valohai_cli.utils import get_project_directory
 
 
-def validate_file(filename):
+def validate_file(filename: str) -> int:
     """
     Validate `filename`, print its errors, and return the number of errors.
 
     :param filename: YAML filename
-    :type filename: str
     :return: Number of errors
-    :rtype: int
     """
     lr = lint_file(filename)
 
@@ -31,12 +30,12 @@ def validate_file(filename):
     for message in lr.messages:
         click.echo('  {type}: {message}'.format(**message))
     click.echo()
-    return lr.error_count
+    return int(lr.error_count)
 
 
 @click.command()
 @click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
-def lint(filenames):
+def lint(filenames: List[str]) -> None:
     """
     Lint (syntax-check) a valohai.yaml file.
 

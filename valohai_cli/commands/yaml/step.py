@@ -1,10 +1,10 @@
 import os
-from typing import Optional
+from typing import Optional, List
 
 import click
 from valohai.internals.yaml import parse_config_from_source
 from valohai.yaml import config_to_yaml
-from valohai_yaml.objs import Config
+from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
@@ -13,7 +13,7 @@ from valohai_cli.models.project import Project
 
 @click.command()
 @click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False), required=True)
-def step(filenames):
+def step(filenames: List[str]) -> None:
     """
     Update a step config(s) in valohai.yaml based on Python source file(s).
 
@@ -24,6 +24,7 @@ def step(filenames):
     :param filenames: Path(s) of the Python source code files.
     """
     project = get_project()
+    assert project
     config_path = project.get_config_filename()
 
     for source_path in filenames:
@@ -98,4 +99,4 @@ def yaml_needs_update(source_path: str, project: Project) -> bool:
     if not old_config or not new_config:
         return True
 
-    return old_config.serialize() != new_config.serialize()
+    return bool(old_config.serialize() != new_config.serialize())

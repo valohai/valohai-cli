@@ -7,6 +7,7 @@ workflows:
       - test-3.7
       - test-3.8
       - test-3.9
+      - mypy
 jobs:
   test-3.6: &test-template
     docker:
@@ -62,3 +63,20 @@ jobs:
       TOX_ENV: py39
     docker:
       - image: circleci/python:3.9.2-buster
+  mypy:
+    docker:
+      - image: circleci/python:3.9.2-buster
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - v1-mypy-dep-{{ .Branch }}-
+        - v1-mypy-dep-master-
+        - v1-mypy-dep-
+    - run: pip install -U pip setuptools wheel tox coverage
+    - run: pip install -r requirements-typecheck.txt
+    - save_cache:
+        key: v1-mypy-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        - ~/.cache/pip
+    - run: make mypy
