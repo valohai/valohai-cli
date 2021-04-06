@@ -31,9 +31,11 @@ def step(filenames: List[str]) -> None:
         if not os.path.isfile(config_path):
             update_yaml_from_source(source_path, project)
             info("valohai.yaml generated.")
+            create_or_update_requirements(project)
         elif yaml_needs_update(source_path, project):
             update_yaml_from_source(source_path, project)
             info("valohai.yaml updated.")
+            create_or_update_requirements(project)
         else:
             info("valohai.yaml already up-to-date.")
 
@@ -100,3 +102,25 @@ def yaml_needs_update(source_path: str, project: Project) -> bool:
         return True
 
     return bool(old_config.serialize() != new_config.serialize())
+
+
+def create_or_update_requirements(project: Project) -> None:
+    """
+    Makes sure valohai-utils is in requirements.txt file
+    or creates a new requirements.txt with valohai-utils.
+
+    :param project: Currently linked Valohai project
+    """
+
+    requirements_path = os.path.join(project.directory, "requirements.txt")
+
+    requirements_lines = []
+    if os.path.isfile(requirements_path):
+        with open(requirements_path) as requirements:
+            requirements_lines = list(requirements)
+
+    if not any('valohai-utils' in line for line in requirements_lines):
+        requirements_lines.append('valohai-utils\n')
+        with open(requirements_path, 'w') as requirements:
+            requirements.write("".join(requirements_lines))
+        info("valohai-utils added to requirements.txt")
