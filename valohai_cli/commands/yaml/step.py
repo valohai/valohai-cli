@@ -31,13 +31,13 @@ def step(filenames: List[str]) -> None:
         if not os.path.isfile(config_path):
             update_yaml_from_source(source_path, project)
             info("valohai.yaml generated.")
+            create_or_update_requirements(project)
         elif yaml_needs_update(source_path, project):
             update_yaml_from_source(source_path, project)
             info("valohai.yaml updated.")
+            create_or_update_requirements(project)
         else:
             info("valohai.yaml already up-to-date.")
-
-    create_or_update_requirements(project)
 
 
 def get_current_config(project: Project) -> Optional[Config]:
