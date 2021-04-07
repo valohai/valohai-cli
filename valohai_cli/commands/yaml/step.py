@@ -103,7 +103,7 @@ def yaml_needs_update(source_path: str, project: Project) -> bool:
 
     return bool(old_config.serialize() != new_config.serialize())
 
-def create_or_update_requirements(project: Project):
+def create_or_update_requirements(project: Project) -> None:
     """ Makes sure valohai-utils is in requiremens.txt file or creates a new requirements.txt with valohai-utils
 
     :param project: Currently linked Valohai project
