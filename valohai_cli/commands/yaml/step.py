@@ -113,11 +113,14 @@ def create_or_update_requirements(project: Project) -> None:
     requirements_path = os.path.join(project.directory, "requirements.txt")
 
     if os.path.isfile(requirements_path):
-        with open(requirements_path, 'a+') as out_file:
-            if('valohai-utils' not in out_file.read()):
-                out_file.write("\nvalohai-utils")
-                info("Added valohai-utils to requirements.txt")
+        with open(requirements_path, 'r+') as requirements:
+            for line in requirements:
+                if('valohai-utils' in requirements):
+                    break
+                else:
+                    requirements.write("\nvalohai-utils")
+                    info("Added valohai-utils to requirements.txt")
     else:
-        with open(requirements_path, 'w') as out_file:
-            out_file.write("valohai-utils")
-            info("requirements.txt generated")
+        with open(requirements_path, 'w') as requirements:
+            requirements.write("valohai-utils")
+            requirements("requirements.txt generated")
