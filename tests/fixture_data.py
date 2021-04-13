@@ -323,6 +323,60 @@ PIPELINE_YAML = """
       - [train.output.model*, evaluate.input.model]
 """
 
+YAML_WITH_EXTRACT_TRAIN_EVAL = """
+- step:
+    name: Batch feature extraction
+    image: ubuntu:18.04
+    command:
+      - date > /valohai/outputs/aaa.md5
+      - date > /valohai/outputs/bbb.sha256
+- step:
+    name: Train model
+    image: ubuntu:18.04
+    command:
+      - find /valohai/inputs -type f -exec sha1sum '{}' ';' > /valohai/outputs/model.txt
+    parameters:
+      - name: learning_rate
+        pass-as: --learning_rate={v}
+        description: Initial learning rate
+        type: float
+        default: 0.001
+    inputs:
+      - name: aaa
+      - name: bbb
+- step:
+    name: Evaluate
+    image: ubuntu:18.04
+    inputs:
+      - name: models
+    command:
+      - ls -lar
+"""
+
+YAML_WITH_TRAIN_EVAL = """
+- step:
+    name: Train model
+    image: ubuntu:18.04
+    command:
+      - find /valohai/inputs -type f -exec sha1sum '{}' ';' > /valohai/outputs/model.txt
+    parameters:
+      - name: learning_rate
+        pass-as: --learning_rate={v}
+        description: Initial learning rate
+        type: float
+        default: 0.001
+    inputs:
+      - name: aaa
+      - name: bbb
+- step:
+    name: Evaluate
+    image: ubuntu:18.04
+    inputs:
+      - name: models
+    command:
+      - ls -lar
+"""
+
 CONFIG_YAML = """
 ---
 
@@ -396,4 +450,27 @@ PYTHON_SOURCE = """
 import os
 
 print("I'm just a poor boy without any utils.")
+"""
+
+PYTHON_SOURCE_DEFINING_PIPELINE = """
+from valohai import Pipeline
+
+
+def main(config) -> Pipeline:
+    pipe = Pipeline(name="mypipeline", config=config)
+
+    # Define nodes
+    extract = pipe.execution("Batch feature extraction")
+    train = pipe.task("Train model")
+    evaluate = pipe.execution("Evaluate")
+
+    # Configure training task node
+    train.linear_parameter("learning_rate", min=0, max=1, step=0.1)
+
+    # Configure pipeline
+    extract.output("a*").to(train.input("aaa"))
+    extract.output("a*").to(train.input("bbb"))
+    train.output("*").to(evaluate.input("models"))
+
+    return pipe
 """
