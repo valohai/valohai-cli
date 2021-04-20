@@ -4,36 +4,81 @@
 #
 #    pip-compile requirements-dev.in
 #
-attrs==19.3.0             # via pytest
-autoflake==1.3.1          # via -r requirements-dev.in
-autopep8==1.4.4           # via -r requirements-dev.in
-certifi==2019.11.28       # via requests
-chardet==3.0.4            # via requests
-click==7.0                # via pip-tools
-coverage==5.0             # via pytest-cov
-filelock==3.0.12          # via tox
-idna==2.8                 # via requests
-isort==4.3.21             # via -r requirements-dev.in
-more-itertools==8.0.2     # via pytest
-mypy-extensions==0.4.3    # via mypy
-mypy==0.812               # via -r ./requirements-typecheck.in
-packaging==19.2           # via pytest, tox
-pip-tools==4.3.0          # via -r requirements-dev.in
-pluggy==0.13.1            # via pytest, tox
-py==1.8.0                 # via pytest, tox
-pycodestyle==2.5.0        # via autopep8
-pyflakes==2.1.1           # via autoflake
-pyparsing==2.4.5          # via packaging
-pytest-cov==2.8.1         # via -r requirements-dev.in
-pytest==5.3.2             # via -r requirements-dev.in, pytest-cov
-requests-mock==1.7.0      # via -r requirements-dev.in
-requests==2.22.0          # via requests-mock
-six==1.13.0               # via packaging, pip-tools, requests-mock, tox
-toml==0.10.0              # via tox
-tox==3.14.2               # via -r requirements-dev.in
-typed-ast==1.4.2          # via mypy
-types-requests==0.1.1     # via -r ./requirements-typecheck.in
-typing-extensions==3.7.4.3  # via mypy
-urllib3==1.25.7           # via requests
-virtualenv==16.7.9        # via tox
-wcwidth==0.1.7            # via pytest
+attrs==19.3.0
+    # via pytest
+autoflake==1.3.1
+    # via -r requirements-dev.in
+autopep8==1.4.4
+    # via -r requirements-dev.in
+certifi==2019.11.28
+    # via requests
+chardet==3.0.4
+    # via requests
+click==7.0
+    # via pip-tools
+coverage==5.0
+    # via pytest-cov
+filelock==3.0.12
+    # via tox
+idna==2.8
+    # via requests
+isort==4.3.21
+    # via -r requirements-dev.in
+more-itertools==8.0.2
+    # via pytest
+mypy-extensions==0.4.3
+    # via mypy
+mypy==0.812
+    # via -r ./requirements-typecheck.in
+packaging==19.2
+    # via
+    #   pytest
+    #   tox
+pip-tools==4.3.0
+    # via -r requirements-dev.in
+pluggy==0.13.1
+    # via
+    #   pytest
+    #   tox
+py==1.10.0
+    # via
+    #   pytest
+    #   tox
+pycodestyle==2.5.0
+    # via autopep8
+pyflakes==2.1.1
+    # via autoflake
+pyparsing==2.4.5
+    # via packaging
+pytest-cov==2.8.1
+    # via -r requirements-dev.in
+pytest==5.3.2
+    # via
+    #   -r requirements-dev.in
+    #   pytest-cov
+requests-mock==1.7.0
+    # via -r requirements-dev.in
+requests==2.22.0
+    # via requests-mock
+six==1.13.0
+    # via
+    #   packaging
+    #   pip-tools
+    #   requests-mock
+    #   tox
+toml==0.10.0
+    # via tox
+tox==3.14.2
+    # via -r requirements-dev.in
+typed-ast==1.4.2
+    # via mypy
+types-requests==0.1.1
+    # via -r ./requirements-typecheck.in
+typing-extensions==3.7.4.3
+    # via mypy
+urllib3==1.25.7
+    # via requests
+virtualenv==16.7.9
+    # via tox
+wcwidth==0.1.7
+    # via pytest
