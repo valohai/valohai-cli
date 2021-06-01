@@ -13,7 +13,7 @@ from .utils import match_step
 run_epilog = (
     'More detailed help (e.g. how to define parameters and inputs) is available when you have '
     'defined which step to run. For instance, if you have a step called Extract, '
-    'try running `vh exec run Extract --help`.'
+    'try running "vh exec run Extract --help".'
 )
 
 
@@ -24,10 +24,10 @@ run_epilog = (
 )
 @click.argument('step', required=False, metavar='STEP-NAME')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see `vh env`)')
+@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see "vh env")')
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
 @click.option('--title', '-t', default=None, help='Title of the execution.')
-@click.option('--watch', '-w', is_flag=True, help='Start `exec watch`ing the execution after it starts.')
+@click.option('--watch', '-w', is_flag=True, help='Start "exec watch"ing the execution after it starts.')
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
 @click.option('--tag', 'tags', multiple=True, help='Tag the execution. May be repeated.')
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
