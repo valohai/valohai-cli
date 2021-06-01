@@ -1,4 +1,5 @@
 import math
+import shutil
 import time
 from typing import Dict, Any, List, Optional, Callable
 
@@ -103,7 +104,7 @@ class Layout:
 
     def __init__(self) -> None:
         self.rows: List[LayoutElement] = []
-        self.width, self.height = click.get_terminal_size()
+        self.width, self.height = shutil.get_terminal_size()
 
     def add(self, element: LayoutElement) -> 'Layout':
         """
@@ -121,7 +122,7 @@ class Layout:
         """
         Draw the Layout onto screen.
         """
-        self.width, self.height = click.get_terminal_size()
+        self.width, self.height = shutil.get_terminal_size()
         for element in self.rows:
             element.draw()
 

@@ -1,8 +1,8 @@
 import json
+import shutil
 import sys
 
 import click
-from click import get_terminal_size
 
 from valohai_cli.settings import settings
 from typing import Union, Tuple, Any, Iterable, Optional, Callable, List, Type, Sequence
@@ -46,7 +46,7 @@ class HumanTableFormatter:
         # Take header lengths into account
         self.column_widths = [max(len(header), col_w) for (header, col_w) in zip(headers, self.column_widths)]
 
-        self.terminal_width = get_terminal_size()[0]
+        self.terminal_width = shutil.get_terminal_size()[0]
 
         self.vertical_format = (sum(self.column_widths) >= self.terminal_width)
 

@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -205,7 +206,7 @@ def export_docker_image(image: str, output_path: str, print_progress: bool=True)
                 break
             outfp.write(chunk)
             if print_progress:
-                width = click.get_terminal_size()[0]
+                width = shutil.get_terminal_size()[0]
                 status_text = '{} {}: {} / {}'.format(
                     get_spinner_character(),
                     image,
