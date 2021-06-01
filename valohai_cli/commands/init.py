@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 from typing import Optional
 
@@ -71,7 +72,7 @@ def init() -> None:
         # If we didn't link or create a project, don't show the "all good to go" text.
         return
 
-    width = min(70, click.get_terminal_size()[0])
+    width = min(70, shutil.get_terminal_size()[0])
     click.secho('*' * width, fg='green', bold=True)
     click.echo(DONE_TEXT.strip().format(
         command=click.style('vh exec run --adhoc --watch execute', bold=True),
