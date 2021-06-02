@@ -2,6 +2,7 @@ import os
 from typing import Optional, List
 
 import click
+from valohai.internals.merge import python_to_yaml_merge_strategy
 from valohai.internals.yaml import parse_config_from_source
 from valohai.yaml import config_to_yaml
 from valohai_yaml.objs.config import Config
@@ -61,7 +62,7 @@ def get_updated_config(source_path: str, project: Project) -> Config:
     old_config = get_current_config(project)
     new_config = parse_config_from_source(source_path, project.get_config_filename())
     if old_config:
-        return old_config.merge_with(new_config)
+        return old_config.merge_with(new_config, python_to_yaml_merge_strategy)
     return new_config
 
 
