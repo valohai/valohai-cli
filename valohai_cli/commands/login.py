@@ -10,7 +10,6 @@ from valohai_cli.exceptions import APIError
 from valohai_cli.messages import error, info, success, banner
 from valohai_cli.settings import settings
 
-
 TOKEN_LOGIN_HELP = '''
 Oops!
 The error code "{code}" indicates username + password authentication is not possible.
@@ -53,35 +52,7 @@ def login(username: str, password: str, token: Optional[str], host: Optional[str
             raise Exit(1)
         click.echo(f'Using token {token[:5]}... to log in.')
     else:
-        if not (username or password):
-            click.secho(f'Welcome to Valohai CLI {__version__}!', bold=True)
-            click.echo(f'\nIf you don\'t yet have an account, please create one at {host} first.\n')
-
-        if not username:
-            username = click.prompt('Username').strip()
-        else:
-            click.echo(f'Username: {username}')
-
-        if not password:
-            password = click.prompt('Password', hide_input=True)
-
-        click.echo('Retrieving API token...')
-
-        with APISession(host) as sess:
-            try:
-                token_data = sess.post('/api/v0/get-token/', data={
-                    'username': username,
-                    'password': password,
-                }).json()
-                token = token_data['token']
-            except APIError as ae:
-                code = ae.code
-                if code in ('has_external_identity', 'has_2fa'):
-                    command = 'vh login --token TOKEN_HERE '
-                    if host != default_app_host:
-                        command += f'--host {host}'
-                    banner(TOKEN_LOGIN_HELP.format(code=code, host=host, command=command))
-                raise
+        token = do_user_pass_login(host=host, username=username, password=password)
 
     click.echo('Verifying API token...')
 
@@ -90,3 +61,36 @@ def login(username: str, password: str, token: Optional[str], host: Optional[str
     settings.persistence.update(host=host, user=user_data, token=token)
     settings.persistence.save()
     success(f"Logged in. Hey {user_data.get('username', 'there')}!")
+
+
+def do_user_pass_login(
+    *,
+    host: str,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+) -> str:
+    if not (username or password):
+        click.secho(f'Welcome to Valohai CLI {__version__}!', bold=True)
+        click.echo(f'\nIf you don\'t yet have an account, please create one at {host} first.\n')
+    if not username:
+        username = click.prompt('Username').strip()
+    else:
+        click.echo(f'Username: {username}')
+    if not password:
+        password = click.prompt('Password', hide_input=True)
+    click.echo('Retrieving API token...')
+    with APISession(host) as sess:
+        try:
+            token_data = sess.post('/api/v0/get-token/', data={
+                'username': username,
+                'password': password,
+            }).json()
+            return str(token_data['token'])
+        except APIError as ae:
+            code = ae.code
+            if code in ('has_external_identity', 'has_2fa'):
+                command = 'vh login --token TOKEN_HERE '
+                if host != default_app_host:
+                    command += f'--host {host}'
+                banner(TOKEN_LOGIN_HELP.format(code=code, host=host, command=command))
+            raise
