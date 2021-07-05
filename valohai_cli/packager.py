@@ -113,11 +113,27 @@ def package_files_into(
 
 
 def _get_files_with_git(dir: str) -> Iterable[Tuple[str, str]]:
-    for line in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0'):
-        if line.startswith(b'.'):
-            continue
-        file = line.decode('utf-8')
-        yield (file, os.path.join(dir, file))
+    paths_seen = set()
+    commands = [
+        'git ls-files --exclude-standard -ocz',
+    ]
+
+    # Check whether a gitmodules file exists; if so, also do a `--recurse-submodules` pass
+    # to gather files in submodules.  Untracked files in submodules will not be considered,
+    # since `--recurse-submodules` does not support `-o`.
+    gitmodules_file = os.path.join(dir, '.gitmodules')
+    if os.path.isfile(gitmodules_file):
+        commands.append('git ls-files --exclude-standard --recurse-submodules -cz')
+
+    for command in commands:
+        for line in check_output(command, cwd=dir, shell=True).split(b'\0'):
+            if line.startswith(b'.'):
+                continue
+            file = line.decode('utf-8')
+            path = os.path.join(dir, file)
+            if path not in paths_seen:
+                paths_seen.add(path)
+                yield (file, path)
 
 
 def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
