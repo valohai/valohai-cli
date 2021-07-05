@@ -113,11 +113,20 @@ def package_files_into(
 
 
 def _get_files_with_git(dir: str) -> Iterable[Tuple[str, str]]:
-    for line in check_output('git ls-files --exclude-standard -ocz', cwd=dir, shell=True).split(b'\0'):
-        if line.startswith(b'.'):
-            continue
-        file = line.decode('utf-8')
-        yield (file, os.path.join(dir, file))
+    paths_seen = set()
+    for command in [
+        'git ls-files --exclude-standard -ocz',
+        # TODO: only do this when `.gitmodules` exists?
+        'git ls-files --exclude-standard --recurse-submodules -cz',
+    ]:
+        for line in check_output(command, cwd=dir, shell=True).split(b'\0'):
+            if line.startswith(b'.'):
+                continue
+            file = line.decode('utf-8')
+            path = os.path.join(dir, file)
+            if path not in paths_seen:
+                paths_seen.add(path)
+                yield (file, path)
 
 
 def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
