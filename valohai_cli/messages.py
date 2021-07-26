@@ -51,8 +51,12 @@ if sys.platform != 'win32':
     ]
 
 
-def _format_message(message: str, emoji: Optional[List[str]] = None, prefix: Optional[str] = None,
-                    color: Optional[str] = None) -> str:
+def _format_message(
+    message: str,
+    emoji: Optional[List[str]] = None,
+    prefix: Optional[str] = None,
+    color: Optional[str] = None,
+) -> str:
     return '{emoji}  {prefix} {message}'.format(
         emoji=random.choice(emoji or ['']),
         prefix=(click.style(prefix, fg=color, bold=True) if prefix else ''),

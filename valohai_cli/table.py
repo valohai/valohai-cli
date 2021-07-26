@@ -32,7 +32,7 @@ def _format(datum: Union[Tuple[str, Any], str], width: Optional[int], allow_rjus
 
 
 class HumanTableFormatter:
-    def __init__(self, data: Sequence[dict], columns: Sequence[str], headers: Sequence[str], sep: str =' | ') -> None:
+    def __init__(self, data: Sequence[dict], columns: Sequence[str], headers: Sequence[str], sep: str = ' | ') -> None:
         self.columns = columns
         self.headers = headers
         self.sep = sep

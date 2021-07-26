@@ -29,7 +29,7 @@ class TokenAuth(AuthBase):
 
 class APISession(requests.Session):
 
-    def __init__(self, base_url: str, token: Optional[str]=None) -> None:
+    def __init__(self, base_url: str, token: Optional[str] = None) -> None:
         super().__init__()
         self.base_url = base_url
         self.base_netloc = urlparse(self.base_url).netloc

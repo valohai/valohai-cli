@@ -133,7 +133,7 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
             resp.raise_for_status()
             prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'  # type: ignore[attr-defined]
             # Force visible bar for the smallest of files:
-            prog.short_limit = 0   # type: ignore[attr-defined]
+            prog.short_limit = 0  # type: ignore[attr-defined]
             with open(out_path, 'wb') as outf:
                 for chunk in resp.iter_content(chunk_size=131072):
                     prog.update(len(chunk))

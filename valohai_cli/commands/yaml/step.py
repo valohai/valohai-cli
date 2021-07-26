@@ -85,6 +85,7 @@ def update_yaml_from_source(source_path: str, project: Project) -> bool:
         return True
     return False
 
+
 def yaml_needs_update(source_path: str, project: Project) -> bool:
     """Checks if valohai.yaml needs updating based on source Python code.
 

@@ -49,7 +49,13 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     start_pipeline(config, pipeline, project.id, commit, title)
 
 
-def start_pipeline(config: Config, pipeline: Pipeline, project_id: str, commit: str, title: Optional[str]=None) -> None:
+def start_pipeline(
+    config: Config,
+    pipeline: Pipeline,
+    project_id: str,
+    commit: str,
+    title: Optional[str] = None,
+) -> None:
     edges = build_edges(pipeline)
     nodes = build_nodes(commit, config, pipeline)
     payload = {

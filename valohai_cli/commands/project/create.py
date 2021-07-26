@@ -17,7 +17,14 @@ OWNER_HELP = (
 )
 
 
-def create_project(directory: str, name: str, description: str='', owner: Optional[str]=None, link: bool=True, yes: bool=False) -> None:
+def create_project(
+    directory: str,
+    name: str,
+    description: str = '',
+    owner: Optional[str] = None,
+    link: bool = True,
+    yes: bool = False,
+) -> None:
     """
     Internal API for creating a project.
     """
@@ -77,8 +84,7 @@ class OwnerOptionsOption(click.Option):
 @click.option('--name', '-n', prompt='Project name', required=True, help='The name for the project.')
 @click.option('--description', '-d', default='', required=False, help='The description for the project.')
 @click.option('--owner', '-o', prompt='Owner', required=False, help=OWNER_HELP, cls=OwnerOptionsOption)
-@click.option('--link/--no-link', '-l', default=True,
-    help='Link the directory to the newly created project? Default yes.')
+@click.option('--link/--no-link', '-l', default=True, help='Link the directory to the newly created project? Default yes.')
 @yes_option
 def create(name: str, description: str, link: bool, owner: Optional[str], yes: bool) -> None:
     """Create a new project and optionally link it to the directory."""

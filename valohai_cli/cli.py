@@ -21,7 +21,16 @@ TABLE_FORMAT_ENVVARS = ['VALOHAI_TABLE_FORMAT', 'VALOHAI_OUTPUT_FORMAT']
 @click.option('--project-mode', 'project_mode', envvar='VALOHAI_PROJECT_MODE', metavar='local|remote', help='(Advanced) When using --project, set the project mode', show_envvar=True)
 @click.option('--project-root', 'project_root', type=click.Path(dir_okay=True, exists=True, file_okay=False), metavar='DIR', envvar='VALOHAI_PROJECT_ROOT', help='(Advanced) When using --project, set the project root directory', show_envvar=True)
 @click.pass_context
-def cli(ctx: click.Context, debug: bool, output_format: str, valohai_host: Optional[str], valohai_token: Optional[str], project_id: Optional[str], project_mode: Optional[str], project_root: Optional[str]) -> None:
+def cli(
+    ctx: click.Context,
+    debug: bool,
+    output_format: str,
+    valohai_host: Optional[str],
+    valohai_token: Optional[str],
+    project_id: Optional[str],
+    project_mode: Optional[str],
+    project_root: Optional[str],
+) -> None:
     if debug:
         logging.basicConfig(level=logging.DEBUG)
     ctx.meta["debug"] = debug

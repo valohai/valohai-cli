@@ -13,7 +13,6 @@ from valohai_cli.utils import get_project_directory
 ProjectOrRemoteProject = Union[RemoteProject, Project]
 
 
-
 @overload
 def get_project(dir: Optional[str] = None, require: Literal[True] = True) -> ProjectOrRemoteProject:
     ...

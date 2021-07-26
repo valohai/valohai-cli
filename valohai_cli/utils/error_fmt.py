@@ -4,6 +4,7 @@ import click
 
 Formattable = Union[dict, list, str]
 
+
 class ErrorFormatter:
     indent = '  '
     generic_dict_keys = ['non_field_errors', 'detail', 'error']

@@ -182,7 +182,7 @@ def export_docker_images(
         export_docker_image(image, output_path)
 
 
-def export_docker_image(image: str, output_path: str, print_progress: bool=True) -> None:
+def export_docker_image(image: str, output_path: str, print_progress: bool = True) -> None:
     """
     Export the Docker image `image` to the tar file `output_path`,
     with visual progress.
