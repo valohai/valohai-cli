@@ -28,7 +28,7 @@ class EnsureClickHelpWalker(ast.NodeVisitor):
             if deco_name in ("click.option",):
                 kwargs = {stringify_name(kw.arg): kw.value for kw in deco.keywords}
                 if "help" not in kwargs:
-                    self.add_message(deco, f"missing `help=`")
+                    self.add_message(deco, "missing `help=`")
 
 
 def process_file(filename: str) -> List[str]:

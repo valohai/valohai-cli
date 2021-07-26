@@ -1,4 +1,5 @@
 import codecs
+import contextlib
 import json
 import os
 from errno import ENOENT
@@ -58,7 +59,5 @@ class FilePersistence(Persistence):
         with codecs.open(filename, 'w', encoding='UTF-8') as outfp:
             json.dump(self.data, outfp, ensure_ascii=False, indent=2, sort_keys=True)
         if first_save:
-            try:
+            with contextlib.suppress(Exception):
                 os.chmod(filename, 0o600)
-            except Exception:
-                pass

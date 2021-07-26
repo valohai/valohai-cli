@@ -1,3 +1,4 @@
+import contextlib
 from typing import Optional
 
 import click
@@ -26,7 +27,7 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
     if name == '--help' or not name:
         click.echo(ctx.get_help(), color=ctx.color)
-        try:
+        with contextlib.suppress(Exception):  # If we fail to extract the pipeline list, it's not that big of a deal.
             project = get_project(require=True)
             assert project
             config = project.get_config(commit_identifier=commit)
@@ -34,8 +35,6 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
                 click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
                 for pipeline in sorted(config.pipelines):
                     click.echo(f'   * {pipeline}', color=ctx.color)
-        except:  # If we fail to extract the pipeline list, it's not that big of a deal.
-            pass
         ctx.exit()
 
     project = get_project(require=True)

@@ -11,7 +11,7 @@ from valohai_cli.ctx import get_project
 def test_pipeline_run_success(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['training']
-    with RunAPIMock(PROJECT_DATA.get('id')) as m:
+    with RunAPIMock(PROJECT_DATA.get('id')):
         output = runner.invoke(run, args).output
     assert 'Success' in output
 
@@ -19,7 +19,7 @@ def test_pipeline_run_success(runner, logged_in_and_linked):
 def test_pipeline_run_no_name(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['']
-    with RunAPIMock(PROJECT_DATA.get('id')) as m:
+    with RunAPIMock(PROJECT_DATA.get('id')):
         output = runner.invoke(run, args).output
     assert 'Usage: ' in output
 

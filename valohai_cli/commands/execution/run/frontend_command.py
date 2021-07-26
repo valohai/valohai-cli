@@ -1,3 +1,4 @@
+import contextlib
 from typing import Any, List, Optional
 
 import click
@@ -57,14 +58,12 @@ def run(
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
     if step == '--help' or not step:
         click.echo(ctx.get_help(), color=ctx.color)
-        try:
+        with contextlib.suppress(Exception):  # If we fail to extract the step list, it's not that big of a deal.
             config = get_project(require=True).get_config(commit_identifier=commit)
             if config.steps:
                 click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
                 for step in sorted(config.steps):
                     click.echo(f'   * {step}', color=ctx.color)
-        except:  # If we fail to extract the step list, it's not that big of a deal.
-            pass
         ctx.exit()
     project = get_project(require=True)
 

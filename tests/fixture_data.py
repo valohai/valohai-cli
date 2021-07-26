@@ -296,7 +296,7 @@ PIPELINE_YAML = """
       - [preprocess.output.*test-images*, train.input.test-set-images]
       - [preprocess.output.*test-labels*, train.input.test-set-labels]
       - [train.output.model*, evaluate.input.model]
-      
+
 - pipeline:
     name: Train Pipeline
     nodes:

@@ -159,8 +159,8 @@ def parse_environment_variable_strings(envvar_strings: Iterable[str]) -> Dict[st
     Parse a list of environment variable strings into a dict.
     """
     environment_variables = {}
-    for string in envvar_strings:
-        key, _, value = string.partition('=')
+    for envstr in envvar_strings:
+        key, _, value = envstr.partition('=')
         key = key.strip()
         if not key:
             continue

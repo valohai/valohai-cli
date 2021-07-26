@@ -159,10 +159,10 @@ def _get_files(dir: str, allow_git: bool = True) -> Tuple[bool, Iterable[Tuple[s
 
 
 def is_valid_path(path: str, ignore_patterns: Iterable[str]) -> bool:
-    for pat in ignore_patterns:
-        if fnmatch.fnmatch(path, pat) or pat in path:
-            return False
-    return True
+    return all(
+        (not fnmatch.fnmatch(path, pat) or pat in path)
+        for pat in ignore_patterns
+    )
 
 
 def get_files_for_package(

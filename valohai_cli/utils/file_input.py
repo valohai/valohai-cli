@@ -14,8 +14,4 @@ def read_data_file(path: str) -> Any:
             return json.load(infp)
         elif ext == '.yaml':
             return yaml.safe_load(infp)
-        else:
-            raise CLIException('Unable to load file {path}: not sure how to load {ext} files'.format(
-                path=path,
-                ext=ext,
-            ))
+    raise CLIException(f'Unable to load file {path}: not sure how to load {ext} files')

@@ -12,7 +12,7 @@ def test_init(runner, logged_in):
     with open(os.path.join(dir, 'my_script.py'), 'w') as script_fp:
         script_fp.write('# Hello')
 
-    with get_project_mock(create_project_name=name) as m:
+    with get_project_mock(create_project_name=name):
         result = runner.invoke(init, input='\n'.join([
             'y',  # correct directory
             'echo hello',  # command
