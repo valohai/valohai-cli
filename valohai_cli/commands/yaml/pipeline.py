@@ -6,6 +6,7 @@ from valohai.yaml import config_to_yaml
 from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
+from valohai_cli.exceptions import ConfigurationError
 from valohai_cli.messages import info
 from valohai_cli.models.project import Project
 
@@ -36,8 +37,12 @@ def pipeline(filenames: List[str]) -> None:
 def get_current_config(project: Project) -> Config:
     try:
         return project.get_config()
-    except FileNotFoundError:
-        raise FileNotFoundError("valohai.yaml not found! Can't create a pipeline without preconfigured steps.")
+    except FileNotFoundError as fnfe:
+        valohai_yaml_name = project.get_config_filename()
+        raise ConfigurationError(
+            f"Did not find {valohai_yaml_name}. "
+            f"Can't create a pipeline without preconfigured steps."
+        ) from fnfe
 
 
 def get_updated_config(source_path: str, project: Project) -> Config:
