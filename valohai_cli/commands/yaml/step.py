@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 from valohai.internals.merge import python_to_yaml_merge_strategy

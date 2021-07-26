@@ -1,16 +1,16 @@
 import platform
+from typing import Any, Optional, Tuple
+from urllib.parse import urljoin, urlparse
 
 import click
 import requests
 from requests.auth import AuthBase
-from urllib.parse import urljoin, urlparse
+from requests.models import PreparedRequest, Request, Response
 
 from valohai_cli import __version__ as VERSION
 from valohai_cli.exceptions import APIError, APINotFoundError, CLIException, NotLoggedIn
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
-from requests.models import PreparedRequest, Request, Response
-from typing import Any, Optional, Tuple
 
 
 class TokenAuth(AuthBase):

@@ -1,7 +1,7 @@
 import click
+from valohai_yaml.objs.config import Config
 
 from valohai_cli.utils import match_prefix
-from valohai_yaml.objs.config import Config
 
 
 def match_step(config: Config, step: str) -> str:

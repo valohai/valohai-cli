@@ -1,4 +1,4 @@
-from typing import Set, Iterable, Union
+from typing import Iterable, Set, Union
 
 
 class IntegerRange:

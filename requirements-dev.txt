@@ -30,7 +30,7 @@ idna==2.10
     # via requests
 iniconfig==1.1.1
     # via pytest
-isort==5.8.0
+isort==5.9.2
     # via -r requirements-dev.in
 mypy-extensions==0.4.3
     # via mypy

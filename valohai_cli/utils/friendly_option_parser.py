@@ -1,8 +1,9 @@
+from typing import Optional
+
 from click import NoSuchOption, OptionParser
+from click.parser import ParsingState
 
 from .levenshtein import levenshtein
-from click.parser import ParsingState
-from typing import Optional
 
 
 class FriendlyOptionParser(OptionParser):

@@ -1,7 +1,7 @@
 -r ./requirements-typecheck.in
 autoflake
 autopep8
-isort
+isort>=5.9.0
 pip-tools
 pytest
 pytest-cov

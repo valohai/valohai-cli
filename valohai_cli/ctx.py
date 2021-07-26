@@ -1,13 +1,14 @@
+from typing import Optional, Union, overload
+
 import click
+from typing_extensions import Literal
 
 from valohai_cli.exceptions import NoProject
 from valohai_cli.messages import success
-from valohai_cli.settings import settings
-from valohai_cli.utils import get_project_directory
-from typing import Optional, Union, overload
-from typing_extensions import Literal
 from valohai_cli.models.project import Project
 from valohai_cli.models.remote_project import RemoteProject
+from valohai_cli.settings import settings
+from valohai_cli.utils import get_project_directory
 
 ProjectOrRemoteProject = Union[RemoteProject, Project]
 

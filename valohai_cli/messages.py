@@ -1,6 +1,6 @@
 import random
 import sys
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 

@@ -1,11 +1,11 @@
 import json
 import shutil
 import sys
+from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, Type, Union
 
 import click
 
 from valohai_cli.settings import settings
-from typing import Union, Tuple, Any, Iterable, Optional, Callable, List, Type, Sequence
 
 TABLE_FORMATS = ('human', 'csv', 'tsv', 'scsv', 'psv', 'json')
 SV_SEPARATORS = {'csv': ',', 'tsv': '\t', 'scsv': ';', 'psv': '|'}

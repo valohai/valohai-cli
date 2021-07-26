@@ -11,9 +11,9 @@ from valohai_cli.commands.project.link import link
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import NotLoggedIn
 from valohai_cli.messages import error, warn
+from valohai_cli.models.project import Project
 from valohai_cli.utils import get_project_directory
 from valohai_cli.yaml_wizard import yaml_wizard
-from valohai_cli.models.project import Project
 
 DONE_TEXT = """
 All done! You can now create an ad-hoc execution with

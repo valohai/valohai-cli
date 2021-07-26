@@ -1,6 +1,8 @@
-from valohai_cli.models.project import Project
 from typing import Optional
+
 from valohai_yaml.objs.config import Config
+
+from valohai_cli.models.project import Project
 
 
 class RemoteProject(Project):

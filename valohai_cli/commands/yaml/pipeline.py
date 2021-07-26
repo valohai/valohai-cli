@@ -7,7 +7,7 @@ from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import ConfigurationError
-from valohai_cli.messages import info, error
+from valohai_cli.messages import error, info
 from valohai_cli.models.project import Project
 
 

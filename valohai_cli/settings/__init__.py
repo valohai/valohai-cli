@@ -1,4 +1,5 @@
 import warnings
+from typing import TYPE_CHECKING, Any, Dict, Optional, Union
 
 from valohai_cli.exceptions import APINotFoundError
 from valohai_cli.messages import error, info
@@ -6,7 +7,6 @@ from valohai_cli.utils import walk_directory_parents
 
 from .paths import get_settings_file_name
 from .persistence import FilePersistence, Persistence
-from typing import Optional, Union, Any, Dict, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..models.project import Project

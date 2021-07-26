@@ -6,7 +6,7 @@ import pytest
 import requests_mock
 from click.testing import CliRunner
 
-from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA, PIPELINE_DATA
+from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PIPELINE_DATA, PROJECT_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project

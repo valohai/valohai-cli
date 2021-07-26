@@ -1,5 +1,5 @@
 from tests.commands.execution.utils import get_execution_data_mock
-from tests.fixture_data import EXECUTION_DATA, PROJECT_DATA
+from tests.fixture_data import EXECUTION_DATA
 from valohai_cli.commands.execution.delete import delete
 
 

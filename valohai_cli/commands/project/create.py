@@ -1,14 +1,15 @@
+from typing import List, Optional
+
 import click
 from click import prompt
+from click.core import Context
 
 from valohai_cli.api import request
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
-from valohai_cli.exceptions import APINotFoundError, APIError
+from valohai_cli.exceptions import APIError, APINotFoundError
 from valohai_cli.messages import info, success, warn
-from valohai_cli.utils import get_project_directory, compact_dict
-from click.core import Context
-from typing import Optional, List
+from valohai_cli.utils import compact_dict, get_project_directory
 
 OWNER_HELP = (
     'The owner for the project. Either the name of an organization you belong to, '

@@ -4,9 +4,9 @@ import os
 import subprocess
 import tarfile
 import tempfile
-from typing import IO, Dict, List, Iterable, Tuple
 from collections import namedtuple
 from subprocess import check_output
+from typing import IO, Dict, Iterable, List, Tuple
 
 import click
 

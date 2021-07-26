@@ -1,14 +1,14 @@
 import io
 import os
+from typing import List, Optional, TextIO, Union
 
 import valohai_yaml
 from click import BadParameter
+from valohai_yaml.objs.config import Config
 
 from valohai_cli.api import request
 from valohai_cli.exceptions import APIError, InvalidConfig, NoExecution
 from valohai_cli.git import get_file_at_commit
-from typing import Optional, TextIO, Union, List
-from valohai_yaml.objs.config import Config
 
 
 class Project:

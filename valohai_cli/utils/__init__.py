@@ -5,9 +5,9 @@ import re
 import string
 import unicodedata
 import webbrowser
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 
 import click
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 
 ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')

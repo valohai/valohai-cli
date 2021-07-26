@@ -1,9 +1,8 @@
-from typing import List, Callable, Optional, Any, Tuple, Sequence, Union
+from typing import Any, Callable, List, Optional, Sequence, Tuple, TypeVar, Union
 
 import click
 
 from valohai_cli.help_texts import EXECUTION_COUNTER_HELP
-from typing import Any, Callable, TypeVar
 
 FuncT = TypeVar('FuncT', bound=Callable[..., Any])
 

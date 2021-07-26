@@ -1,7 +1,7 @@
 import math
 import shutil
 import time
-from typing import Dict, Any, List, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 import click
 

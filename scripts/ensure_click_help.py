@@ -1,7 +1,7 @@
-import ast
 import argparse
+import ast
 import sys
-from typing import Union, Any, List
+from typing import Any, List, Union
 
 
 def stringify_name(name: Union[None, ast.AST, ast.Name, str]) -> str:

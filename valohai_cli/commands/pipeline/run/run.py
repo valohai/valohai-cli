@@ -1,13 +1,14 @@
+from typing import Optional
+
 import click
 from click import Context
+from valohai_yaml.objs.config import Config
+from valohai_yaml.objs.pipelines.pipeline import Pipeline
 
 from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
-from typing import Optional
-from valohai_yaml.objs.config import Config
-from valohai_yaml.objs.pipelines.pipeline import Pipeline
 
 
 @click.command(

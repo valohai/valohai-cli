@@ -1,6 +1,6 @@
 import datetime
 import time
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 import click
 from click import get_current_context

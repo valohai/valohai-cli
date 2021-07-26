@@ -3,17 +3,17 @@ import shutil
 import subprocess
 import sys
 import time
-from typing import Optional, Iterable, List
+from typing import Iterable, List, Optional
 
 import click
 
 from valohai_cli.ctx import get_project
 from valohai_cli.git import expand_commit_id
 from valohai_cli.messages import success
+from valohai_cli.models.project import Project
 from valohai_cli.tui import get_spinner_character
 from valohai_cli.utils import ensure_makedirs, sanitize_filename
 from valohai_cli.utils.file_size_format import filesizeformat
-from valohai_cli.models.project import Project
 
 MINIMUM_VALOHAI_LOCAL_RUN_VERSION = '0.2.1'
 

@@ -1,4 +1,4 @@
-from typing import Optional, List, Any, Sequence
+from typing import Any, List, Optional, Sequence
 
 import click
 
