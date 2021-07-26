@@ -1,5 +1,4 @@
-import os
-from typing import Optional, List
+from typing import List
 
 import click
 from valohai.internals.pipeline import get_pipeline_from_source
@@ -24,9 +23,7 @@ def pipeline(filenames: List[str]) -> None:
 
     :param filenames: Path(s) of the Python source code files.
     """
-    project = get_project()
-    assert project
-    config_path = project.get_config_filename()
+    project = get_project(require=True)
 
     for source_path in filenames:
         if yaml_needs_update(source_path, project):
