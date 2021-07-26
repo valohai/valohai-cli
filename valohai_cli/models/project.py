@@ -118,7 +118,7 @@ class Project:
             by_identifier = {c['identifier']: c for c in commits}
             return by_identifier[commit_identifier]
         newest_commit = sorted(
-            [c for c in commits if not c.get('adhoc')],
+            (c for c in commits if not c.get('adhoc')),
             key=lambda c: str(c['commit_time']),
             reverse=True,
         )[0]
