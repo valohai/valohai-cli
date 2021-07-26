@@ -7,7 +7,7 @@ from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import ConfigurationError
-from valohai_cli.messages import info
+from valohai_cli.messages import info, error
 from valohai_cli.models.project import Project
 
 
@@ -29,7 +29,16 @@ def pipeline(filenames: List[str]) -> None:
     did_update = False
     for source_path in filenames:
         old_config = get_current_config(project)
-        new_config = get_pipeline_from_source(source_path, old_config)
+        try:
+            new_config = get_pipeline_from_source(source_path, old_config)
+        except Exception:
+            error(
+                f"Retrieving a new pipeline definition for project {project} for {source_path} failed.\n"
+                f"The configuration file in use is {yaml_filename}. "
+                f"See the full traceback below."
+            )
+            raise
+
         merged_config = old_config.merge_with(new_config)
         if old_config.serialize() != merged_config.serialize():
             with open(yaml_filename, 'w') as out_file:
