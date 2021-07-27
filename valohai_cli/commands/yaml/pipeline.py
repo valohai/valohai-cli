@@ -1,5 +1,4 @@
-import os
-from typing import Optional, List
+from typing import List
 
 import click
 from valohai.internals.pipeline import get_pipeline_from_source
@@ -7,7 +6,8 @@ from valohai.yaml import config_to_yaml
 from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import info
+from valohai_cli.exceptions import ConfigurationError
+from valohai_cli.messages import info, error
 from valohai_cli.models.project import Project
 
 
@@ -24,60 +24,38 @@ def pipeline(filenames: List[str]) -> None:
 
     :param filenames: Path(s) of the Python source code files.
     """
-    project = get_project()
-    assert project
-    config_path = project.get_config_filename()
-
+    project = get_project(require=True)
+    yaml_filename = project.get_config_filename()
+    did_update = False
     for source_path in filenames:
-        if yaml_needs_update(source_path, project):
-            update_yaml_from_source(source_path, project)
-            info("valohai.yaml updated.")
-        else:
-            info("valohai.yaml already up-to-date.")
+        old_config = get_current_config(project)
+        try:
+            new_config = get_pipeline_from_source(source_path, old_config)
+        except Exception:
+            error(
+                f"Retrieving a new pipeline definition for project {project} for {source_path} failed.\n"
+                f"The configuration file in use is {yaml_filename}. "
+                f"See the full traceback below."
+            )
+            raise
+
+        merged_config = old_config.merge_with(new_config)
+        if old_config.serialize() != merged_config.serialize():
+            with open(yaml_filename, 'w') as out_file:
+                out_file.write(config_to_yaml(merged_config))
+            did_update = True
+    if did_update:
+        info(f"{yaml_filename} updated.")
+    else:
+        info(f"{yaml_filename} already up-to-date.")
 
 
 def get_current_config(project: Project) -> Config:
     try:
         return project.get_config()
-    except FileNotFoundError:
-        raise FileNotFoundError("valohai.yaml not found! Can't create a pipeline without preconfigured steps.")
-
-
-def get_updated_config(source_path: str, project: Project) -> Config:
-    """Gets pipeline definition from the source_path and merges it with existing config
-
-    :param source_path: Path of the Python source code file containing the pipeline definition
-    :param project: Currently linked Valohai project
-
-    """
-    old_config = get_current_config(project)
-    new_config = get_pipeline_from_source(source_path, old_config)
-    return old_config.merge_with(new_config)
-
-
-def update_yaml_from_source(source_path: str, project: Project) -> bool:
-    """Updates valohai.yaml by parsing the pipeline definition from the source_path
-
-    :param source_path: Path of the Python source code file containing the pipeline definition
-    :param project: Currently linked Valohai project
-
-    """
-    old_config = get_current_config(project)
-    new_config = get_updated_config(source_path, project)
-
-    if old_config != new_config:
-        with open(project.get_config_filename(), 'w') as out_file:
-            out_file.write(config_to_yaml(new_config))
-        return True
-    return False
-
-def yaml_needs_update(source_path: str, project: Project) -> bool:
-    """Checks if valohai.yaml needs updating based on source Python code.
-
-    :param source_path: Path of the Python source code file containing the pipeline definition
-    :param project: Currently linked Valohai project
-
-    """
-    old_config = get_current_config(project)
-    new_config = get_updated_config(source_path, project)
-    return bool(old_config.serialize() != new_config.serialize())
+    except FileNotFoundError as fnfe:
+        valohai_yaml_name = project.get_config_filename()
+        raise ConfigurationError(
+            f"Did not find {valohai_yaml_name}. "
+            f"Can't create a pipeline without preconfigured steps."
+        ) from fnfe
