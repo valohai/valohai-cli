@@ -2,7 +2,6 @@ import datetime
 import json
 import re
 
-import pytest
 import requests_mock
 from click.testing import CliRunner
 
@@ -126,8 +125,3 @@ class RunTestSetup:
             # Making sure that non-adhoc executions don't turn adhoc or vice versa.
             assert ('Uploaded ad-hoc code' in output) == self.adhoc
             assert f"#{EXECUTION_DATA['counter']}" in output
-
-
-@pytest.fixture(params=['regular', 'adhoc'], ids=('regular', 'adhoc'))
-def run_test_setup(request, logged_in_and_linked, monkeypatch):
-    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == 'adhoc'))

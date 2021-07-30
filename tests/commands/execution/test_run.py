@@ -1,12 +1,17 @@
 import pytest
 import yaml
 
-from tests.commands.run_test_utils import RunAPIMock, run_test_setup
+from tests.commands.run_test_utils import RunAPIMock, RunTestSetup
 from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
 
 adhoc_mark = pytest.mark.parametrize('adhoc', (False, True), ids=('regular', 'adhoc'))
+
+
+@pytest.fixture(params=['regular', 'adhoc'], ids=('regular', 'adhoc'))
+def run_test_setup(request, logged_in_and_linked, monkeypatch):
+    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == 'adhoc'))
 
 
 def test_run_requires_step(runner, logged_in_and_linked):
