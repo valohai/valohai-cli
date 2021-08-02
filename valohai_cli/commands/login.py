@@ -1,14 +1,14 @@
 from typing import Optional
+from urllib.parse import urlparse
 
 import click
 from click.exceptions import Exit
-from urllib.parse import urlparse
 
 from valohai_cli import __version__
 from valohai_cli.api import APISession
 from valohai_cli.consts import default_app_host, yes_option
 from valohai_cli.exceptions import APIError
-from valohai_cli.messages import error, info, success, banner
+from valohai_cli.messages import banner, error, info, success
 from valohai_cli.settings import settings
 
 TOKEN_LOGIN_HELP = '''

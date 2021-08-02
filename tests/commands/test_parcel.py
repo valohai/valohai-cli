@@ -37,7 +37,7 @@ def test_parcel(runner, logged_in_and_linked, tmpdir):
     create_fake_project(input_dir)
     output_dir = str(tmpdir.mkdir('output'))
 
-    with requests_mock.mock() as m:
+    with requests_mock.mock():
         result = runner.invoke(parcel, ['-d', output_dir])
         assert result.exit_code == 0
 

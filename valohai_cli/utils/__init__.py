@@ -5,9 +5,9 @@ import re
 import string
 import unicodedata
 import webbrowser
+from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 
 import click
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 
 ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
@@ -159,8 +159,8 @@ def parse_environment_variable_strings(envvar_strings: Iterable[str]) -> Dict[st
     Parse a list of environment variable strings into a dict.
     """
     environment_variables = {}
-    for string in envvar_strings:
-        key, _, value = string.partition('=')
+    for envstr in envvar_strings:
+        key, _, value = envstr.partition('=')
         key = key.strip()
         if not key:
             continue

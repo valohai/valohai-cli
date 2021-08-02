@@ -7,12 +7,17 @@ from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import ConfigurationError
-from valohai_cli.messages import info, error
+from valohai_cli.messages import error, info
 from valohai_cli.models.project import Project
 
 
 @click.command()
-@click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False), required=True)
+@click.argument(
+    "filenames",
+    nargs=-1,
+    type=click.Path(file_okay=True, exists=True, dir_okay=False),
+    required=True,
+)
 def pipeline(filenames: List[str]) -> None:
     """
     Update a pipeline config(s) in valohai.yaml based on Python source file(s).
@@ -41,7 +46,7 @@ def pipeline(filenames: List[str]) -> None:
 
         merged_config = old_config.merge_with(new_config)
         if old_config.serialize() != merged_config.serialize():
-            with open(yaml_filename, 'w') as out_file:
+            with open(yaml_filename, "w") as out_file:
                 out_file.write(config_to_yaml(merged_config))
             did_update = True
     if did_update:

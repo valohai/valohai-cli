@@ -1,9 +1,13 @@
 import collections
+from typing import Any, Dict, Optional, Sequence, Set, Tuple
 
 import click
 from click import get_current_context
+from click.core import Context, Option
+from click.formatting import HelpFormatter
 from valohai_yaml.objs import Step
 from valohai_yaml.objs.input import Input
+from valohai_yaml.objs.parameter import Parameter
 
 from valohai_cli import git as git
 from valohai_cli.api import request
@@ -15,10 +19,6 @@ from valohai_cli.utils.file_input import read_data_file
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 
 from .excs import ExecutionCreationAPIError
-from click.core import Context, Option
-from click.formatting import HelpFormatter
-from typing import Any, Dict, Optional, Sequence, Set, Tuple
-from valohai_yaml.objs.parameter import Parameter
 
 
 def generate_sanitized_options(name: str) -> Set[str]:

@@ -1,6 +1,6 @@
 import random
 import sys
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 
@@ -51,8 +51,12 @@ if sys.platform != 'win32':
     ]
 
 
-def _format_message(message: str, emoji: Optional[List[str]] = None, prefix: Optional[str] = None,
-                    color: Optional[str] = None) -> str:
+def _format_message(
+    message: str,
+    emoji: Optional[List[str]] = None,
+    prefix: Optional[str] = None,
+    color: Optional[str] = None,
+) -> str:
     return '{emoji}  {prefix} {message}'.format(
         emoji=random.choice(emoji or ['']),
         prefix=(click.style(prefix, fg=color, bold=True) if prefix else ''),
@@ -87,7 +91,7 @@ def banner(message: str, banner_char: str = '=', banner_style: Optional[dict] = 
     if banner_style is None:
         banner_style = DEFAULT_BANNER_STYLE
 
-    longest_line_len = max(len(l) for l in message.splitlines())
+    longest_line_len = max(len(line) for line in message.splitlines())
 
     banner_line = banner_char * longest_line_len
     click.secho(banner_line, **banner_style)

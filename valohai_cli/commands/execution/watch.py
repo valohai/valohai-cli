@@ -1,6 +1,6 @@
 import datetime
 import time
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 import click
 from click import get_current_context
@@ -46,7 +46,7 @@ class WatchTUI:
     def draw(self) -> None:
         execution = self.log_manager.execution
         events = self.events
-        l = Layout()
+        l = Layout()  # noqa: E741
         l.add(self.get_header_flex(execution))
         l.add(self.get_stat_flex(execution))
         l.add(Divider('='))

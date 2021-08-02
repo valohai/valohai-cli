@@ -7,8 +7,8 @@ from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import APIError
 from valohai_cli.messages import progress, success, warn
-from valohai_cli.range import IntegerRange
 from valohai_cli.models.project import Project
+from valohai_cli.range import IntegerRange
 
 
 @click.argument('counters', required=False, nargs=-1)

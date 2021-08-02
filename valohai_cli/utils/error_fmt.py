@@ -1,8 +1,9 @@
-from typing import Union, List
+from typing import List, Union
 
 import click
 
 Formattable = Union[dict, list, str]
+
 
 class ErrorFormatter:
     indent = '  '

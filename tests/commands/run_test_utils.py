@@ -2,11 +2,10 @@ import datetime
 import json
 import re
 
-import pytest
 import requests_mock
 from click.testing import CliRunner
 
-from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PROJECT_DATA, PIPELINE_DATA
+from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PIPELINE_DATA, PROJECT_DATA
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -126,8 +125,3 @@ class RunTestSetup:
             # Making sure that non-adhoc executions don't turn adhoc or vice versa.
             assert ('Uploaded ad-hoc code' in output) == self.adhoc
             assert f"#{EXECUTION_DATA['counter']}" in output
-
-
-@pytest.fixture(params=['regular', 'adhoc'], ids=('regular', 'adhoc'))
-def run_test_setup(request, logged_in_and_linked, monkeypatch):
-    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == 'adhoc'))

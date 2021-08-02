@@ -1,14 +1,15 @@
+from typing import List, Optional
+
 import click
 from click import prompt
+from click.core import Context
 
 from valohai_cli.api import request
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
-from valohai_cli.exceptions import APINotFoundError, APIError
+from valohai_cli.exceptions import APIError, APINotFoundError
 from valohai_cli.messages import info, success, warn
-from valohai_cli.utils import get_project_directory, compact_dict
-from click.core import Context
-from typing import Optional, List
+from valohai_cli.utils import compact_dict, get_project_directory
 
 OWNER_HELP = (
     'The owner for the project. Either the name of an organization you belong to, '
@@ -16,7 +17,14 @@ OWNER_HELP = (
 )
 
 
-def create_project(directory: str, name: str, description: str='', owner: Optional[str]=None, link: bool=True, yes: bool=False) -> None:
+def create_project(
+    directory: str,
+    name: str,
+    description: str = '',
+    owner: Optional[str] = None,
+    link: bool = True,
+    yes: bool = False,
+) -> None:
     """
     Internal API for creating a project.
     """
@@ -76,8 +84,7 @@ class OwnerOptionsOption(click.Option):
 @click.option('--name', '-n', prompt='Project name', required=True, help='The name for the project.')
 @click.option('--description', '-d', default='', required=False, help='The description for the project.')
 @click.option('--owner', '-o', prompt='Owner', required=False, help=OWNER_HELP, cls=OwnerOptionsOption)
-@click.option('--link/--no-link', '-l', default=True,
-    help='Link the directory to the newly created project? Default yes.')
+@click.option('--link/--no-link', '-l', default=True, help='Link the directory to the newly created project? Default yes.')
 @yes_option
 def create(name: str, description: str, link: bool, owner: Optional[str], yes: bool) -> None:
     """Create a new project and optionally link it to the directory."""

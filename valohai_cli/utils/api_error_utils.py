@@ -1,5 +1,5 @@
 import re
-from typing import Callable, Optional, Union, Any, Iterable, Pattern
+from typing import Any, Callable, Iterable, Optional, Pattern, Union
 
 StringOrPattern = Union[str, Pattern]
 

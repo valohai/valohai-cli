@@ -1,4 +1,4 @@
-from typing import List, Dict, Sequence
+from typing import Dict, List, Sequence
 
 import click
 
@@ -40,7 +40,7 @@ def summarize(counters: List[str]) -> None:
         all_metadata_keys.update(set(cmeta.keys()))
         all_metadata[execution['counter']] = (execution, cmeta)
     table_data = []
-    for counter, (execution, metadata) in sorted(all_metadata.items()):
+    for _counter, (execution, metadata) in sorted(all_metadata.items()):
         row = subset_keys(execution, {'counter', 'id', 'duration'})
         row.update(metadata)
         table_data.append(row)

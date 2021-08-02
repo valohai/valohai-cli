@@ -1,10 +1,10 @@
 from typing import List
 
 import click
-from valohai_yaml.objs import Step, Pipeline
+from valohai_yaml.objs import Pipeline, Step
+from valohai_yaml.objs.config import Config
 
 from valohai_cli.utils import match_prefix
-from valohai_yaml.objs.config import Config
 
 
 def build_nodes(commit: str, config: Config, pipeline: Pipeline) -> List[dict]:

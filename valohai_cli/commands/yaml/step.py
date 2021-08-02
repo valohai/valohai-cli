@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List
+from typing import List, Optional
 
 import click
 from valohai.internals.merge import python_to_yaml_merge_strategy
@@ -84,6 +84,7 @@ def update_yaml_from_source(source_path: str, project: Project) -> bool:
             out_file.write(config_to_yaml(new_config))
         return True
     return False
+
 
 def yaml_needs_update(source_path: str, project: Project) -> bool:
     """Checks if valohai.yaml needs updating based on source Python code.

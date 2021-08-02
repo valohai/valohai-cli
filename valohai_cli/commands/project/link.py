@@ -1,4 +1,5 @@
-from typing import Optional, List, Any, Sequence
+import contextlib
+from typing import Any, List, Optional, Sequence
 
 import click
 
@@ -57,12 +58,10 @@ def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
 
     def project_name_formatter(project: dict) -> str:
         name: str = project['name']
-        try:
+        with contextlib.suppress(Exception):
             if has_multiple_owners:
                 dim_owner = click.style(project['owner']['username'] + '/', dim=True)
                 return f'{dim_owner}{name}'
-        except Exception:
-            pass
         return name
 
     projects.sort(key=lambda project: project_name_formatter(project).lower())

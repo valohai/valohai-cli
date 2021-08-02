@@ -2,13 +2,13 @@ import pkgutil
 from collections import defaultdict
 from importlib import import_module
 from types import ModuleType
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import click
-
-from valohai_cli.utils import match_prefix
 from click.core import Command, Context
 from click.formatting import HelpFormatter
-from typing import Optional, Union, Any, List, Dict, Tuple, Iterable
+
+from valohai_cli.utils import match_prefix
 
 
 class PluginCLI(click.MultiCommand):

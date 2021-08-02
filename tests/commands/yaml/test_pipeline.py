@@ -1,9 +1,13 @@
 import os
-from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE_USING_VALOHAI_UTILS, PYTHON_SOURCE, \
-    PYTHON_SOURCE_DEFINING_PIPELINE, YAML_WITH_EXTRACT_TRAIN_EVAL, YAML_WITH_TRAIN_EVAL
+
+from tests.fixture_data import (
+    PYTHON_SOURCE,
+    PYTHON_SOURCE_DEFINING_PIPELINE,
+    YAML_WITH_EXTRACT_TRAIN_EVAL,
+    YAML_WITH_TRAIN_EVAL,
+)
 from valohai_cli.commands.yaml.pipeline import pipeline
 from valohai_cli.ctx import get_project
-from valohai_cli.utils import get_project_directory
 
 
 def test_pipeline(runner, logged_in_and_linked):

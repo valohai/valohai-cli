@@ -41,8 +41,8 @@ else:
     from collections import Iterable
 
 if python_version_tuple()[0] < "3":
-    from itertools import izip_longest
     from functools import partial
+    from itertools import izip_longest
     _none_type = type(None)
     _bool_type = bool
     _int_type = int
@@ -55,8 +55,8 @@ if python_version_tuple()[0] < "3":
         return isinstance(f, file)
 
 else:
+    from functools import partial, reduce
     from itertools import zip_longest as izip_longest
-    from functools import reduce, partial
     _none_type = type(None)
     _bool_type = bool
     _int_type = int

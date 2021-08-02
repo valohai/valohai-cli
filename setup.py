@@ -13,7 +13,7 @@ setup(
         'click>=7.0',
         'valohai-yaml>=0.9',
         'valohai-utils>=0.1.7',
-        'requests[security]>=2.0.0',
+        'requests>=2.0.0',
         'requests-toolbelt>=0.7.1',
         'typing-extensions>=3.7',
     ],

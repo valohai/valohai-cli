@@ -1,5 +1,5 @@
 import os
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
 import click
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor

@@ -1,9 +1,9 @@
 from pprint import pformat
+from typing import Any, Iterable, Optional, Union
 
 import click
 from click import ClickException
 from requests.models import Response
-from typing import Any, Iterable, Optional, Union
 
 
 class CLIException(ClickException):

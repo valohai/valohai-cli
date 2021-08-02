@@ -8,6 +8,7 @@ workflows:
       - test-3.8
       - test-3.9
       - mypy
+      - lint
 jobs:
   test-3.6: &test-template
     docker:
@@ -73,10 +74,27 @@ jobs:
         - v1-mypy-dep-{{ .Branch }}-
         - v1-mypy-dep-master-
         - v1-mypy-dep-
-    - run: pip install -U pip setuptools wheel tox coverage
+    - run: pip install -U pip setuptools wheel
     - run: pip install -r requirements-typecheck.txt
     - save_cache:
         key: v1-mypy-dep-{{ .Branch }}-{{ epoch }}
         paths:
         - ~/.cache/pip
     - run: make mypy
+  lint:
+    docker:
+      - image: circleci/python:3.9.2-buster
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - v1-lint-dep-{{ .Branch }}-
+        - v1-lint-dep-master-
+        - v1-lint-dep-
+    - run: pip install -U pip setuptools wheel
+    - run: pip install -r requirements-dev.txt
+    - save_cache:
+        key: v1-lint-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        - ~/.cache/pip
+    - run: make lint

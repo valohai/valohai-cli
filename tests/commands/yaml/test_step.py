@@ -1,8 +1,8 @@
 import os
-from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE_USING_VALOHAI_UTILS, PYTHON_SOURCE
+
+from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE, PYTHON_SOURCE_USING_VALOHAI_UTILS
 from valohai_cli.commands.yaml.step import step
 from valohai_cli.ctx import get_project
-from valohai_cli.utils import get_project_directory
 
 
 def test_yaml(runner, logged_in_and_linked):
