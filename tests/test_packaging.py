@@ -9,8 +9,9 @@ from valohai_cli.exceptions import ConfigurationError, NoCommit, PackageTooLarge
 from valohai_cli.git import describe_current_commit
 
 
-def write_temp_files(tmpdir, with_yaml=True, large_file_size=0):
-    tmpdir.join('.gitignore').write_text('a*\n', 'utf8')  # ignore all files starting with a
+def write_temp_files(tmpdir, with_yaml=True, with_gitignore=True, large_file_size=0):
+    if with_gitignore:
+        tmpdir.join('.gitignore').write_text('a*\n', 'utf8')  # ignore all files starting with a
     tmpdir.join('asbestos').write_text('scary', 'utf8')
     tmpdir.join('kahvikuppi').write_text('mmmm, coffee', 'utf8')
     tmpdir.join('.hiddenfile').write_text('where is it', 'utf8')
@@ -43,11 +44,15 @@ def test_package_git(tmpdir, with_commit):
     assert get_tar_files(tarball) == {'kahvikuppi', 'valohai.yaml'}
 
 
-def test_package_no_git(tmpdir):
-    write_temp_files(tmpdir)
+@pytest.mark.parametrize('with_gitignore', (False, True))
+def test_package_no_git(tmpdir, with_gitignore):
+    write_temp_files(tmpdir, with_gitignore=with_gitignore)
     tarball = pkg.package_directory(str(tmpdir))
     # the dotfile is gone, but there's nothing to stop the asbestos
-    assert get_tar_files(tarball) == {'asbestos', 'kahvikuppi', 'valohai.yaml'}
+    if with_gitignore:
+        assert get_tar_files(tarball) == {'kahvikuppi', 'valohai.yaml'}
+    else:
+        assert get_tar_files(tarball) == {'asbestos', 'kahvikuppi', 'valohai.yaml'}
 
 
 def test_package_requires_yaml(tmpdir):
@@ -70,7 +75,7 @@ def test_file_soft_size_warn(tmpdir, capsys, monkeypatch):
 ))
 def test_package_hard_size_fail(tmpdir, monkeypatch, threshold):
     monkeypatch.setattr(pkg, threshold, 200)
-    write_temp_files(tmpdir, with_yaml=True, large_file_size=10000)
+    write_temp_files(tmpdir, with_yaml=True, with_gitignore=False, large_file_size=10000)
     with pytest.raises(PackageTooLarge):
         pkg.package_directory(str(tmpdir))
 
@@ -78,7 +83,7 @@ def test_package_hard_size_fail(tmpdir, monkeypatch, threshold):
 def test_package_file_count_hard_fail(tmpdir, monkeypatch):
     # Should not fail here
     monkeypatch.setattr(pkg, 'FILE_COUNT_HARD_THRESHOLD', 3)
-    write_temp_files(tmpdir, with_yaml=True)
+    write_temp_files(tmpdir, with_yaml=True, with_gitignore=False)
     pkg.package_directory(str(tmpdir))
 
     # With threshold of 2, should fail for 3 files
