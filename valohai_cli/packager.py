@@ -5,6 +5,7 @@ import subprocess
 import tarfile
 import tempfile
 from collections import namedtuple
+from enum import Enum
 from subprocess import check_output
 from typing import IO, Dict, Iterable, List, Tuple
 
@@ -38,6 +39,12 @@ You can disable this validation with the `--no-validate-adhoc` option.
 '''
 
 PackageFileInfo = namedtuple('PackageFileInfo', ('source_path', 'stat'))
+
+
+class GitUsage(Enum):
+    NONE = 0
+    GITIGNORE_WITHOUT_GIT = 1
+    GIT_LS_FILES = 2
 
 
 def package_directory(dir: str, progress: bool = False, validate: bool = True) -> str:
@@ -148,14 +155,24 @@ def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
             yield (file_rel_path, file_abs_path)
 
 
-def _get_files(dir: str, allow_git: bool = True) -> Tuple[bool, Iterable[Tuple[str, str]]]:
-    if allow_git and os.path.exists(os.path.join(dir, '.git')):
-        # We have .git, so we can try to use Git to figure out a file list of nonignored files
-        try:
-            return (True, _get_files_with_git(dir))  # return the generator
-        except subprocess.CalledProcessError as cpe:
-            warn(f'.git exists, but we could not use git ls-files (error {cpe.returncode}), falling back to non-git')
-    return (False, _get_files_walk(dir))  # return the generator
+def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterable[Tuple[str, str]]]:
+    gitignore_path = os.path.join(dir, '.gitignore')
+
+    if allow_git:
+        if os.path.exists(os.path.join(dir, '.git')):
+            # We have .git, so we can try to use Git to figure out a file list of nonignored files
+            try:
+                return (GitUsage.GIT_LS_FILES, _get_files_with_git(dir))  # return the generator
+            except subprocess.CalledProcessError as cpe:
+                warn(f'.git exists, but we could not use git ls-files (error {cpe.returncode}), falling back to non-git')
+
+        # Limited support of .gitignore even without git
+        if os.path.exists(gitignore_path):
+            with open(gitignore_path, "r") as git_ignore_file:
+                ignore_patterns = [pattern.strip() for pattern in git_ignore_file.readlines()]
+            return (GitUsage.GITIGNORE_WITHOUT_GIT, (p for p in _get_files_walk(dir) if is_valid_path(p[0], ignore_patterns)))
+
+    return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
 
 
 def is_valid_path(path: str, ignore_patterns: Iterable[str]) -> bool:
@@ -179,7 +196,7 @@ def get_files_for_package(
     :return:
     """
     files_and_paths = []
-    using_git, ftup_generator = _get_files(dir, allow_git=allow_git)
+    git_usage, ftup_generator = _get_files(dir, allow_git=allow_git)
 
     for ftup in ftup_generator:
         if ignore_patterns and not is_valid_path(ftup[1], ignore_patterns):
@@ -191,10 +208,12 @@ def get_files_for_package(
                     threshold=FILE_COUNT_HARD_THRESHOLD,
                 ))
 
-    if using_git:
+    if git_usage == GitUsage.GIT_LS_FILES:
         info(f'Used git to find {len(files_and_paths)} files to package')
+    elif git_usage == GitUsage.GITIGNORE_WITHOUT_GIT:
+        info(f'Used .gitignore (with limited support) to find {len(files_and_paths)} files to package. Create a git repository for full support.')
     else:
-        info(f'Git not available, found {len(files_and_paths)} files to package')
+        info(f'Git or .gitignore not available, found {len(files_and_paths)} files to package')
 
     output_stats = {}
     for file, file_path in files_and_paths:
