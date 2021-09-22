@@ -25,7 +25,11 @@ def step(filenames: List[str]) -> None:
     :param filenames: Path(s) of the Python source code files.
     """
     project = get_project()
-    assert project
+    if project is None:
+        info("no project linked - assuming files are in current directory.")
+        project = Project(data={}, directory=os.getcwd())
+        project.name = "YAML command simulated project"
+
     config_path = project.get_config_filename()
 
     for source_path in filenames:
