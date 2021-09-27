@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
 
@@ -19,7 +19,10 @@ from valohai_cli.utils.cli_utils import HelpfulArgument
 )
 @click.option('--all', default=None, is_flag=True, help='Stop all in-progress executions.')
 @click.command()
-def stop(counters: Optional[List[str]] = None, all: bool = False) -> None:
+def stop(
+    counters: Optional[Union[List[str], Tuple[str]]] = None,
+    all: bool = False,
+) -> None:
     """
     Stop one or more in-progress executions.
     """
@@ -36,7 +39,12 @@ def stop(counters: Optional[List[str]] = None, all: bool = False) -> None:
         # unwieldy, so let's just do this.
         raise click.UsageError('Pass execution counter(s), or `--all`, not both.')
 
-    executions = get_executions_for_stop(project, counters, all)
+    counters = list(counters or [])
+    executions = get_executions_for_stop(
+        project,
+        counters=counters,
+        all=all,
+    )
 
     for execution in executions:
         progress(f"Stopping #{execution['counter']}... ")
@@ -45,9 +53,9 @@ def stop(counters: Optional[List[str]] = None, all: bool = False) -> None:
     success('Done.')
 
 
-def get_executions_for_stop(project: Project, counters: Optional[Union[str, List[str]]], all: bool) -> List[dict]:
+def get_executions_for_stop(project: Project, counters: Optional[List[str]], *, all: bool) -> List[dict]:
     params: Dict[str, Any] = {'project': project.id}
-    if counters == 'latest':
+    if counters == ['latest']:
         return [project.get_execution_from_counter('latest')]
 
     if counters:
