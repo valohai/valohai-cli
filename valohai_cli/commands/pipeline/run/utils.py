@@ -29,7 +29,7 @@ def build_node_template(commit: str, step: Step) -> dict:
         "image": step.image,
         "command": step.command,
         "inputs": {
-            key: step.inputs[key].default for key in list(step.inputs)
+            name: (input.default or []) for (name, input) in step.inputs.items()
         },
         "parameters": {
             key: step.parameters[key].default for key in
