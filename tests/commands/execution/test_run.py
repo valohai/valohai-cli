@@ -81,14 +81,20 @@ def test_param_type_validation_integer(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)
-    assert '\'plonk\' is not a valid integer' in rv.output
+    assert (
+        '\'plonk\' is not a valid integer' in rv.output or
+        'plonk is not a valid integer' in rv.output
+    )
 
 
 def test_param_type_validation_flag(runner, logged_in_and_linked):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--enable-mega-boost=please'], catch_exceptions=False)
-    assert '\'please\' is not a valid boolean' in rv.output
+    assert (
+        '\'please\' is not a valid boolean' in rv.output or
+        'please is not a valid boolean' in rv.output
+    )
 
 
 @pytest.mark.parametrize('value, result', [
