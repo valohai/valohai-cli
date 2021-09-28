@@ -58,9 +58,15 @@ class Settings:
     def host(self) -> Optional[str]:
         """
         The host we're logged in to (string or None if not logged in).
-        :return:
         """
         return self._get('host')
+
+    @property
+    def verify_ssl(self) -> bool:
+        """
+        Whether to verify SSL connections to the Valohai API.
+        """
+        return bool(self._get('verify_ssl', default=True))
 
     @property
     def token(self) -> Optional[str]:
