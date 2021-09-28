@@ -3,8 +3,7 @@ from typing import Optional
 
 import click
 from click import Context
-from valohai_yaml.objs.config import Config
-from valohai_yaml.objs.pipelines.pipeline import Pipeline
+from valohai_yaml.objs import Config, Pipeline
 
 from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
@@ -27,15 +26,9 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
     if name == '--help' or not name:
         click.echo(ctx.get_help(), color=ctx.color)
-        with contextlib.suppress(Exception):  # If we fail to extract the pipeline list, it's not that big of a deal.
-            project = get_project(require=True)
-            assert project
-            config = project.get_config(commit_identifier=commit)
-            if config.pipelines:
-                click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
-                for pipeline in sorted(config.pipelines):
-                    click.echo(f'   * {pipeline}', color=ctx.color)
+        print_pipeline_list(ctx, commit)
         ctx.exit()
+        return
 
     project = get_project(require=True)
     assert project
@@ -46,6 +39,17 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     pipeline = config.pipelines[matched_pipeline]
 
     start_pipeline(config, pipeline, project.id, commit, title)
+
+
+def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
+    with contextlib.suppress(Exception):  # If we fail to extract the pipeline list, it's not that big of a deal.
+        project = get_project(require=True)
+        assert project
+        config = project.get_config(commit_identifier=commit)
+        if config.pipelines:
+            click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
+            for pipeline_name in sorted(config.pipelines):
+                click.echo(f'   * {pipeline_name}', color=ctx.color)
 
 
 def start_pipeline(
