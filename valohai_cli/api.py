@@ -29,8 +29,15 @@ class TokenAuth(AuthBase):
 
 class APISession(requests.Session):
 
-    def __init__(self, base_url: str, token: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        token: Optional[str] = None,
+        *,
+        verify_ssl: bool = True,
+    ) -> None:
         super().__init__()
+        self.verify = verify_ssl
         self.base_url = base_url
         self.base_netloc = urlparse(self.base_url).netloc
         self.auth = TokenAuth(self.base_netloc, token)
@@ -76,7 +83,11 @@ def _get_current_api_session() -> APISession:
     cache_key: str = force_text(f'_api_session_{host}_{token}')
     session: Optional[APISession] = (getattr(ctx, cache_key, None) if ctx else None)
     if not session:
-        session = APISession(host, token)
+        session = APISession(
+            base_url=host,
+            token=token,
+            verify_ssl=settings.verify_ssl,
+        )
         if ctx:
             setattr(ctx, cache_key, session)
     return session
