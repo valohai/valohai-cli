@@ -23,7 +23,7 @@ run_epilog = (
     add_help_option=False,
     epilog=run_epilog,
 )
-@click.argument('step', required=False, metavar='STEP-NAME')
+@click.argument('step_name', required=False, metavar='STEP-NAME')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see "vh env")')
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
@@ -46,7 +46,7 @@ def run(
     environment: Optional[str],
     environment_variables: List[str],
     image: Optional[str],
-    step: Optional[str],
+    step_name: Optional[str],
     tags: List[str],
     title: Optional[str],
     validate_adhoc: bool,
@@ -56,15 +56,11 @@ def run(
     Start an execution of a step.
     """
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
-    if step == '--help' or not step:
+    if step_name == '--help' or not step_name:
         click.echo(ctx.get_help(), color=ctx.color)
-        with contextlib.suppress(Exception):  # If we fail to extract the step list, it's not that big of a deal.
-            config = get_project(require=True).get_config(commit_identifier=commit)
-            if config.steps:
-                click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
-                for step in sorted(config.steps):
-                    click.echo(f'   * {step}', color=ctx.color)
+        print_step_list(ctx, commit)
         ctx.exit()
+        return
     project = get_project(require=True)
 
     if adhoc:
@@ -88,7 +84,7 @@ def run(
     # the further steps do need the real commit identifier from remote,
     # so this is done before `commit` is mangled by `create_adhoc_commit`.
     config = project.get_config(commit_identifier=commit)
-    matched_step = match_step(config, step)
+    matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
     rc = RunCommand(
@@ -107,3 +103,12 @@ def run(
         if adhoc:
             rc.commit = package_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)
+
+
+def print_step_list(ctx: click.Context, commit: Optional[str]) -> None:
+    with contextlib.suppress(Exception):  # If we fail to extract the step list, it's not that big of a deal.
+        config = get_project(require=True).get_config(commit_identifier=commit)
+        if config.steps:
+            click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
+            for step in sorted(config.steps):
+                click.echo(f'   * {step}', color=ctx.color)

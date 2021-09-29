@@ -50,9 +50,7 @@ class Project:
 
     def _parse_config(self, config_fp: TextIO, filename: str = '<config file>') -> Config:
         try:
-            config = valohai_yaml.parse(config_fp)
-            config.project = self
-            return config
+            return valohai_yaml.parse(config_fp)
         except OSError as err:
             raise InvalidConfig(f'Could not read {filename}') from err
         except valohai_yaml.ValidationErrors as ves:

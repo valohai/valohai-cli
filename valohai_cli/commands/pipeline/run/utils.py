@@ -1,8 +1,7 @@
 from typing import List
 
 import click
-from valohai_yaml.objs import Pipeline, Step
-from valohai_yaml.objs.config import Config
+from valohai_yaml.objs import Config, ExecutionNode, Pipeline, Step
 
 from valohai_cli.utils import match_prefix
 
@@ -10,13 +9,16 @@ from valohai_cli.utils import match_prefix
 def build_nodes(commit: str, config: Config, pipeline: Pipeline) -> List[dict]:
     nodes = []
     for node in pipeline.nodes:
-        step = config.steps.get(node.step)
-        template = build_node_template(commit, step)
-        nodes.append({
-            "name": node.name,
-            "type": node.type,
-            "template": template,
-        })
+        if isinstance(node, ExecutionNode):
+            step = config.steps[node.step]
+            template = build_node_template(commit, step)
+            nodes.append({
+                "name": node.name,
+                "type": node.type,
+                "template": template,
+            })
+            continue
+        raise NotImplementedError(f"{node.type} nodes are not supported by the CLI at present")
     return nodes
 
 
@@ -34,9 +36,7 @@ def build_node_template(commit: str, step: Step) -> dict:
             list(step.parameters)
         },
         "inherit_environment_variables": True,
-        "environment_variables": {
-            envvar.key(): envvar.value() for envvar in step.environment_variables
-        }
+        "environment_variables": dict(step.environment_variables),
     }
     if step.environment:
         template["environment"] = step.environment

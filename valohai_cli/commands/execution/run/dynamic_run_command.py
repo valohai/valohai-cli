@@ -8,6 +8,7 @@ from click.formatting import HelpFormatter
 from valohai_yaml.objs import Step
 from valohai_yaml.objs.input import Input
 from valohai_yaml.objs.parameter import Parameter
+from valohai_yaml.utils import listify
 
 from valohai_cli import git as git
 from valohai_cli.api import request
@@ -99,7 +100,7 @@ class RunCommand(click.Command):
         for input in step.inputs.values():
             self.params.append(self.convert_input_to_option(input))
         for name, value in step.environment_variables.items():
-            if name not in self.environment_variables:
+            if name not in self.environment_variables and value.default is not None:
                 self.environment_variables[name] = value.default
 
     def format_options(self, ctx: Context, formatter: HelpFormatter) -> None:
@@ -134,12 +135,11 @@ class RunCommand(click.Command):
         Convert an Input into a click Option.
         """
         assert isinstance(input, Input)
-        default_as_list = input.default if isinstance(input.default, list) else [input.default]
 
         option = click.Option(
             param_decls=list(generate_sanitized_options(input.name)),
             required=(input.default is None and not input.optional),
-            default=(default_as_list if input.default else []),
+            default=listify(input.default),
             metavar='URL',
             multiple=True,
             help=f'Input "{humanize_identifier(input.name)}"',
