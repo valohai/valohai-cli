@@ -175,9 +175,13 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterab
 
         # Limited support of .gitignore even without git
         if os.path.exists(gitignore_path):
-            with open(gitignore_path, "r") as git_ignore_file:
-                ignore_patterns = [pattern.strip() for pattern in git_ignore_file.readlines()]
-            return (GitUsage.GITIGNORE_WITHOUT_GIT, (p for p in _get_files_walk(dir) if is_valid_path(p[0], ignore_patterns)))
+            with open(gitignore_path, "r") as gitignore_file:
+                gitignore_rules = list(gitignorant.parse_gitignore_file(gitignore_file))
+            if gitignore_rules:
+                return (
+                    GitUsage.GITIGNORE_WITHOUT_GIT,
+                    (p for p in _get_files_walk(dir) if not gitignorant.check_match(gitignore_rules, p[0])),
+                )
 
     return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
 
