@@ -11,6 +11,7 @@ setup(
     license='MIT',
     install_requires=[
         'click>=7.0',
+        'gitignorant>=0.1.2',
         'requests-toolbelt>=0.7.1',
         'requests>=2.0.0',
         'typing-extensions>=3.7',
