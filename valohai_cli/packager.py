@@ -10,6 +10,7 @@ from subprocess import check_output
 from typing import IO, Dict, Iterable, List, Tuple
 
 import click
+import gitignorant
 
 from valohai_cli.exceptions import ConfigurationError, PackageTooLarge
 from valohai_cli.messages import info, warn
@@ -45,6 +46,11 @@ class GitUsage(Enum):
     NONE = 0
     GITIGNORE_WITHOUT_GIT = 1
     GIT_LS_FILES = 2
+
+
+class VhIgnoreUsage(Enum):
+    NONE = 0
+    VHIGNORE = 1
 
 
 def package_directory(dir: str, progress: bool = False, validate: bool = True) -> str:
@@ -155,7 +161,8 @@ def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
             yield (file_rel_path, file_abs_path)
 
 
-def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterable[Tuple[str, str]]]:
+def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterable[Tuple[str, str]]]:
+    # Inner, pre-vhignore-supporting generator function...
     gitignore_path = os.path.join(dir, '.gitignore')
 
     if allow_git:
@@ -173,6 +180,26 @@ def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterable[Tup
             return (GitUsage.GITIGNORE_WITHOUT_GIT, (p for p in _get_files_walk(dir) if is_valid_path(p[0], ignore_patterns)))
 
     return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
+
+
+def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, VhIgnoreUsage, Iterable[Tuple[str, str]]]:
+    git_usage, ftup_gen = _get_files_inner(dir, allow_git=allow_git)
+    vhignore_path = os.path.join(dir, '.vhignore')
+
+    if os.path.isfile(vhignore_path):
+        with open(vhignore_path, "r") as vhignore_file:
+            vhignore_rules = list(gitignorant.parse_gitignore_file(vhignore_file))
+        if vhignore_rules:
+            return (
+                git_usage,
+                VhIgnoreUsage.VHIGNORE,
+                (p for p in ftup_gen if not gitignorant.check_match(vhignore_rules, p[0])),
+            )
+    return (
+        git_usage,
+        VhIgnoreUsage.NONE,
+        ftup_gen,
+    )
 
 
 def is_valid_path(path: str, ignore_patterns: Iterable[str]) -> bool:
@@ -196,7 +223,7 @@ def get_files_for_package(
     :return:
     """
     files_and_paths = []
-    git_usage, ftup_generator = _get_files(dir, allow_git=allow_git)
+    git_usage, vhignore_usage, ftup_generator = _get_files(dir, allow_git=allow_git)
 
     for ftup in ftup_generator:
         if ignore_patterns and not is_valid_path(ftup[1], ignore_patterns):
@@ -208,17 +235,29 @@ def get_files_for_package(
                     threshold=FILE_COUNT_HARD_THRESHOLD,
                 ))
 
-    if git_usage == GitUsage.GIT_LS_FILES:
-        info(f'Used git to find {len(files_and_paths)} files to package')
-    elif git_usage == GitUsage.GITIGNORE_WITHOUT_GIT:
-        info(f'Used .gitignore (with limited support) to find {len(files_and_paths)} files to package. Create a git repository for full support.')
-    else:
-        info(f'Git or .gitignore not available, found {len(files_and_paths)} files to package')
+    info(_get_packaging_info_message(len(files_and_paths), git_usage, vhignore_usage))
 
     output_stats = {}
     for file, file_path in files_and_paths:
         output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
     return output_stats
+
+
+def _get_packaging_info_message(count: int, git_usage: GitUsage, vhignore_usage: VhIgnoreUsage) -> str:
+    and_vhignore_bit = (' (with .vhignore)' if vhignore_usage == VhIgnoreUsage.VHIGNORE else '')
+    if git_usage == GitUsage.GIT_LS_FILES:
+        return f'Used git{and_vhignore_bit} to find {count} files to package'
+    elif git_usage == GitUsage.GITIGNORE_WITHOUT_GIT:
+        return (
+            f'Used .gitignore (with limited support){and_vhignore_bit} '
+            f'to find {count} files to package. '
+            f'Create a git repository for full .gitignore support.'
+        )
+    return (
+        f'Walked filesystem{and_vhignore_bit} and '
+        f'found {count} files to package. '
+        f'Git or .gitignore not available.'
+    )
 
 
 def validate_package_size(file_stats: Dict[str, PackageFileInfo]) -> List[str]:

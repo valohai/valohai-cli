@@ -1,5 +1,6 @@
 import os
 from subprocess import check_call, check_output
+from typing import Set
 
 import pytest
 from click import termui
@@ -9,9 +10,19 @@ from valohai_cli.exceptions import ConfigurationError, NoCommit, PackageTooLarge
 from valohai_cli.git import describe_current_commit
 
 
-def write_temp_files(tmpdir, with_yaml=True, with_gitignore=True, large_file_size=0):
+def write_temp_files(
+    tmpdir,
+    *,
+    with_yaml: bool = True,
+    with_gitignore: bool = True,
+    with_vhignore: bool = False,
+    large_file_size: int = 0,
+):
     if with_gitignore:
         tmpdir.join('.gitignore').write_text('a*\n', 'utf8')  # ignore all files starting with a
+    if with_vhignore:
+        tmpdir.join('.vhignore').write_text('kah*\n', 'utf8')  # ignore all files starting with kah
+
     tmpdir.join('asbestos').write_text('scary', 'utf8')
     tmpdir.join('kahvikuppi').write_text('mmmm, coffee', 'utf8')
     tmpdir.join('.hiddenfile').write_text('where is it', 'utf8')
@@ -28,10 +39,20 @@ def get_tar_files(tarball):
     return set(check_output(f'tar tf {tarball}', shell=True).decode('utf8').splitlines())
 
 
+def get_expected_filenames(original_set: Set[str], *, with_gitignore, with_vhignore) -> Set[str]:
+    new_set = original_set.copy()
+    if with_vhignore:  # vhignore stops kahvikuppi
+        new_set.discard('kahvikuppi')
+    if with_gitignore:  # gitignore stops asbestos
+        new_set.discard('asbestos')
+    return new_set
+
+
 @pytest.mark.parametrize('with_commit', (False, True))
-def test_package_git(tmpdir, with_commit):
+@pytest.mark.parametrize('with_vhignore', (False, True))
+def test_package_git(tmpdir, with_commit, with_vhignore):
     check_call('git init', cwd=str(tmpdir), shell=True)
-    write_temp_files(tmpdir)
+    write_temp_files(tmpdir, with_vhignore=with_vhignore)
     if with_commit:
         check_call('git add .', cwd=str(tmpdir), shell=True)
         check_call('git commit -m test', cwd=str(tmpdir), shell=True)
@@ -41,18 +62,24 @@ def test_package_git(tmpdir, with_commit):
             describe_current_commit(str(tmpdir))
     tarball = pkg.package_directory(str(tmpdir))
     # the dotfile and asbestos do not appear
-    assert get_tar_files(tarball) == {'kahvikuppi', 'valohai.yaml'}
+    assert get_tar_files(tarball) == get_expected_filenames(
+        {'kahvikuppi', 'valohai.yaml'},
+        with_vhignore=with_vhignore,
+        with_gitignore=True,
+    )
 
 
 @pytest.mark.parametrize('with_gitignore', (False, True))
-def test_package_no_git(tmpdir, with_gitignore):
-    write_temp_files(tmpdir, with_gitignore=with_gitignore)
+@pytest.mark.parametrize('with_vhignore', (False, True))
+def test_package_no_git(tmpdir, with_gitignore, with_vhignore):
+    write_temp_files(tmpdir, with_gitignore=with_gitignore, with_vhignore=with_vhignore)
     tarball = pkg.package_directory(str(tmpdir))
-    # the dotfile is gone, but there's nothing to stop the asbestos
-    if with_gitignore:
-        assert get_tar_files(tarball) == {'kahvikuppi', 'valohai.yaml'}
-    else:
-        assert get_tar_files(tarball) == {'asbestos', 'kahvikuppi', 'valohai.yaml'}
+    expected_filenames = get_expected_filenames(
+        {'asbestos', 'kahvikuppi', 'valohai.yaml'},
+        with_vhignore=with_vhignore,
+        with_gitignore=with_gitignore,
+    )
+    assert get_tar_files(tarball) == expected_filenames
 
 
 def test_package_requires_yaml(tmpdir):
