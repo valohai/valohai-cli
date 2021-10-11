@@ -12,7 +12,7 @@ from valohai_cli.table import TABLE_FORMATS
 TABLE_FORMAT_ENVVARS = ['VALOHAI_TABLE_FORMAT', 'VALOHAI_OUTPUT_FORMAT']
 
 
-@click.command(cls=RecursiveHelpPluginCLI, commands_module='valohai_cli.commands')  # type: ignore[call-arg]
+@click.command(cls=RecursiveHelpPluginCLI, commands_module='valohai_cli.commands')
 @click.option('--debug/--no-debug', default=False, envvar='VALOHAI_DEBUG', help='Enable debug logging.')
 @click.option('--output-format', '--table-format', type=click.Choice(TABLE_FORMATS), default='human', envvar=TABLE_FORMAT_ENVVARS, help='Set the output format for various data.')
 @click.option('--valohai-host', envvar='VALOHAI_HOST', metavar='URL', help=f'Override the Valohai API host (default {default_app_host})', show_envvar=True)

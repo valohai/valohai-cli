@@ -10,7 +10,7 @@ from valohai_cli.range import IntegerRange
 from valohai_cli.utils.cli_utils import HelpfulArgument
 
 
-@click.argument(  # type: ignore[call-arg]
+@click.argument(
     'counters',
     help='Range of execution counters, or "latest"',
     required=False,

@@ -4,31 +4,23 @@
 #
 #    pip-compile requirements-dev.in
 #
-appdirs==1.4.4
-    # via virtualenv
-attrs==20.3.0
+attrs==21.2.0
     # via
     #   flake8-bugbear
     #   pytest
 autoflake==1.4
     # via -r requirements-dev.in
-autopep8==1.5.6
+autopep8==1.5.7
     # via -r requirements-dev.in
-certifi==2020.12.5
+certifi==2021.10.8
     # via requests
-chardet==4.0.0
+charset-normalizer==2.0.6
     # via requests
-click==7.1.2
+click==8.0.3
     # via pip-tools
-coverage==5.5
+coverage[toml]==6.0.1
     # via pytest-cov
-distlib==0.3.1
-    # via virtualenv
-filelock==3.0.12
-    # via
-    #   tox
-    #   virtualenv
-flake8-bugbear==21.4.3
+flake8-bugbear==21.9.2
     # via -r requirements-dev.in
 flake8-isort==4.0.0
     # via -r requirements-dev.in
@@ -37,11 +29,11 @@ flake8==3.9.2
     #   -r requirements-dev.in
     #   flake8-bugbear
     #   flake8-isort
-idna==2.10
+idna==3.2
     # via requests
 iniconfig==1.1.1
     # via pytest
-isort==5.9.2
+isort==5.9.3
     # via
     #   -r requirements-dev.in
     #   flake8-isort
@@ -49,24 +41,18 @@ mccabe==0.6.1
     # via flake8
 mypy-extensions==0.4.3
     # via mypy
-mypy==0.812
+mypy==0.910
     # via -r ./requirements-typecheck.in
-packaging==20.9
-    # via
-    #   pytest
-    #   tox
-pep517==0.10.0
+packaging==21.0
+    # via pytest
+pep517==0.11.0
     # via pip-tools
-pip-tools==6.1.0
+pip-tools==6.3.1
     # via -r requirements-dev.in
-pluggy==0.13.1
-    # via
-    #   pytest
-    #   tox
+pluggy==1.0.0
+    # via pytest
 py==1.10.0
-    # via
-    #   pytest
-    #   tox
+    # via pytest
 pycodestyle==2.7.0
     # via
     #   autopep8
@@ -77,41 +63,38 @@ pyflakes==2.3.1
     #   flake8
 pyparsing==2.4.7
     # via packaging
-pytest-cov==2.11.1
+pytest-cov==3.0.0
     # via -r requirements-dev.in
-pytest==6.2.3
+pytest==6.2.5
     # via
     #   -r requirements-dev.in
     #   pytest-cov
-requests-mock==1.8.0
+requests-mock==1.9.3
     # via -r requirements-dev.in
-requests==2.25.1
+requests==2.26.0
     # via requests-mock
-six==1.15.0
-    # via
-    #   requests-mock
-    #   tox
-    #   virtualenv
-testfixtures==6.18.0
+six==1.16.0
+    # via requests-mock
+testfixtures==6.18.3
     # via flake8-isort
 toml==0.10.2
     # via
     #   autopep8
-    #   pep517
+    #   mypy
     #   pytest
-    #   tox
-tox==3.23.0
-    # via -r requirements-dev.in
-typed-ast==1.4.3
-    # via mypy
-types-requests==0.1.5
+tomli==1.2.1
+    # via
+    #   coverage
+    #   pep517
+types-requests==2.25.9
     # via -r ./requirements-typecheck.in
-typing-extensions==3.7.4.3
+typing-extensions==3.10.0.2
     # via mypy
-urllib3==1.26.5
+urllib3==1.26.7
     # via requests
-virtualenv==20.4.4
-    # via tox
+wheel==0.37.0
+    # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
+# setuptools

@@ -9,4 +9,3 @@ pip-tools
 pytest
 pytest-cov
 requests-mock
-tox

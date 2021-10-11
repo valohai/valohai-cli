@@ -95,9 +95,13 @@ class PluginCLI(click.MultiCommand):
             return command_map[match]
         return None
 
-    def resolve_command(self, ctx: Context, args: List[str]) -> Tuple[str, Command, List[str]]:
+    def resolve_command(self, ctx: Context, args: List[str]) -> Tuple[Optional[str], Optional[Command], List[str]]:
         cmd_name, cmd, rest_args = super().resolve_command(ctx, args)
-        return (cmd.name, cmd, rest_args)  # Always use the canonical name of the command
+        return (
+            getattr(cmd, "name", cmd_name),  # Always use the canonical name of the command
+            cmd,
+            rest_args,
+        )
 
     def _get_command(self, name: str) -> Command:
         module = import_module(f'{self.commands_module.__name__}.{name}')

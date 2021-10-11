@@ -72,7 +72,7 @@ class OwnerOptionsOption(click.Option):
             print(f' * {option}')
 
         return str(prompt(
-            self.prompt,
+            str(self.prompt),
             default=options[0],
             type=click.Choice(options),
             show_choices=False,

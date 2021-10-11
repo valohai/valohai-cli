@@ -109,7 +109,7 @@ def package_files_into(
                 width=0,
             )
             if not progress:
-                progress_bar.is_hidden = True  # type: ignore[attr-defined]
+                progress_bar.is_hidden = True
 
             with progress_bar:
                 for file in progress_bar:

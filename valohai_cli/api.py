@@ -52,8 +52,7 @@ class APISession(requests.Session):
         url_netloc: str = urlparse(request.url).netloc
         if not url_netloc:
             request.url = urljoin(self.base_url, request.url)
-        prepared_request: PreparedRequest = super().prepare_request(request)  # type: ignore[no-untyped-call]
-        return prepared_request
+        return super().prepare_request(request)
 
     def request(self, method, url, **kwargs) -> Response:  # type: ignore
         api_error_class = kwargs.pop('api_error_class', APIError)

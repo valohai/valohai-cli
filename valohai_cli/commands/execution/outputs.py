@@ -11,7 +11,6 @@ from valohai_cli.consts import complete_execution_statuses
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info, success, warn
 from valohai_cli.table import print_table
-from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import counter_argument
 
 DOWNLOAD_HELP = (
@@ -117,7 +116,7 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
     with \
-        click.progressbar(length=total_size, show_pos=True, item_show_func=force_text) as prog, \
+        click.progressbar(length=total_size, show_pos=True, item_show_func=str) as prog, \
         requests.Session() as dl_sess:
         for i, output in enumerate(outputs, 1):
             name = output['name']
@@ -131,7 +130,7 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
                 os.makedirs(out_dir)
             resp = dl_sess.get(url, stream=True)
             resp.raise_for_status()
-            prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'  # type: ignore[attr-defined]
+            prog.current_item = f'({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}'
             # Force visible bar for the smallest of files:
             prog.short_limit = 0  # type: ignore[attr-defined]
             with open(out_path, 'wb') as outf:

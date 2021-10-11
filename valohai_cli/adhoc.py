@@ -90,12 +90,12 @@ def _upload_commit_code(project: Project, tarball: str, description: str = '') -
             'data': ('data.tgz', tarball_fp, 'application/gzip'),
             'description': description,
         })
-        prog = click.progressbar(length=upload.len, width=0)
+        prog = click.progressbar(length=upload.len, width=0)  # type: ignore[var-annotated]
         # Don't bother with the bar if the upload is small
-        prog.is_hidden = (size < 524288)  # type: ignore[attr-defined]
+        prog.is_hidden = (size < 524288)
         with prog:
             def callback(upload: Any) -> None:
-                prog.pos = upload.bytes_read  # type: ignore[attr-defined]
+                prog.pos = upload.bytes_read
                 prog.update(0)  # Step is 0 because we set pos above
 
             monitor = MultipartEncoderMonitor(upload, callback)

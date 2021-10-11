@@ -43,8 +43,8 @@ class HumanTableFormatter:
         # Transpose `printable_data` and count maximum length of data in each column
         self.column_widths = [max(len(s) for (s, t) in col) for col in zip(*self.printable_data)]
 
-        # Take header lengths into account
-        self.column_widths = [max(len(header), col_w) for (header, col_w) in zip(headers, self.column_widths)]
+        # Take header lengths into account, disallow too thin columns
+        self.column_widths = [max(len(header), col_w, 3) for (header, col_w) in zip(headers, self.column_widths)]
 
         self.terminal_width = shutil.get_terminal_size()[0]
 
@@ -69,13 +69,22 @@ class HumanTableFormatter:
                 click.secho('-' * sep_width, bold=True)
             click.secho(row, bold=(is_header))
 
+    def _echo_horizontal(self) -> None:
+        colsep = "  "
+        print(colsep.join([header.ljust(width) for (header, width) in zip(self.headers, self.column_widths)]))
+        print(colsep.join(["".ljust(width, "-") for width in self.column_widths]))
+        for row in self.printable_data:
+            bits = []
+            for width, (val, typ) in zip(self.column_widths, row):
+                justifier = (val.rjust if isinstance(typ, int) else val.ljust)
+                bits.append(justifier(width))
+            print(colsep.join(bits))
+
     def echo(self) -> None:
         if self.vertical_format:
             self._echo_vertical()
-            return
-        from valohai_cli._vendor.tabulate import tabulate  # type: ignore[attr-defined]
-        tabulable_data = [[val for (val, typ) in row] for row in self.printable_data]
-        print(tabulate(tabulable_data, headers=self.headers))
+        else:
+            self._echo_horizontal()
 
 
 StringAndType = Tuple[str, Type]

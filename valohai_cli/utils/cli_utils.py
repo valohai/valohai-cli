@@ -49,13 +49,13 @@ class HelpfulArgument(click.Argument):
         self.help = help
         super().__init__(param_decls, **kwargs)
 
-    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # type: ignore[override]
-        if self.help:
+    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:
+        if self.name and self.help:
             return (self.name, self.help)
         return None
 
 
 def counter_argument(fn: FuncT) -> FuncT:
     # Extra gymnastics needed because `click.arguments` mutates the kwargs here
-    arg = click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)  # type: ignore[call-arg]
-    return arg(fn)
+    arg = click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)
+    return arg(fn)  # type: ignore[return-value]

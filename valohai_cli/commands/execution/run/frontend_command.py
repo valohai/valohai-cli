@@ -99,7 +99,7 @@ def run(
         environment_variables=parse_environment_variable_strings(environment_variables),
         tags=tags,
     )
-    with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:  # type: ignore[attr-defined]
+    with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         if adhoc:
             rc.commit = package_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)
