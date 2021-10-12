@@ -48,10 +48,10 @@ def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
             return projects[0]
 
     def nonlist_validator(answer: str) -> Any:
-        if answer.startswith('n'):
+        if answer.startswith('c'):
             raise NewProjectInstead()
 
-    prompt = 'Which project would you like to link with {dir}?\nEnter [n] to create a new project.'.format(
+    prompt = 'Which project would you like to link with {dir}?\nEnter [c] to create a new project.'.format(
         dir=click.style(dir, bold=True),
     )
     has_multiple_owners = (len({p.get('owner', {}).get('id') for p in projects}) > 1)
