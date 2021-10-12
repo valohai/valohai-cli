@@ -59,6 +59,6 @@ def test_link_no_match(runner, logged_in):
 def test_link_projs_create_one_instead(runner, logged_in):
     name = get_random_string()
     with get_project_mock(existing_projects=1, create_project_name=name):
-        result = runner.invoke(link, input=f'n\n{name}\n')
+        result = runner.invoke(link, input=f'c\n{name}\n')
         assert 'Name the new project:' in result.output
         assert (f'{name} created') in result.output

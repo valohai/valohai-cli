@@ -83,8 +83,8 @@ def init() -> None:
 def link_or_create_prompt(cwd: str) -> Optional[Project]:
     while True:
         response = click.prompt(
-            'Do you want to link this directory to a pre-existing project, or create a new one? [L/C]\n'
-            'If you\'d prefer to do neither at this point, respond [N].'
+            'Do you want to link this directory to a pre-existing project, or create a new one? [l/c]\n'
+            'If you\'d prefer to do neither at this point, respond [n].'
         ).lower().strip()
         if response.startswith('l'):
             link.main(prog_name='vh-link', args=[], standalone_mode=False)
