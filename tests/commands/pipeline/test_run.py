@@ -16,6 +16,16 @@ def test_pipeline_run_success(runner, logged_in_and_linked):
     assert 'Success' in output
 
 
+def test_pipeline_adhoc_run_success(runner, logged_in_and_linked):
+    add_valid_pipeline_yaml()
+    args = ['--adhoc', 'training']
+    with RunAPIMock(PROJECT_DATA.get('id')):
+        print(run, args)
+        output = runner.invoke(run, args).output
+    assert 'Success' in output
+    assert 'Uploaded ad-hoc code' in output
+
+
 def test_pipeline_run_no_name(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['']
