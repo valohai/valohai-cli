@@ -3,10 +3,10 @@ from typing import Any, List, Optional
 
 import click
 
-from valohai_cli.adhoc import package_adhoc_commit
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
+from valohai_cli.utils.commits import create_or_resolve_commit
 
 from .dynamic_run_command import RunCommand
 from .utils import match_step
@@ -63,12 +63,6 @@ def run(
         return
     project = get_project(require=True)
 
-    if adhoc:
-        if commit:
-            raise click.UsageError('--commit and --adhoc are mutually exclusive.')
-        if project.is_remote:
-            raise click.UsageError('--adhoc can not be used with remote projects.')
-
     if download_directory and watch:
         raise click.UsageError('Combining --sync and --watch not supported yet.')
 
@@ -87,6 +81,8 @@ def run(
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
+    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc)
+
     rc = RunCommand(
         project=project,
         step=step,
@@ -100,8 +96,6 @@ def run(
         tags=tags,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
-        if adhoc:
-            rc.commit = package_adhoc_commit(project, validate=validate_adhoc)['identifier']
         return rc.invoke(child_ctx)
 
 

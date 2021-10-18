@@ -9,6 +9,7 @@ from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
+from valohai_cli.utils.commits import create_or_resolve_commit
 
 
 @click.command(
@@ -18,8 +19,9 @@ from valohai_cli.messages import success
 @click.argument('name', required=False, metavar='PIPELINE-NAME')
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
+@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.pass_context
-def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str]) -> None:
+def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str], adhoc: bool) -> None:
     """
     Start a pipeline run.
     """
@@ -32,7 +34,8 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
 
     project = get_project(require=True)
     assert project
-    commit = commit or project.resolve_commit()['identifier']
+
+    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc)
     config = project.get_config()
 
     matched_pipeline = match_pipeline(config, name)

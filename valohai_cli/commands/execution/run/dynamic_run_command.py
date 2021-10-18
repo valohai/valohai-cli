@@ -10,9 +10,8 @@ from valohai_yaml.objs.input import Input
 from valohai_yaml.objs.parameter import Parameter
 from valohai_yaml.utils import listify
 
-from valohai_cli import git as git
 from valohai_cli.api import request
-from valohai_cli.exceptions import CLIException, NoGitRepo
+from valohai_cli.exceptions import CLIException
 from valohai_cli.messages import success, warn
 from valohai_cli.models.project import Project
 from valohai_cli.utils import humanize_identifier, sanitize_option_name
@@ -49,7 +48,7 @@ class RunCommand(click.Command):
         self,
         project: Project,
         step: Step,
-        commit: Optional[str],
+        commit: str,
         environment: Optional[str] = None,
         image: Optional[str] = None,
         title: Optional[str] = None,
@@ -158,10 +157,9 @@ class RunCommand(click.Command):
         :return: Naught
         """
         options, parameters, inputs = self._sift_kwargs(kwargs)
-        commit = self.resolve_commit(self.commit)
 
         payload = {
-            'commit': commit,
+            'commit': self.commit,
             'inputs': inputs,
             'parameters': parameters,
             'project': self.project.id,
@@ -251,37 +249,6 @@ class RunCommand(click.Command):
                     missing_required_parameters.add(name)
         if missing_required_parameters:
             raise CLIException(f'Required parameters missing: {missing_required_parameters}')
-
-    def resolve_commit(self, commit_identifier: Optional[str]) -> str:
-        if not commit_identifier:
-            try:
-                commit_identifier = git.get_current_commit(self.project.directory)
-            except NoGitRepo:
-                warn(
-                    'The directory is not a Git repository. \n'
-                    'Would you like to just run using the latest commit known by Valohai?'
-                )
-                if not click.confirm('Use latest commit?', default=True):
-                    raise click.Abort()
-
-        if commit_identifier and commit_identifier.startswith('~'):
-            # Assume ad-hoc commits are qualified already
-            return commit_identifier
-
-        try:
-            commit_obj = self.project.resolve_commit(commit_identifier=commit_identifier)
-        except KeyError:
-            warn(f'Commit {commit_identifier} is not known for the project. Have you pushed it?')
-            raise click.Abort()
-        except IndexError:
-            warn('No commits are known for the project.')
-            raise click.Abort()
-
-        resolved_commit_identifier: str = commit_obj['identifier']
-        if not commit_identifier:
-            click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
-
-        return resolved_commit_identifier
 
     def make_parser(self, ctx: Context) -> FriendlyOptionParser:
         parser: FriendlyOptionParser = super().make_parser(ctx)  # type: ignore[assignment]
