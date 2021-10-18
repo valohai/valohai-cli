@@ -9,6 +9,7 @@ from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
+from valohai_cli.utils.commits import create_or_resolve_commit
 
 
 @click.command(
@@ -32,7 +33,8 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
 
     project = get_project(require=True)
     assert project
-    commit = commit or project.resolve_commit()['identifier']
+
+    commit = create_or_resolve_commit(project, commit=commit, adhoc=False)
     config = project.get_config()
 
     matched_pipeline = match_pipeline(config, name)
