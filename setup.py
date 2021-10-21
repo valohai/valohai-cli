@@ -20,4 +20,5 @@ setup(
     ],
     python_requires='>=3.6',
     packages=find_packages(include=('valohai_cli*',)),
+    include_package_data=True,
 )
