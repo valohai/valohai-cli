@@ -46,3 +46,7 @@ def cli(
             raise click.UsageError(f'--project-mode (currently {project_mode}) must not be set without --project')
         if project_root:
             raise click.UsageError(f'--project-root (currently {project_root}) must not be set without --project')
+
+
+if __name__ == "__main__":
+    cli()
