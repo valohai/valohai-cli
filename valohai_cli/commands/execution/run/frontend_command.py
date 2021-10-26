@@ -81,7 +81,12 @@ def run(
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
-    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc)
+    commit = create_or_resolve_commit(
+        project,
+        commit=commit,
+        adhoc=adhoc,
+        validate_adhoc_commit=validate_adhoc,
+    )
 
     rc = RunCommand(
         project=project,

@@ -15,13 +15,14 @@ def create_or_resolve_commit(
     *,
     commit: Optional[str],
     adhoc: bool,
+    validate_adhoc_commit: bool = True,
 ) -> str:
     if adhoc:
         if project.is_remote:
             raise click.UsageError('--adhoc can not be used with remote projects.')
         if commit:
             raise click.UsageError('--commit and --adhoc are mutually exclusive.')
-        commit = str(package_adhoc_commit(project, validate=True)['identifier'])
+        commit = str(package_adhoc_commit(project, validate=validate_adhoc_commit)['identifier'])
 
     commit = commit or get_git_commit(project)
     return resolve_commit(commit, project)
