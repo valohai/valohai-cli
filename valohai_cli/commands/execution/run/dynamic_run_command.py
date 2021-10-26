@@ -55,7 +55,8 @@ class RunCommand(click.Command):
         watch: bool = False,
         download_directory: Optional[str] = None,
         environment_variables: Optional[Dict[str, str]] = None,
-        tags: Optional[Sequence[str]] = None
+        tags: Optional[Sequence[str]] = None,
+        runtime_config: Optional[dict] = None,
     ):
 
         """
@@ -71,6 +72,7 @@ class RunCommand(click.Command):
         :param watch: Whether to chain to `exec watch` afterwards
         :param image: Image override
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
+        :param runtime_config: Runtime config dict
         """
         assert isinstance(step, Step)
         self.project = project
@@ -83,6 +85,7 @@ class RunCommand(click.Command):
         self.title = title
         self.environment_variables = dict(environment_variables or {})
         self.tags = list(tags or [])
+        self.runtime_config = dict(runtime_config or {})
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -175,6 +178,8 @@ class RunCommand(click.Command):
             payload['environment_variables'] = self.environment_variables
         if self.tags:
             payload['tags'] = self.tags
+        if self.runtime_config:
+            payload['runtime_config'] = self.runtime_config
 
         resp = request(
             method='post',

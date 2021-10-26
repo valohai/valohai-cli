@@ -184,3 +184,20 @@ def test_command_help(runner, logged_in_and_linked, patch_git):
     output = runner.invoke(run, ['Train model', '--help'], catch_exceptions=False).output
     assert 'Parameter Options' in output
     assert 'Input Options' in output
+
+
+def test_remote(run_test_setup, tmpdir):
+    key = tmpdir.join("key.pub")
+    key.write_text("ssh blarp blep", "utf-8")
+    run_test_setup.args.append('--debug-port=8101')
+    run_test_setup.args.append(f'--debug-key-file={key}')
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
+        'debug_key': 'ssh blarp blep',
+        'debug_port': 8101,
+    }
+
+
+def test_remote_both_args(run_test_setup):
+    run_test_setup.args.append('--debug-port=8101')
+    assert "Both or neither" in run_test_setup.run(catch_exceptions=False, verify_adhoc=False)

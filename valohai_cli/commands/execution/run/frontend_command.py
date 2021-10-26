@@ -34,6 +34,8 @@ run_epilog = (
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
+@click.option('--debug-port', type=int)
+@click.option('--debug-key-file', type=click.Path(file_okay=True, readable=True, writable=False))
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(
@@ -51,6 +53,8 @@ def run(
     title: Optional[str],
     validate_adhoc: bool,
     watch: bool,
+    debug_port: int,
+    debug_key_file: Optional[str],
 ) -> Any:
     """
     Start an execution of a step.
@@ -88,6 +92,23 @@ def run(
         validate_adhoc_commit=validate_adhoc,
     )
 
+    runtime_config = {}  # type: dict[str, Any]
+
+    if bool(debug_port) ^ bool(debug_key_file):
+        raise click.UsageError(
+            "Both or neither of --debug-port and --debug-key-file must be set."
+        )
+    if debug_port and debug_key_file:
+        runtime_config["debug_port"] = debug_port
+        with open(debug_key_file, "r") as file:
+            key = file.read().strip()
+            if not key.startswith("ssh"):
+                raise click.UsageError(
+                    f"The public key read from {debug_key_file} "
+                    f"does not seem valid (it should start with `ssh`)"
+                )
+        runtime_config["debug_key"] = key
+
     rc = RunCommand(
         project=project,
         step=step,
@@ -99,6 +120,7 @@ def run(
         title=title,
         environment_variables=parse_environment_variable_strings(environment_variables),
         tags=tags,
+        runtime_config=runtime_config,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)
