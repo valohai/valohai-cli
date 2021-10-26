@@ -10,9 +10,9 @@ mypy-extensions==0.4.3
     # via mypy
 toml==0.10.2
     # via mypy
-types-pyyaml==5.4.10
+types-pyyaml==6.0.0
     # via -r requirements-typecheck.in
-types-requests==2.25.9
+types-requests==2.25.11
     # via -r requirements-typecheck.in
 typing-extensions==3.10.0.2
     # via mypy
