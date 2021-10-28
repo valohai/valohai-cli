@@ -4,6 +4,7 @@ autopep8
 flake8
 flake8-bugbear
 flake8-isort
+flake8-unused-arguments
 isort>=5.9.0
 pip-tools
 pytest

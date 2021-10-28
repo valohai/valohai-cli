@@ -77,7 +77,7 @@ def parcel(
         export_code(project, destination, mode=code)
 
     if valohai_local_run:
-        export_valohai_local_run(project, destination)
+        export_valohai_local_run(destination)
 
     if docker_images:
         export_docker_images(project, destination, commit, extra_docker_images)
@@ -88,7 +88,7 @@ def parcel(
     success(f'Parcel {destination} created!')
 
 
-def export_valohai_local_run(project: Project, destination: str) -> None:
+def export_valohai_local_run(destination: str) -> None:
     print_parcel_progress('Downloading valohai-local-run and dependencies')
     destination = os.path.join(destination, 'python-archives')
     subprocess.check_call(

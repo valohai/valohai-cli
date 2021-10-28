@@ -49,7 +49,7 @@ class HelpfulArgument(click.Argument):
         self.help = help
         super().__init__(param_decls, **kwargs)
 
-    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:
+    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # noqa: U100
         if self.name and self.help:
             return (self.name, self.help)
         return None
