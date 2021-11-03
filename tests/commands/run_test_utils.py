@@ -16,6 +16,7 @@ class RunAPIMock(requests_mock.Mocker):
 
     def __init__(self, project_id, commit_id='f' * 16, additional_payload_values=None):
         super().__init__()
+        self.last_create_execution_payload = None
         self.project_id = project_id
         self.commit_id = commit_id
         self.additional_payload_values = (additional_payload_values or {})
@@ -81,6 +82,7 @@ class RunAPIMock(requests_mock.Mocker):
             body_value = body_json[key]
             assert body_value == expected_value, f'body[{key}] = {body_value!r}, expected {expected_value!r}'
         context.status_code = 201
+        self.last_create_execution_payload = body_json
         return EXECUTION_DATA.copy()
 
     def handle_create_pipeline(self, request, context):
@@ -118,10 +120,19 @@ class RunTestSetup:
         if adhoc:
             self.args.insert(0, '--adhoc')
         self.values = {}
+        self._run_api_mock = None
 
-    def run(self):
-        with RunAPIMock(self.project_id, self.commit_id, self.values):
-            output = CliRunner().invoke(run, self.args, catch_exceptions=False).output
-            # Making sure that non-adhoc executions don't turn adhoc or vice versa.
-            assert ('Uploaded ad-hoc code' in output) == self.adhoc
-            assert f"#{EXECUTION_DATA['counter']}" in output
+    @property
+    def run_api_mock(self) -> RunAPIMock:
+        if not self._run_api_mock:
+            self._run_api_mock = RunAPIMock(self.project_id, self.commit_id, self.values)
+        return self._run_api_mock
+
+    def run(self, *, catch_exceptions=True, verify_adhoc=True) -> str:
+        with self.run_api_mock:
+            output = CliRunner().invoke(run, self.args, catch_exceptions=catch_exceptions).output
+            if verify_adhoc:
+                # Making sure that non-adhoc executions don't turn adhoc or vice versa.
+                assert ('Uploaded ad-hoc code' in output) == self.adhoc
+                assert f"#{EXECUTION_DATA['counter']}" in output
+        return output
