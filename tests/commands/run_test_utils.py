@@ -128,9 +128,11 @@ class RunTestSetup:
             self._run_api_mock = RunAPIMock(self.project_id, self.commit_id, self.values)
         return self._run_api_mock
 
-    def run(self):
+    def run(self, *, catch_exceptions=True, verify_adhoc=True) -> str:
         with self.run_api_mock:
-            output = CliRunner().invoke(run, self.args, catch_exceptions=False).output
-            # Making sure that non-adhoc executions don't turn adhoc or vice versa.
-            assert ('Uploaded ad-hoc code' in output) == self.adhoc
-            assert f"#{EXECUTION_DATA['counter']}" in output
+            output = CliRunner().invoke(run, self.args, catch_exceptions=catch_exceptions).output
+            if verify_adhoc:
+                # Making sure that non-adhoc executions don't turn adhoc or vice versa.
+                assert ('Uploaded ad-hoc code' in output) == self.adhoc
+                assert f"#{EXECUTION_DATA['counter']}" in output
+        return output
