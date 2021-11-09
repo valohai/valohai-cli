@@ -42,13 +42,17 @@ class APISession(requests.Session):
         self.base_netloc = urlparse(self.base_url).netloc
         self.auth = TokenAuth(self.base_netloc, token)
         self.headers['Accept'] = 'application/json'
-        self.headers['User-Agent'] = 'valohai-cli/{version} on {py_version} ({uname})'.format(
-            version=VERSION,
-            uname=';'.join(platform.uname()),
-            py_version=f'{platform.python_implementation()} {platform.python_version()}',
-        )
+
+    def get_user_agent(self) -> str:
+        uname = ';'.join(platform.uname())
+        py_version = f'{platform.python_implementation()} {platform.python_version()}'
+        user_agent = f'valohai-cli/{VERSION} on {py_version} ({uname})'
+        if settings.api_user_agent_prefix:
+            user_agent = f'{settings.api_user_agent_prefix} {user_agent}'
+        return user_agent
 
     def prepare_request(self, request: Request) -> PreparedRequest:
+        request.headers.setdefault('User-Agent', self.get_user_agent())
         url_netloc: str = urlparse(request.url).netloc
         if not url_netloc:
             request.url = urljoin(self.base_url, request.url)
