@@ -65,9 +65,8 @@ def get_updated_config(source_path: str, project: Project) -> Config:
     """
     old_config = get_current_config(project)
     new_config = parse_config_from_source(source_path, project.get_config_filename())
-    # See https://github.com/valohai/valohai-utils/issues/70 for the type ignores
     if old_config:
-        return old_config.merge_with(new_config, python_to_yaml_merge_strategy)  # type: ignore
+        return old_config.merge_with(new_config, python_to_yaml_merge_strategy)
     return new_config  # type: ignore
 
 
