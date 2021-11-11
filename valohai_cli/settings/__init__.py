@@ -17,6 +17,7 @@ class Settings:
     # Non-persistent settings and their defaults:
     output_format = 'human'
     override_project = None
+    api_user_agent_prefix = None
 
     def __init__(self, persistence: Optional[Persistence] = None) -> None:
         if not persistence:

@@ -1,7 +1,9 @@
 import os
 
 import pytest
+import requests_mock
 
+from valohai_cli.api import request
 from valohai_cli.settings import FilePersistence, get_settings_file_name, settings
 
 
@@ -27,3 +29,16 @@ def test_get_settings_file_name():
     path = get_settings_file_name('.valohai-test.json')
     assert os.path.isdir(os.path.dirname(path))  # In a valid path
     assert path.endswith('.valohai-test.json')
+
+
+@pytest.mark.parametrize("prefix", (None, 'Marvin/42.0.0'))
+def test_user_agent(monkeypatch, logged_in, prefix):
+    if prefix:
+        monkeypatch.setattr(settings, 'api_user_agent_prefix', prefix)
+    with requests_mock.mock() as m:
+        m.get("http://192.168.1.1/", content=b'ok')
+        request("GET", "http://192.168.1.1/")
+        user_agent = m.last_request.headers["User-Agent"]
+        assert 'valohai-cli' in user_agent
+        if prefix:
+            assert user_agent.startswith(prefix)
