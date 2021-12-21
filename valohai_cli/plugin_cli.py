@@ -120,7 +120,8 @@ def walk_commands(
 ) -> Iterable[Tuple[Tuple[str, ...], Command]]:
     for subcommand in multicommand.list_commands(ctx):
         cmd = multicommand.get_command(ctx, subcommand)
-        assert cmd is not None
+        if not (cmd and cmd.name):
+            continue
         new_name_trail = name_trail + (cmd.name,)
         yield (new_name_trail, cmd)
         if isinstance(cmd, click.MultiCommand):
