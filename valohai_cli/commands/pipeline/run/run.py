@@ -1,12 +1,13 @@
 import contextlib
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import click
 from click import Context
 from valohai_yaml.objs import Config, Pipeline
+from valohai_yaml.pipelines.conversion import PipelineConverter
 
 from valohai_cli.api import request
-from valohai_cli.commands.pipeline.run.utils import build_edges, build_nodes, match_pipeline
+from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
 from valohai_cli.utils.commits import create_or_resolve_commit
@@ -62,13 +63,10 @@ def start_pipeline(
     commit: str,
     title: Optional[str] = None,
 ) -> None:
-    edges = build_edges(pipeline)
-    nodes = build_nodes(commit, config, pipeline)
-    payload = {
-        "edges": edges,
-        "nodes": nodes,
+    payload: Dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
+        **PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline),
     }
 
     resp = request(
