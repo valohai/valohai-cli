@@ -1,4 +1,3 @@
--r ./requirements-typecheck.in
 autoflake
 autopep8
 flake8
@@ -10,3 +9,4 @@ pip-tools
 pytest
 pytest-cov
 requests-mock
+tomli<2.0.0

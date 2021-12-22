@@ -14,11 +14,11 @@ autopep8==1.6.0
     # via -r requirements-dev.in
 certifi==2021.10.8
     # via requests
-charset-normalizer==2.0.7
+charset-normalizer==2.0.9
     # via requests
 click==8.0.3
     # via pip-tools
-coverage[toml]==6.0.2
+coverage[toml]==6.2
     # via pytest-cov
 flake8==4.0.1
     # via
@@ -26,27 +26,23 @@ flake8==4.0.1
     #   flake8-bugbear
     #   flake8-isort
     #   flake8-unused-arguments
-flake8-bugbear==21.9.2
+flake8-bugbear==21.11.29
     # via -r requirements-dev.in
 flake8-isort==4.1.1
     # via -r requirements-dev.in
-flake8-unused-arguments==0.0.6
+flake8-unused-arguments==0.0.9
     # via -r requirements-dev.in
 idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
-isort==5.9.3
+isort==5.10.1
     # via
     #   -r requirements-dev.in
     #   flake8-isort
 mccabe==0.6.1
     # via flake8
-mypy==0.910
-    # via -r ./requirements-typecheck.in
-mypy-extensions==0.4.3
-    # via mypy
-packaging==21.0
+packaging==21.3
     # via pytest
 pep517==0.12.0
     # via pip-tools
@@ -54,7 +50,7 @@ pip-tools==6.4.0
     # via -r requirements-dev.in
 pluggy==1.0.0
     # via pytest
-py==1.10.0
+py==1.11.0
     # via pytest
 pycodestyle==2.8.0
     # via
@@ -64,7 +60,7 @@ pyflakes==2.4.0
     # via
     #   autoflake
     #   flake8
-pyparsing==3.0.1
+pyparsing==3.0.6
     # via packaging
 pytest==6.2.5
     # via
@@ -83,18 +79,12 @@ testfixtures==6.18.3
 toml==0.10.2
     # via
     #   autopep8
-    #   mypy
     #   pytest
-tomli==1.2.2
+tomli==1.2.3
     # via
+    #   -r requirements-dev.in
     #   coverage
     #   pep517
-types-pyyaml==6.0.0
-    # via -r ./requirements-typecheck.in
-types-requests==2.25.11
-    # via -r ./requirements-typecheck.in
-typing-extensions==3.10.0.2
-    # via mypy
 urllib3==1.26.7
     # via requests
 wheel==0.37.0
