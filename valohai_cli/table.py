@@ -125,9 +125,15 @@ def print_table(
         print_json(data)
     elif format in SV_SEPARATORS:
         import csv
-        writer = csv.writer(sys.stdout, delimiter=SV_SEPARATORS[format], quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(
+            sys.stdout,
+            delimiter=SV_SEPARATORS[format],
+            quoting=csv.QUOTE_MINIMAL,
+            lineterminator='\n',
+        )
         writer.writerow(headers)
-        writer.writerows(pluck_printable_data(data, columns, lambda col_val: (n_str(col_val), str)))
+        for row in pluck_printable_data(data, columns, lambda col_val: (n_str(col_val), str)):
+            writer.writerow([val for (val, typ) in row])
     else:
         raise RuntimeError(f'Unknown print_table format: {format}')
 
