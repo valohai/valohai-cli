@@ -58,4 +58,4 @@ class HelpfulArgument(click.Argument):
 def counter_argument(fn: FuncT) -> FuncT:
     # Extra gymnastics needed because `click.arguments` mutates the kwargs here
     arg = click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)
-    return arg(fn)  # type: ignore[return-value]
+    return arg(fn)

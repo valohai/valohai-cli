@@ -33,7 +33,7 @@ class PluginCLI(click.MultiCommand):
     @property
     def command_modules(self) -> List[str]:
         if not self._command_modules:
-            mod_path = self.commands_module.__path__  # type: ignore[attr-defined]
+            mod_path = self.commands_module.__path__
             self._command_modules = sorted(c[1] for c in pkgutil.iter_modules(mod_path))
         return self._command_modules
 
