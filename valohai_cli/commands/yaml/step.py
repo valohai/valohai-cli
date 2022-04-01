@@ -67,6 +67,7 @@ def get_updated_config(source_path: str, project: Project) -> Config:
     new_config = parse_config_from_source(source_path, project.get_config_filename())
     if old_config:
         return old_config.merge_with(new_config, python_to_yaml_merge_strategy)
+    assert isinstance(new_config, Config)
     return new_config
 
 

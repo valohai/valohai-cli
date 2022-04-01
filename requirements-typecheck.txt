@@ -4,15 +4,17 @@
 #
 #    pip-compile requirements-typecheck.in
 #
-mypy==0.920
+mypy==0.942
     # via -r requirements-typecheck.in
 mypy-extensions==0.4.3
     # via mypy
-tomli==2.0.0
+tomli==2.0.1
     # via mypy
-types-pyyaml==6.0.1
+types-pyyaml==6.0.5
     # via -r requirements-typecheck.in
-types-requests==2.26.2
+types-requests==2.27.15
     # via -r requirements-typecheck.in
-typing-extensions==4.0.1
+types-urllib3==1.26.11
+    # via types-requests
+typing-extensions==4.1.1
     # via mypy

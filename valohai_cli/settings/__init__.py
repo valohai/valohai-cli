@@ -102,7 +102,7 @@ class Settings:
         links = self.links
         if not links:
             return None
-        for directory in walk_directory_parents(directory):
+        for directory in walk_directory_parents(directory):  # noqa: B020
             project_obj = links.get(directory)
             if project_obj:
                 from valohai_cli.models.project import Project
