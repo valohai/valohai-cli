@@ -180,7 +180,7 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterab
             if gitignore_rules:
                 return (
                     GitUsage.GITIGNORE_WITHOUT_GIT,
-                    (p for p in _get_files_walk(dir) if not gitignorant.check_match(gitignore_rules, p[0])),
+                    (p for p in _get_files_walk(dir) if not gitignorant.check_path_match(gitignore_rules, p[0])),
                 )
 
     return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
@@ -197,7 +197,7 @@ def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, VhIgnoreUsag
             return (
                 git_usage,
                 VhIgnoreUsage.VHIGNORE,
-                (p for p in ftup_gen if not gitignorant.check_match(vhignore_rules, p[0])),
+                (p for p in ftup_gen if not gitignorant.check_path_match(vhignore_rules, p[0])),
             )
     return (
         git_usage,
