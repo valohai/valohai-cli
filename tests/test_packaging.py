@@ -129,3 +129,13 @@ def test_no_files_in_rootdir(tmpdir):
     tmpdir.mkdir('subway').join('asdf.bat').write_text('this file is required', 'utf8')
     tarball = pkg.package_directory(str(tmpdir), validate=False)
     assert get_tar_files(tarball) == {'subway/asdf.bat'}
+
+
+def test_vhignore_entire_directory(tmp_path):
+    (tmp_path / ".vhignore").write_text('data/\n')
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "file1").write_text('this file is ignored')
+    (tmp_path / "hello.py").write_text('print("hello")')
+    (tmp_path / "valohai.yaml").write_text('')
+    tarball = pkg.package_directory(str(tmp_path))
+    assert get_tar_files(tarball) == {'hello.py', 'valohai.yaml'}
