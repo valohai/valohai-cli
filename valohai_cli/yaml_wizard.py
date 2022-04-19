@@ -29,18 +29,19 @@ YAML_SKELLINGTON = """---
 
 def get_image_suggestions() -> List[dict]:
     try:
-        resp = requests.get('https://raw.githubusercontent.com/valohai/images/master/images.yaml')
+        resp = requests.get('https://raw.githubusercontent.com/valohai/images/master/images.v2.yaml')
         resp.raise_for_status()
-        data = yaml.safe_load(resp.content)
-        description_map = data.get('descriptions', {})
-        return [
+        images = [
             {
                 'name': image,
-                'description': description_map.get(image),
+                'description': info['description'],
             }
-            for image
-            in data.get('suggestions', [])
+            for image, info
+            in yaml.safe_load(resp.content).items()
+            if info.get("isRecommended")
         ]
+        images.sort(key=lambda i: str(i.get('name')).lower())
+        return images
     except Exception as exc:
         warn(f'Could not load online image suggestions: {exc}')
         return []
