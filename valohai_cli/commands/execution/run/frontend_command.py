@@ -66,6 +66,7 @@ def run(
         ctx.exit()
         return
     project = get_project(require=True)
+    project.refresh_details()
 
     if download_directory and watch:
         raise click.UsageError('Combining --sync and --watch not supported yet.')
