@@ -60,7 +60,7 @@ def test_package_git(tmpdir, with_commit, with_vhignore):
     else:
         with pytest.raises(NoCommit):
             describe_current_commit(str(tmpdir))
-    tarball = pkg.package_directory(str(tmpdir))
+    tarball = pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
     # the dotfile and asbestos do not appear
     assert get_tar_files(tarball) == get_expected_filenames(
         {'kahvikuppi', 'valohai.yaml'},
@@ -73,7 +73,7 @@ def test_package_git(tmpdir, with_commit, with_vhignore):
 @pytest.mark.parametrize('with_vhignore', (False, True))
 def test_package_no_git(tmpdir, with_gitignore, with_vhignore):
     write_temp_files(tmpdir, with_gitignore=with_gitignore, with_vhignore=with_vhignore)
-    tarball = pkg.package_directory(str(tmpdir))
+    tarball = pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
     expected_filenames = get_expected_filenames(
         {'asbestos', 'kahvikuppi', 'valohai.yaml'},
         with_vhignore=with_vhignore,
@@ -85,13 +85,13 @@ def test_package_no_git(tmpdir, with_gitignore, with_vhignore):
 def test_package_requires_yaml(tmpdir):
     write_temp_files(tmpdir, with_yaml=False)
     with pytest.raises(ConfigurationError):
-        pkg.package_directory(str(tmpdir))
+        pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
 
 
 def test_file_soft_size_warn(tmpdir, capsys, monkeypatch):
     monkeypatch.setattr(termui, 'visible_prompt_func', lambda x: 'y\n')
     write_temp_files(tmpdir, with_yaml=True, large_file_size=int(pkg.FILE_SIZE_WARN_THRESHOLD + 50))
-    pkg.package_directory(str(tmpdir))
+    pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
     out, err = capsys.readouterr()
     assert 'Large file large_file.dat' in err
 
@@ -104,30 +104,30 @@ def test_package_hard_size_fail(tmpdir, monkeypatch, threshold):
     monkeypatch.setattr(pkg, threshold, 200)
     write_temp_files(tmpdir, with_yaml=True, with_gitignore=False, large_file_size=10000)
     with pytest.raises(PackageTooLarge):
-        pkg.package_directory(str(tmpdir))
+        pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
 
 
 def test_package_file_count_hard_fail(tmpdir, monkeypatch):
     # Should not fail here
     monkeypatch.setattr(pkg, 'FILE_COUNT_HARD_THRESHOLD', 3)
     write_temp_files(tmpdir, with_yaml=True, with_gitignore=False)
-    pkg.package_directory(str(tmpdir))
+    pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
 
     # With threshold of 2, should fail for 3 files
     monkeypatch.setattr(pkg, 'FILE_COUNT_HARD_THRESHOLD', 2)
     with pytest.raises(PackageTooLarge):
-        pkg.package_directory(str(tmpdir))
+        pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
 
 
 def test_single_file_packaged_correctly(tmpdir):
     tmpdir.join('valohai.yaml').write_text('this file is required', 'utf8')
-    tarball = pkg.package_directory(str(tmpdir))
+    tarball = pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
     assert get_tar_files(tarball) == {'valohai.yaml'}
 
 
 def test_no_files_in_rootdir(tmpdir):
     tmpdir.mkdir('subway').join('asdf.bat').write_text('this file is required', 'utf8')
-    tarball = pkg.package_directory(str(tmpdir), validate=False)
+    tarball = pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml', validate=False)
     assert get_tar_files(tarball) == {'subway/asdf.bat'}
 
 
@@ -137,5 +137,5 @@ def test_vhignore_entire_directory(tmp_path):
     (tmp_path / "data" / "file1").write_text('this file is ignored')
     (tmp_path / "hello.py").write_text('print("hello")')
     (tmp_path / "valohai.yaml").write_text('')
-    tarball = pkg.package_directory(str(tmp_path))
+    tarball = pkg.package_directory(directory=str(tmp_path), yaml_path='valohai.yaml')
     assert get_tar_files(tarball) == {'hello.py', 'valohai.yaml'}
