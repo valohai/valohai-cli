@@ -1,6 +1,7 @@
 import pytest
 from click.testing import CliRunner
 
+from tests.commands.run_test_utils import RunAPIMock
 from tests.fixture_data import LOGGED_IN_DATA, PROJECT_DATA
 from valohai_cli.settings import settings
 from valohai_cli.settings.persistence import Persistence
@@ -35,3 +36,9 @@ def isolate_cli(tmpdir, monkeypatch):
     project_dir = str(tmpdir.mkdir('proj'))
     monkeypatch.setenv('VALOHAI_CONFIG_DIR', config_dir)
     monkeypatch.setenv('VALOHAI_PROJECT_DIR', project_dir)
+
+
+@pytest.fixture()
+def default_run_api_mock():
+    with RunAPIMock(PROJECT_DATA['id'], 'f' * 16, {}) as am:
+        yield am

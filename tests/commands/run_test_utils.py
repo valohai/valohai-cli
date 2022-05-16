@@ -53,6 +53,7 @@ class RunAPIMock(requests_mock.Mocker):
         return {
             'id': self.project_id,
             'name': f'Project {self.project_id}',
+            'yaml_path': 'valohai.yaml',
         }
 
     def handle_commits_list(self, request, context):

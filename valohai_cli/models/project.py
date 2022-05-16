@@ -60,7 +60,11 @@ class Project:
             ))
 
     def get_config_filename(self) -> str:
-        return os.path.join(self.directory, 'valohai.yaml')
+        return os.path.join(self.directory, self.get_yaml_path())
+
+    def get_yaml_path(self) -> str:
+        # Make sure the older API versions that don't expose yaml_path don't completely break
+        return self.data.get('yaml_path', 'valohai.yaml')
 
     def get_execution_from_counter(
         self,
@@ -138,6 +142,16 @@ class Project:
                 return data
 
         raise ValueError(f'No commit found for commit {identifier}')
+
+    def refresh_details(self) -> None:
+        """
+        Refresh the project details from the API.
+        """
+        data = request(
+            'get',
+            f'/api/v0/projects/{self.id}/',
+        ).json()
+        self.data.update(data)
 
     def __str__(self) -> str:
         return self.name

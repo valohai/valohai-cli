@@ -86,7 +86,7 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
     run_test_setup.run()
 
 
-def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git):
+def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)

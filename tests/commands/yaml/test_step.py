@@ -5,7 +5,7 @@ from valohai_cli.commands.yaml.step import step
 from valohai_cli.ctx import get_project
 
 
-def test_yaml(runner, logged_in_and_linked):
+def test_yaml(runner, logged_in_and_linked, default_run_api_mock):
     # Try to generate YAML from random .py source code
     source_path = os.path.join(get_project().directory, 'mysnake.py')
     with open(source_path, 'w') as python_fp:
