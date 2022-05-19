@@ -1,7 +1,7 @@
 import pytest
 import yaml
 
-from tests.commands.run_test_utils import RunAPIMock, RunTestSetup
+from tests.commands.run_test_utils import ALTERNATIVE_YAML, RunAPIMock, RunTestSetup
 from tests.fixture_data import CONFIG_YAML, PROJECT_DATA
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
@@ -56,6 +56,19 @@ def test_run_tags(run_test_setup):
     run_test_setup.args.extend(['--tag=bark', '--tag=bork', '--tag=vuh', '--tag=hau'])
     run_test_setup.values['tags'] = ['bark', 'bork', 'vuh', 'hau']
     run_test_setup.run()
+
+
+def test_run_with_yaml_path(run_test_setup):
+    run_test_setup.args.remove('train')
+    # Use a step which is only present in the evaluation YAML
+    run_test_setup.args.append('batch feature extraction')
+    run_test_setup.args.append(f'--yaml={ALTERNATIVE_YAML}')
+    output = run_test_setup.run(verify_adhoc=run_test_setup.adhoc)
+    # Adhoc success case already verified in `run()
+    if not run_test_setup.adhoc:
+        assert '--yaml can only be used with --adhoc' in output
+    else:
+        assert f'from configuration YAML at {ALTERNATIVE_YAML}' in output
 
 
 def test_run_input(run_test_setup):
