@@ -86,7 +86,7 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
     run_test_setup.run()
 
 
-def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git):
+def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--max-steps=plonk'], catch_exceptions=False)
@@ -96,7 +96,7 @@ def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git):
     )
 
 
-def test_param_type_validation_flag(runner, logged_in_and_linked, patch_git):
+def test_param_type_validation_flag(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ['train', '--enable-mega-boost=please'], catch_exceptions=False)
@@ -137,7 +137,7 @@ def test_run_no_git(runner, logged_in_and_linked):
         assert 'is not a Git repository' in output
 
 
-def test_param_input_sanitization(runner, logged_in_and_linked, patch_git):
+def test_param_input_sanitization(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write('''
 - step:
@@ -160,7 +160,7 @@ def test_param_input_sanitization(runner, logged_in_and_linked, patch_git):
     assert '--ridiculously-complex-input-name' in output
 
 
-def test_typo_check(runner, logged_in_and_linked, patch_git):
+def test_typo_check(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     args = ['train', '--max-setps=80']  # Oopsy!
@@ -177,7 +177,7 @@ def test_run_help(runner, logged_in_and_linked):
     assert 'Train model' in output
 
 
-def test_command_help(runner, logged_in_and_linked, patch_git):
+def test_command_help(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 

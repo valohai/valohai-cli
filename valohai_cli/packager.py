@@ -53,11 +53,11 @@ class VhIgnoreUsage(Enum):
     VHIGNORE = 1
 
 
-def package_directory(dir: str, progress: bool = False, validate: bool = True) -> str:
-    file_stats = get_files_for_package(dir)
+def package_directory(*, directory: str, yaml_path: str, progress: bool = False, validate: bool = True) -> str:
+    file_stats = get_files_for_package(directory)
 
-    if validate and 'valohai.yaml' not in file_stats:
-        raise ConfigurationError(f'valohai.yaml missing from {dir}')
+    if validate and yaml_path not in file_stats:
+        raise ConfigurationError(f'configuration file {yaml_path} missing from {directory}')
 
     if validate:
         package_size_warnings = validate_package_size(file_stats)

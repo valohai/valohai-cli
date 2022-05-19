@@ -43,8 +43,13 @@ def lint(filenames: List[str]) -> None:
     """
     if not filenames:
         project = get_project()
+        if project:
+            project.refresh_details()
+            yaml_path = project.get_yaml_path()
+        else:
+            yaml_path = 'valohai.yaml'
         directory = (project.directory if project else get_project_directory())
-        config_file = os.path.join(directory, 'valohai.yaml')
+        config_file = os.path.join(directory, yaml_path)
         if not os.path.exists(config_file):
             raise CLIException(f'There is no {config_file} file. Pass in the names of configuration files to lint?')
         filenames = [config_file]

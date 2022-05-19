@@ -20,6 +20,7 @@ def package_adhoc_commit(project: Project, validate: bool = True) -> Dict[str, A
 
     :return: Commit response object from API
     """
+    project.refresh_details()
     directory = project.directory
     tarball = None
     try:
@@ -35,8 +36,10 @@ def package_adhoc_commit(project: Project, validate: bool = True) -> Dict[str, A
             click.echo(f'Packaging {directory} ({description})...')
         else:
             click.echo(f'Packaging {directory}...')
-        tarball = package_directory(directory, progress=True, validate=validate)
-        return create_adhoc_commit_from_tarball(project, tarball, description)
+
+        yaml_path = project.get_yaml_path()
+        tarball = package_directory(directory=directory, progress=True, validate=validate, yaml_path=yaml_path)
+        return create_adhoc_commit_from_tarball(project=project, tarball=tarball, yaml_path=yaml_path, description=description)
     finally:
         if tarball:
             try:
@@ -50,7 +53,7 @@ def package_adhoc_commit(project: Project, validate: bool = True) -> Dict[str, A
 create_adhoc_commit = package_adhoc_commit
 
 
-def create_adhoc_commit_from_tarball(project: Project, tarball: str, description: str = '') -> Dict[str, Any]:
+def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_path: str, description: str = '') -> Dict[str, Any]:
     """
     Using a precreated ad-hoc tarball, create or retrieve an ad-hoc commit of it on the Valohai host.
 
@@ -63,7 +66,7 @@ def create_adhoc_commit_from_tarball(project: Project, tarball: str, description
     if commit_obj:
         success(f"Ad-hoc code {commit_obj['identifier']} already uploaded")
     else:
-        commit_obj = _upload_commit_code(project, tarball, description)
+        commit_obj = _upload_commit_code(project=project, tarball=tarball, yaml_path=yaml_path, description=description)
     return commit_obj
 
 
@@ -82,13 +85,14 @@ def _get_pre_existing_commit(tarball: str) -> Optional[dict]:
         return None
 
 
-def _upload_commit_code(project: Project, tarball: str, description: str = '') -> dict:
+def _upload_commit_code(*, project: Project, tarball: str, yaml_path: str, description: str = '') -> dict:
     size = os.stat(tarball).st_size
     click.echo(f'Uploading {filesizeformat(size)}...')
     with open(tarball, 'rb') as tarball_fp:
         upload = MultipartEncoder({
             'data': ('data.tgz', tarball_fp, 'application/gzip'),
             'description': description,
+            'yaml_path': yaml_path,
         })
         prog = click.progressbar(length=upload.len, width=0)  # type: ignore[var-annotated]
         # Don't bother with the bar if the upload is small
