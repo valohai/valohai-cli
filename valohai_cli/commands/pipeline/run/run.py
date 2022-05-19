@@ -21,8 +21,9 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
+@click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
 @click.pass_context
-def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str], adhoc: bool) -> None:
+def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str], adhoc: bool, yaml: Optional[str]) -> None:
     """
     Start a pipeline run.
     """
@@ -36,7 +37,10 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     project = get_project(require=True)
     assert project
 
-    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc)
+    if yaml and not adhoc:
+        raise click.UsageError('--yaml is only valid with --adhoc')
+
+    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc, yaml_path=yaml)
     config = project.get_config()
 
     matched_pipeline = match_pipeline(config, name)

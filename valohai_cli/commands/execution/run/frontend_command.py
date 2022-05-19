@@ -34,6 +34,7 @@ run_epilog = (
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
+@click.option('--yaml', default=None, help='The path to the configuration YAML (valohai.yaml) file to use.')
 @click.option('--debug-port', type=int)
 @click.option('--debug-key-file', type=click.Path(file_okay=True, readable=True, writable=False))
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
@@ -44,6 +45,7 @@ def run(
     adhoc: bool,
     args: List[str],
     commit: Optional[str],
+    yaml: Optional[str],
     download_directory: Optional[str],
     environment: Optional[str],
     environment_variables: List[str],
@@ -82,7 +84,7 @@ def run(
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
     # so this is done before `commit` is mangled by `create_adhoc_commit`.
-    config = project.get_config(commit_identifier=commit)
+    config = project.get_config(commit_identifier=commit, yaml_path=yaml)
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
@@ -91,6 +93,7 @@ def run(
         commit=commit,
         adhoc=adhoc,
         validate_adhoc_commit=validate_adhoc,
+        yaml_path=yaml,
     )
 
     runtime_config = {}  # type: dict[str, Any]

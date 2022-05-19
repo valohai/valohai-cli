@@ -5,11 +5,20 @@ import re
 import requests_mock
 from click.testing import CliRunner
 
-from tests.fixture_data import CONFIG_DATA, CONFIG_YAML, EXECUTION_DATA, PIPELINE_DATA, PROJECT_DATA
+from tests.fixture_data import (
+    CONFIG_DATA,
+    CONFIG_YAML,
+    EXECUTION_DATA,
+    PIPELINE_DATA,
+    PROJECT_DATA,
+    YAML_WITH_EXTRACT_TRAIN_EVAL,
+)
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
 from valohai_cli.utils import get_random_string
+
+ALTERNATIVE_YAML = 'batch.yaml'
 
 
 class RunAPIMock(requests_mock.Mocker):
@@ -77,7 +86,7 @@ class RunAPIMock(requests_mock.Mocker):
     def handle_create_execution(self, request, context):
         body_json = json.loads(request.body.decode('utf-8'))
         assert body_json['project'] == self.project_id
-        assert body_json['step'] == 'Train model'
+        assert body_json['step'] in ('Train model', 'Batch feature extraction')
         assert body_json['commit'] == self.commit_id
         for key, expected_value in self.additional_payload_values.items():
             body_value = body_json[key]
@@ -116,6 +125,10 @@ class RunTestSetup:
 
         with open(get_project().get_config_filename(), 'w') as yaml_fp:
             yaml_fp.write(CONFIG_YAML)
+
+        # Create an alternative yaml as well (monorepo style)
+        with open(get_project().get_config_filename(yaml_path=ALTERNATIVE_YAML), 'w') as yaml_fp:
+            yaml_fp.write(YAML_WITH_EXTRACT_TRAIN_EVAL)
 
         self.args = [step_name]
         if adhoc:

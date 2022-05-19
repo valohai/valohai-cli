@@ -29,22 +29,24 @@ class Project:
     def name(self) -> str:
         return str(self.data['name'])
 
-    def get_config(self, commit_identifier: Optional[str] = None) -> Config:
+    def get_config(self, commit_identifier: Optional[str] = None, yaml_path: Optional[str] = None) -> Config:
         """
         Get the `valohai_yaml.Config` object from the current working directory,
         or a given commit.
 
         :param commit_identifier: Hexadecimal commit identifier; optional.
+        :param yaml_path: Override of the project's `yaml_path`; optional.
         :return: valohai_yaml.Config
         """
+        yaml_path = yaml_path or self.get_yaml_path()
         if not commit_identifier:  # Current working directory
-            filename = self.get_config_filename()
+            filename = self.get_config_filename(yaml_path=yaml_path)
             with open(filename) as infp:
                 return self._parse_config(infp, filename)
         else:  # Arbitrary commit
-            filename = f'{commit_identifier}:valohai.yaml'
+            filename = f'{commit_identifier}:{yaml_path}'
             directory = self.directory
-            config_bytes = get_file_at_commit(directory, commit_identifier, 'valohai.yaml')
+            config_bytes = get_file_at_commit(directory, commit_identifier, yaml_path)
             config_sio = io.StringIO(config_bytes.decode('utf-8'))
             return self._parse_config(config_sio, filename)
 
@@ -59,8 +61,9 @@ class Project:
                 n=len(ves.errors),
             ))
 
-    def get_config_filename(self) -> str:
-        return os.path.join(self.directory, self.get_yaml_path())
+    def get_config_filename(self, yaml_path: Optional[str] = None) -> str:
+        used_yaml_path = yaml_path or self.get_yaml_path()
+        return os.path.join(self.directory, used_yaml_path)
 
     def get_yaml_path(self) -> str:
         # Make sure the older API versions that don't expose yaml_path don't completely break
