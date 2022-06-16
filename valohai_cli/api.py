@@ -1,3 +1,4 @@
+import os
 import platform
 from typing import Any, Optional, Tuple
 from urllib.parse import urljoin, urlparse
@@ -35,6 +36,7 @@ class APISession(requests.Session):
         token: Optional[str] = None,
         *,
         verify_ssl: bool = True,
+        system_ssl: bool = False,
     ) -> None:
         super().__init__()
         self.verify = verify_ssl
@@ -42,6 +44,9 @@ class APISession(requests.Session):
         self.base_netloc = urlparse(self.base_url).netloc
         self.auth = TokenAuth(self.base_netloc, token)
         self.headers['Accept'] = 'application/json'
+        if system_ssl:
+            from valohai_cli.utils.system_ssl import DefaultCertsHTTPAdapter
+            self.mount("https://", DefaultCertsHTTPAdapter())
 
     def get_user_agent(self) -> str:
         uname = ';'.join(platform.uname())
@@ -90,6 +95,7 @@ def _get_current_api_session() -> APISession:
             base_url=host,
             token=token,
             verify_ssl=settings.verify_ssl,
+            system_ssl=bool(os.environ.get("VALOHAI_SYSTEM_SSL")),
         )
         if ctx:
             setattr(ctx, cache_key, session)
