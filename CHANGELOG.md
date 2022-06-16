@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [v0.20.0](https://github.com/valohai/valohai-cli/compare/v0.19.0...v0.20.0)
+
+> 16 June 2022
+
+- Allow creating adhoc commits with a nonstandard yaml path [`#192`](https://github.com/valohai/valohai-cli/pull/192)
+
 #### [v0.19.0](https://github.com/valohai/valohai-cli/compare/v0.18.0...v0.19.0)
 
 > 20 April 2022
