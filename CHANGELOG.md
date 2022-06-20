@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [v0.20.1](https://github.com/valohai/valohai-cli/compare/v0.20.0...v0.20.1)
+
+> 20 June 2022
+
+- Default to valohai.yaml properly when path in project data is None [`#201`](https://github.com/valohai/valohai-cli/pull/201)
+
 #### [v0.20.0](https://github.com/valohai/valohai-cli/compare/v0.19.0...v0.20.0)
 
 > 16 June 2022
