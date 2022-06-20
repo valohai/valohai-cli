@@ -67,7 +67,7 @@ class Project:
 
     def get_yaml_path(self) -> str:
         # Make sure the older API versions that don't expose yaml_path don't completely break
-        return self.data.get('yaml_path', 'valohai.yaml')
+        return self.data.get('yaml_path') or 'valohai.yaml'
 
     def get_execution_from_counter(
         self,
