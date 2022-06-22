@@ -48,9 +48,6 @@ def package_adhoc_commit(project: Project, validate: bool = True, yaml_path: Opt
                 warn(f'Unable to remove temporary file: {err}')
 
 
-# Compatibility alias.
-# TODO: Remove in 2020.
-create_adhoc_commit = package_adhoc_commit
 
 
 def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_path: str, description: str = '') -> Dict[str, Any]:
