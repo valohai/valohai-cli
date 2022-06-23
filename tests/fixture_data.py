@@ -23,6 +23,29 @@ PROJECT_DATA = {
 
 execution_id = str(uuid.uuid4())
 datum_id = str(uuid.uuid4())
+alias_id = str(uuid.uuid4())
+
+DATUM_DATA = {
+    "id": datum_id,
+    "size": 509739,
+    "ctime": "2019-06-23T14:26:35.604807Z",
+    "file_ctime": "2019-04-23T14:26:33.607583Z",
+    "file_mtime": "2019-04-23T14:26:33.607583Z",
+    "name": "image.png",
+    "uri": "s4://my-bucket/data/1337/output",
+    "output_execution": {
+        "counter": 1337,
+        "id": execution_id,
+    },
+}
+
+DATUM_ALIAS_DATA = {
+    "id": alias_id,
+    "ctime": "2020-05-23T14:26:35.604807Z",
+    "mtime": "2022-05-23T14:26:35.604807Z",
+    "name": "this-is-alias-for-latest-png",
+    "datum": DATUM_DATA,
+}
 
 OUTPUT_DATUM_DATA = {
     "id": datum_id,
