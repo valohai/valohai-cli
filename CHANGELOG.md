@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [v0.21.0](https://github.com/valohai/valohai-cli/compare/v0.20.1...v0.21.0)
+
+> 23 June 2022
+
+- Add data and alias command to fetch Datums and Datum Aliases [`#200`](https://github.com/valohai/valohai-cli/pull/200)
+- Keep create_adhoc_commit_from_tarball in tact [`#202`](https://github.com/valohai/valohai-cli/pull/202)
+
 #### [v0.20.1](https://github.com/valohai/valohai-cli/compare/v0.20.0...v0.20.1)
 
 > 20 June 2022
