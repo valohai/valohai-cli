@@ -48,20 +48,17 @@ def package_adhoc_commit(project: Project, validate: bool = True, yaml_path: Opt
                 warn(f'Unable to remove temporary file: {err}')
 
 
-# Compatibility alias.
-# TODO: Remove in 2020.
-create_adhoc_commit = package_adhoc_commit
-
-
-def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_path: str, description: str = '') -> Dict[str, Any]:
+def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_path: Optional[str] = None, description: str = '') -> Dict[str, Any]:
     """
     Using a precreated ad-hoc tarball, create or retrieve an ad-hoc commit of it on the Valohai host.
 
     :param project: Project
     :param tarball: Tgz tarball path, likely created by the packager
+    :param yaml_path: Optional custom yaml path attached to the command.
     :param description: Optional description for the commit
     :return: Commit response object from API
     """
+    yaml_path = yaml_path or project.get_yaml_path()
     commit_obj = _get_pre_existing_commit(tarball)
     if commit_obj:
         success(f"Ad-hoc code {commit_obj['identifier']} already uploaded")
