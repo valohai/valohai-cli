@@ -243,7 +243,11 @@ def get_files_for_package(
 
     output_stats = {}
     for file, file_path in files_and_paths:
-        output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
+        try:
+            output_stats[file] = PackageFileInfo(source_path=file_path, stat=os.stat(file_path))
+        except FileNotFoundError:
+            # A file was reported by git-ls but not found on disk - don't try to package it.
+            pass
     return output_stats
 
 
