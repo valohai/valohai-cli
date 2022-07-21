@@ -8,8 +8,8 @@ import click
 from click.core import Command, Context
 from click.formatting import HelpFormatter
 
-from valohai_cli.utils import match_prefix
 from valohai_cli.utils.cli_utils import join_with_style
+from valohai_cli.utils.matching import match_prefix
 
 
 class PluginCLI(click.MultiCommand):
