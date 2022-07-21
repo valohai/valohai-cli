@@ -5,7 +5,7 @@ import re
 import string
 import unicodedata
 import webbrowser
-from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, Tuple, Union
 
 import click
 
@@ -52,28 +52,6 @@ def force_bytes(v: Union[str, int], encoding: str = 'UTF-8', errors: str = 'stri
     if isinstance(v, bytes):
         return v
     return str(v).encode(encoding, errors)
-
-
-def match_prefix(choices: Iterable[Any], value: str, return_unique: bool = True) -> Union[List[Any], Any, None]:
-    """
-    Match `value` in `choices` by case-insensitive prefix matching.
-
-    If the exact `value` is in `choices` (and `return_unique` is set),
-    that exact value is returned as-is.
-
-    :param choices: Choices to match in. May be non-string; `str()` is called on them if not.
-    :param value: The value to use for matching.
-    :param return_unique: If only one option was found, return it; otherwise return None.
-                          If this is not true, all of the filtered choices are returned.
-    :return: list, object or none; see the `return_unique` option.
-    """
-    if return_unique and value in choices:
-        return value
-    value_re = re.compile('^' + re.escape(value), re.I)
-    choices = [choice for choice in choices if value_re.match(force_text(choice))]
-    if return_unique:
-        return (choices[0] if len(choices) == 1 else None)
-    return choices
 
 
 def humanize_identifier(identifier: str) -> str:

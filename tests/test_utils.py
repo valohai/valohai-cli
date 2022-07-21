@@ -8,10 +8,10 @@ from valohai_cli.utils import (
     force_bytes,
     force_text,
     humanize_identifier,
-    match_prefix,
     sanitize_option_name,
     walk_directory_parents,
 )
+from valohai_cli.utils.matching import match_prefix
 
 
 def test_dir_parents():
