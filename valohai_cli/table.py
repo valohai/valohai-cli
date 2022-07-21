@@ -54,11 +54,7 @@ class HumanTableFormatter:
         header_width = max(len(header) for header in self.headers)
         for row in self.printable_data:
             for header, value in zip(self.headers, row):
-                yield (False, '{}{}{}'.format(
-                    header.rjust(header_width),
-                    self.sep,
-                    _format(value, None),
-                ).rstrip())
+                yield (False, f'{header.rjust(header_width)}{self.sep}{_format(value, None)}'.rstrip())
             yield (True, '-' * header_width)
 
     def _echo_vertical(self) -> None:

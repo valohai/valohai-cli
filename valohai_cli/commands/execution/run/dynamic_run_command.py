@@ -187,10 +187,7 @@ class RunCommand(click.Command):
             json=payload,
             api_error_class=ExecutionCreationAPIError,
         ).json()
-        success('Execution #{counter} created. See {link}'.format(
-            counter=resp['counter'],
-            link=resp['urls']['display'],
-        ))
+        success(f"Execution #{resp['counter']} created. See {resp['urls']['display']}")
 
         ctx = get_current_context()
 

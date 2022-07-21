@@ -59,15 +59,12 @@ def parcel(
     project = get_project(require=True)
 
     if not destination:
-        destination = sanitize_filename('{}-parcel-{}'.format(
-            project.name,
-            time.strftime('%Y%m%d-%H%M%S'),
-        ))
+        destination = sanitize_filename(f'{project.name}-parcel-{time.strftime("%Y%m%d-%H%M%S")}')
 
-    click.echo('Packing {} to directory {}'.format(
-        click.style(project.name, bold=True, fg='blue'),
-        click.style(destination, bold=True, fg='green'),
-    ))
+    click.echo(
+        f'Packing {click.style(project.name, bold=True, fg="blue")} '
+        f'to directory {click.style(destination, bold=True, fg="green")}'
+    )
 
     ensure_makedirs(destination)
 
@@ -169,16 +166,13 @@ def export_docker_images(
     commit = expand_commit_id(project.directory, commit=(commit or 'HEAD'))
     docker_images = {step.image for step in project.get_config(commit).steps.values()}
     docker_images |= set(extra_docker_images)
+    n = len(docker_images)
     for i, image in enumerate(docker_images, 1):
         output_path = os.path.join(destination, sanitize_filename(f'docker-{image}.tar'))
         if image not in extra_docker_images:
-            print_parcel_progress('::: Pulling image {}/{} ({})'.format(
-                i,
-                len(docker_images),
-                image,
-            ))
+            print_parcel_progress(f'::: Pulling image {i}/{n} ({image})')
             subprocess.check_call(['docker', 'pull', image])
-        print_parcel_progress(f'::: Exporting image {i}/{len(docker_images)} ({image})')
+        print_parcel_progress(f'::: Exporting image {i}/{n} ({image})')
         export_docker_image(image, output_path)
 
 
@@ -207,12 +201,9 @@ def export_docker_image(image: str, output_path: str, print_progress: bool = Tru
             outfp.write(chunk)
             if print_progress:
                 width = shutil.get_terminal_size()[0]
-                status_text = '{} {}: {} / {}'.format(
-                    get_spinner_character(),
-                    image,
-                    filesizeformat(outfp.tell()),
-                    (filesizeformat(image_size) if image_size else 'unknown size'),
-                )
+                size_fmt = (filesizeformat(image_size) if image_size else 'unknown size')
+                pos_fmt = filesizeformat(outfp.tell())
+                status_text = f'{get_spinner_character()} {image}: {pos_fmt} / {size_fmt}'
                 click.echo(status_text.ljust(width - 1), nl=False, err=True)
     if proc.returncode:
         raise subprocess.CalledProcessError(proc.returncode, 'docker save ' + image)

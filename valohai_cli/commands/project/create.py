@@ -33,18 +33,13 @@ def create_project(
         'description': description,
         'owner': owner,
     })).json()
-    long_name = '{}/{}'.format(
-        project_data["owner"]["username"],
-        project_data["name"],
-    )
+    long_name = f"{project_data['owner']['username']}/{project_data['name']}"
     success(f'Project {long_name} created.')
     if link:
         current_project = get_project(directory)
         if current_project and not yes:
             if not click.confirm(
-                'The directory is already linked to {project}. Override that?'.format(
-                    project=current_project.name,
-                )
+                f'The directory is already linked to {current_project.name}. Override that?'
             ):
                 return
         set_project_link(directory, project_data, inform=True)

@@ -22,11 +22,7 @@ def validate_file(filename: str) -> int:
     if not lr.messages:
         success(f'{filename}: No errors')
         return 0
-    click.secho('{filename}: {error_count} errors, {warning_count} warnings'.format(
-        filename=filename,
-        error_count=lr.error_count,
-        warning_count=lr.warning_count,
-    ), fg='yellow', bold=True)
+    click.secho(f'{filename}: {lr.error_count} errors, {lr.warning_count} warnings', fg='yellow', bold=True)
     for message in lr.messages:
         click.echo('  {type}: {message}'.format(**message))
     click.echo()

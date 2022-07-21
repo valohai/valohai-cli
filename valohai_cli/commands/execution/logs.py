@@ -35,28 +35,24 @@ def logs(counter: str, status: bool, stderr: bool, stdout: bool, stream: bool, a
         events_response = lm.fetch_events(limit=limit)
         events = events_response['events']
         if not stream and events_response.get('truncated'):
+            total = events_response['total']
             warn(
-                'There are {total} events, but only the last {n} are shown. Use `--all` to fetch everything.'.format(
-                    total=events_response['total'],
-                    n=len(events),
-                )
+                f'There are {total} events, but only the last {len(events)} are shown. '
+                f'Use `--all` to fetch everything.'
             )
         for event in events:
             if event['stream'] not in accepted_streams:
                 continue
-            message = '{short_time} {text}'.format(
-                short_time=(event['time'].split('T')[1][:-4]),
-                text=clean_log_line(event['message']),
-            )
+            short_time = (event['time'].split('T')[1][:-4])
+            cleaned_text = clean_log_line(event['message'])
+            message = f'{short_time} {cleaned_text}'
             style = stream_styles.get(event['stream'], {})
             click.echo(click.style(message, **style))  # type: ignore[arg-type]
         if stream:
             lm.update_execution()
             if lm.execution['status'] in complete_execution_statuses:
                 click.echo(
-                    'The execution has finished (status {status}); stopping stream.'.format(
-                        status=execution['status'],
-                    ),
+                    f'The execution has finished (status {execution["status"]}); stopping stream.',
                     err=True
                 )
                 break

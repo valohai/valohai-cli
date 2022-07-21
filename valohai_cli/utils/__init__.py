@@ -11,7 +11,7 @@ import click
 
 ansi_escape_re = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # https://stackoverflow.com/a/14693789/51685
 control_character_re = re.compile(r'[\x00-\x1F\x7F\x80-\x9F]')
-control_characters_re = re.compile(control_character_re.pattern + '+')
+control_characters_re = re.compile(f'{control_character_re.pattern}+')
 
 
 def walk_directory_parents(dir: str) -> Iterator[str]:

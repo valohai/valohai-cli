@@ -75,10 +75,7 @@ class WatchTUI:
     def get_header_flex(self, execution: dict) -> Flex:
         header_flex = Flex(style={'bg': 'blue', 'fg': 'white'})
         header_flex.add(
-            content='({project}) #{counter}'.format(
-                project=execution['project']['name'],
-                counter=execution['counter'],
-            ),
+            content=f"({execution['project']['name']}) #{execution['counter']}",
             style={'bold': True},
         )
         if self.status_text:

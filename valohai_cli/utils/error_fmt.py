@@ -21,14 +21,12 @@ class ErrorFormatter:
         self.level += indent
         if isinstance(data, dict):
             if data.get('message'):
-                self.write(prefix, '{message} {styled_code}'.format(
-                    message=data['message'],
-                    styled_code=(
-                        click.style('(code: {code})'.format(code=data.get('code')), dim=True)
-                        if data.get('code')
-                        else ''
-                    ),
-                ))
+                styled_code = (
+                    click.style(f'(code: {data.get("code")})', dim=True)
+                    if data.get('code')
+                    else ''
+                )
+                self.write(prefix, f'{data["message"]} {styled_code}')
             else:
                 self._format_dict(data, prefix=prefix)
         elif isinstance(data, list):

@@ -20,15 +20,9 @@ def prompt_from_list(
     name_formatter: Callable[[dict], str] = _default_name_formatter,
 ) -> Union[Any, dict]:
     for i, option in enumerate(options, 1):
-        click.echo('{number} {name} {description}'.format(
-            number=click.style(f'[{i:3d}]', fg='cyan'),
-            name=name_formatter(option),
-            description=(
-                click.style(f'({option["description"]})', dim=True)
-                if option.get('description')
-                else ''
-            ),
-        ))
+        number_prefix = click.style(f'[{i:3d}]', fg='cyan')
+        description_suffix = (click.style(f'({option["description"]})', dim=True) if option.get('description') else '')
+        click.echo(f'{number_prefix} {name_formatter(option)} {description_suffix}')
     while True:
         answer = click.prompt(prompt)
         if answer.isdigit() and (1 <= int(answer) <= len(options)):

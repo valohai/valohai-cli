@@ -16,11 +16,10 @@ def logout(yes: bool) -> None:
         return
 
     if user and not yes:
-        message = (
-            'You are logged in as {username} (on {host}).\n'
+        click.confirm((
+            f'You are logged in as {user["username"]} (on {settings.host}).\n'
             'Are you sure you wish to remove the authentication token?'
-        ).format(username=user['username'], host=settings.host)
-        click.confirm(message, abort=True)
+        ), abort=True)
     settings.persistence.update(host=None, user=None, token=None)
     settings.persistence.save()
     success('Logged out.')
