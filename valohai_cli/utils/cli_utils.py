@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, TypeVar, Union
 
 import click
 
@@ -53,3 +53,7 @@ def counter_argument(fn: FuncT) -> FuncT:
     # Extra gymnastics needed because `click.arguments` mutates the kwargs here
     arg = click.argument('counter', help=EXECUTION_COUNTER_HELP, cls=HelpfulArgument)
     return arg(fn)
+
+
+def join_with_style(items: Iterable[Any], separator: str = ', ', **style_kwargs: Any) -> str:
+    return separator.join(click.style(str(item), **style_kwargs) for item in items)

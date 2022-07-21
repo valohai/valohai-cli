@@ -9,6 +9,7 @@ from click.core import Command, Context
 from click.formatting import HelpFormatter
 
 from valohai_cli.utils import match_prefix
+from valohai_cli.utils.cli_utils import join_with_style
 
 
 class PluginCLI(click.MultiCommand):
@@ -71,10 +72,7 @@ class PluginCLI(click.MultiCommand):
                 return cmd
 
         if len(matches) > 1:
-            ctx.fail('"{name}" matches {matches}; be more specific?'.format(
-                name=name,
-                matches=', '.join(click.style(match, bold=True) for match in sorted(matches))
-            ))
+            ctx.fail(f'"{name}" matches {join_with_style(sorted(matches), bold=True)}; be more specific?')
         return None
 
     def _try_suffix_match(self, ctx: Context, name: str) -> Optional[Command]:
