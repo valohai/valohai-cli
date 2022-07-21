@@ -20,17 +20,11 @@ def unlink(yes: bool) -> None:
         return
     if not yes:
         click.confirm(
-            'Unlink {dir} from {name}?'.format(
-                dir=click.style(project.directory, bold=True),
-                name=click.style(project.name, bold=True),
-            ),
+            f'Unlink {click.style(project.directory, bold=True)} from {click.style(project.name, bold=True)}?',
             abort=True,
         )
     links = settings.links.copy()
     links.pop(dir)
     settings.persistence.set('links', links)
     settings.persistence.save()
-    success('Unlinked {dir} from {name}.'.format(
-        dir=click.style(dir, bold=True),
-        name=click.style(project.name, bold=True)
-    ))
+    success(f'Unlinked {click.style(dir, bold=True)} from {click.style(project.name, bold=True)}.')

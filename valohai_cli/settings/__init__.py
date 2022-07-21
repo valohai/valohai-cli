@@ -130,11 +130,8 @@ class Settings:
             project_data = request('get', f'/api/v0/projects/{project_id}/').json()
             project_cls = (RemoteProject if mode == 'remote' else Project)
             project = self.override_project = project_cls(data=project_data, directory=directory)
-            info('Using project {name} in {mode} (in {directory})'.format(
-                name=project.name,
-                mode=('local mode' if mode == 'local' else 'remote mode'),
-                directory=project.directory,
-            ))
+            mode_fmt = ('local mode' if mode == 'local' else 'remote mode')
+            info(f'Using project {project.name} in {mode_fmt} (in {project.directory})')
             return True
         except APINotFoundError:
             error(f'No project was found with the ID {project_id} (via --project or VALOHAI_PROJECT)')

@@ -13,8 +13,8 @@ def update_check() -> None:
     data = get_pypi_info()
     current_version = valohai_cli.__version__
     latest_version = data['info']['version']
-    click.echo('Your version of Valohai-CLI is ' + click.style(current_version, bold=True))
-    click.echo(' The latest release on PyPI is ' + click.style(latest_version, bold=True))
+    click.echo(f'Your version of Valohai-CLI is {click.style(current_version, bold=True)}')
+    click.echo(f' The latest release on PyPI is {click.style(latest_version, bold=True)}')
     upgrade_status = determine_upgrade_status(current_version, latest_version)
 
     if upgrade_status == 'upgrade':

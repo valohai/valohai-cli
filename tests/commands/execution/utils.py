@@ -16,7 +16,7 @@ API_PREFIX = 'https://app.valohai.com/api/v0/'
 
 
 def get_startswith_re(text: str) -> Pattern:
-    return re.compile('^' + re.escape(text))
+    return re.compile(f'^{re.escape(text)}')
 
 
 def get_execution_data_mock():

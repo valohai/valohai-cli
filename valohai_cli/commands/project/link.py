@@ -51,8 +51,9 @@ def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
         if answer.startswith('c'):
             raise NewProjectInstead()
 
-    prompt = 'Which project would you like to link with {dir}?\nEnter [c] to create a new project.'.format(
-        dir=click.style(dir, bold=True),
+    prompt = (
+        f'Which project would you like to link with {click.style(dir, bold=True)}?\n'
+        f'Enter [c] to create a new project.'
     )
     has_multiple_owners = (len({p.get('owner', {}).get('id') for p in projects}) > 1)
 
@@ -79,9 +80,9 @@ def link(project: Optional[str], yes: bool) -> Any:
     current_project = get_project(dir)
     if current_project and not yes:
         click.confirm(
-            text='{dir} is already linked to project {name}; continue?'.format(
-                dir=click.style(current_project.directory, bold=True),
-                name=click.style(current_project.name, bold=True),
+            (
+                f'{click.style(current_project.directory, bold=True)} is already linked to '
+                f'project {click.style(current_project.name, bold=True)}; continue?'
             ),
             abort=True,
         )

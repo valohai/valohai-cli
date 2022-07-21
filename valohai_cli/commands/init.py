@@ -35,19 +35,16 @@ def init() -> None:
     current_project = get_project()
     if current_project:
         error(
-            'The directory {directory} is already linked to {name}. Please unlink the directory first.'.format(
-                directory=current_project.directory,
-                name=current_project.name,
-            )
+            f'The directory {current_project.directory} is already linked to {current_project.name}. '
+            f'Please unlink the directory first.'
         )
         sys.exit(1)
 
     click.secho('Hello! This wizard will help you start a Valohai compatible project.', fg='green', bold=True)
     directory = get_project_directory()
     if not click.confirm(
-        'First, let\'s make sure {dir} is the root directory of your project. Is that correct?'.format(
-            dir=click.style(directory, bold=True),
-        )
+        f'First, let\'s make sure {click.style(directory, bold=True)} is the root directory of your project. '
+        f'Is that correct?'
     ):  # pragma: no cover
         click.echo('Alright! Please change to the root directory of your project and try again.')
         return

@@ -57,11 +57,10 @@ def _format_message(
     prefix: Optional[str] = None,
     color: Optional[str] = None,
 ) -> str:
-    return '{emoji}  {prefix} {message}'.format(
-        emoji=random.choice(emoji or ['']),
-        prefix=(click.style(prefix, fg=color, bold=True) if prefix else ''),
-        message=click.style(message, fg=color),
-    )
+    selected_emoji = random.choice(emoji or [''])
+    formatted_prefix = (click.style(prefix, fg=color, bold=True) if prefix else '')
+    formatted_message = click.style(message, fg=color)
+    return f'{selected_emoji}  {formatted_prefix} {formatted_message}'
 
 
 def info(message: str, err: bool = True) -> None:

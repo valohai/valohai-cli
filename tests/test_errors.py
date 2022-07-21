@@ -10,7 +10,7 @@ from valohai_cli.utils.error_fmt import format_error_data
 
 def test_api_error(logged_in, capsys):
     nonce = get_random_string()
-    message = 'Oh no! ' + nonce
+    message = f'Oh no! {nonce}'
     with requests_mock.mock() as m:
         m.get('https://app.valohai.com/api/foo/', json={'error': message}, status_code=406)
         with pytest.raises(APIError) as aei:

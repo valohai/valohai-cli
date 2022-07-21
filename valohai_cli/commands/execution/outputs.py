@@ -140,8 +140,4 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
 
     duration = time.time() - start_time
     if show_success_message:
-        success('Downloaded {n} outputs ({size} bytes) in {duration} seconds'.format(
-            n=len(outputs),
-            size=total_size,
-            duration=round(duration, 2),
-        ))
+        success(f'Downloaded {len(outputs)} outputs ({total_size} bytes) in {round(duration, 2)} seconds')

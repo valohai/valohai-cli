@@ -63,7 +63,7 @@ def package_directory(*, directory: str, yaml_path: str, progress: bool = False,
         package_size_warnings = validate_package_size(file_stats)
         if package_size_warnings:
             for warning in package_size_warnings:
-                click.secho('* ' + warning, err=True)
+                click.secho(f'* {warning}', err=True)
             click.secho(PACKAGE_SIZE_HELP, err=True)
             click.confirm('Continue packaging anyway?', default=True, abort=True, prompt_suffix='', err=True)
 
@@ -73,10 +73,9 @@ def package_directory(*, directory: str, yaml_path: str, progress: bool = False,
 
     if validate and total_compressed_size >= COMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD:
         raise PackageTooLarge(
-            'The total compressed size of the package is {size}, which exceeds the threshold {threshold}'.format(
-                size=filesizeformat(total_compressed_size),
-                threshold=filesizeformat(COMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD),
-            ))
+            f'The total compressed size of the package is {filesizeformat(total_compressed_size)}, '
+            f'which exceeds the threshold {filesizeformat(COMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD)}'
+        )
     return fp.name
 
 
@@ -235,9 +234,7 @@ def get_files_for_package(
         files_and_paths.append(ftup)
         if len(files_and_paths) > FILE_COUNT_HARD_THRESHOLD:
             raise PackageTooLarge(
-                'Trying to package too many files (threshold: {threshold}).'.format(
-                    threshold=FILE_COUNT_HARD_THRESHOLD,
-                ))
+                f'Trying to package too many files (threshold: {FILE_COUNT_HARD_THRESHOLD}).')
 
     info(_get_packaging_info_message(len(files_and_paths), git_usage, vhignore_usage))
 
@@ -277,13 +274,10 @@ def validate_package_size(file_stats: Dict[str, PackageFileInfo]) -> List[str]:
         if stat.st_size >= FILE_SIZE_WARN_THRESHOLD:
             warnings.append(f'Large file {file}: {filesizeformat(stat.st_size)}')
     if total_uncompressed_size >= UNCOMPRESSED_PACKAGE_SIZE_SOFT_THRESHOLD:
-        warnings.append('The total uncompressed size of the package is {size}'.format(
-            size=filesizeformat(total_uncompressed_size),
-        ))
+        warnings.append(f'The total uncompressed size of the package is {filesizeformat(total_uncompressed_size)}')
     if total_uncompressed_size >= UNCOMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD:
         raise PackageTooLarge(
-            'The total uncompressed size of the package is {size}, which exceeds the threshold {threshold}'.format(
-                size=filesizeformat(total_uncompressed_size),
-                threshold=filesizeformat(UNCOMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD),
-            ))
+            f'The total uncompressed size of the package is {filesizeformat(total_uncompressed_size)}, '
+            f'which exceeds the threshold {filesizeformat(UNCOMPRESSED_PACKAGE_SIZE_HARD_THRESHOLD)}'
+        )
     return warnings

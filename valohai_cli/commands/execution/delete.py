@@ -43,10 +43,7 @@ def delete_execution(project: Project, counter: int, purge_outputs: bool = False
     if purge_outputs:
         for output_datum in execution.get('outputs', ()):
             if not output_datum.get('purged'):
-                progress('#{counter}: Purging output {name}... '.format(
-                    counter=execution['counter'],
-                    name=output_datum['name'],
-                ))
+                progress(f'#{execution["counter"]}: Purging output {output_datum["name"]}... ')
                 purge_url = f"/api/v0/data/{output_datum['id']}/purge/"
                 resp = request('post', purge_url, handle_errors=False)
                 if resp.status_code >= 400:  # pragma: no cover

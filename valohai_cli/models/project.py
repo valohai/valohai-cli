@@ -56,10 +56,7 @@ class Project:
         except OSError as err:
             raise InvalidConfig(f'Could not read {filename}') from err
         except valohai_yaml.ValidationErrors as ves:
-            raise InvalidConfig('{filename} is invalid ({n} errors); see `vh lint`'.format(
-                filename=filename,
-                n=len(ves.errors),
-            ))
+            raise InvalidConfig(f'{filename} is invalid ({len(ves.errors)} errors); see `vh lint`')
 
     def get_config_filename(self, yaml_path: Optional[str] = None) -> str:
         used_yaml_path = yaml_path or self.get_yaml_path()

@@ -43,7 +43,4 @@ def get_project(dir: Optional[str] = None, require: bool = False) -> Optional[Pr
 def set_project_link(dir: str, project: dict, inform: bool = False) -> None:
     settings.set_project_link(dir, project)
     if inform:
-        success('Linked {dir} to {name}.'.format(
-            dir=click.style(dir, bold=True),
-            name=click.style(project['name'], bold=True)
-        ))
+        success(f'Linked {click.style(dir, bold=True)} to {click.style(project["name"], bold=True)}.')
