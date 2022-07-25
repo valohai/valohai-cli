@@ -24,6 +24,10 @@ PROJECT_DATA = {
 execution_id = str(uuid.uuid4())
 datum_id = str(uuid.uuid4())
 alias_id = str(uuid.uuid4())
+commit_id = str(uuid.uuid4())
+project_id = str(uuid.uuid4())
+deployment_id = str(uuid.uuid4())
+deployment_version_id = str(uuid.uuid4())
 
 DATUM_DATA = {
     "id": datum_id,
@@ -57,6 +61,43 @@ OUTPUT_DATUM_DATA = {
     "output_execution": {
         "id": execution_id,
     },
+}
+
+DEPLOYMENT_VERSION_DATA = {
+    "commit": {
+        "adhoc": False,
+        "commit_time": "2022-05-20T10:28:12Z",
+        "description": "",
+        "identifier": commit_id,
+        "project_id": project_id,
+        "ref": "master",
+        "ref_names": [
+            "master"
+        ],
+        "yaml_path": "valohai.yaml",
+        "urls": {
+            "display": f"https://app.valohai.com/p/magda/tensorflow-example/commits/{commit_id}/"
+        },
+        "has_config": True
+    },
+    "ctime": "2022-07-15T11:50:43.645158Z",
+    "mtime": "2022-07-15T11:50:43.645178Z",
+    "deployment": deployment_id,
+    "effective_enabled": True,
+    "enabled": True,
+    "id": deployment_version_id,
+    "name": "20220715.0",
+    "url": f"https://app.valohai.com/api/v0/deployment-versions/{deployment_version_id}/",
+    "endpoints": [],
+    "endpoint_urls": {},
+    "environment_variables": {},
+    "creator": {
+        "id": 1,
+        "username": "magda"
+    },
+    "urls": {
+        "display": f"https://app.valohai.com/p/magda/tensorflow-example/deployment/{deployment_id}/#/version/{deployment_version_id}"
+    }
 }
 
 EXECUTION_DATA = {
@@ -424,7 +465,20 @@ CONFIG_YAML = """
     environment-variables:
       - name: testenvvar
         default: 'test'
-
+- endpoint:
+    name: greet
+    image: python:3.9
+    port: 8000
+    server-command: python -m wsgiref.simple_server
+- endpoint:
+    name: predict-digit
+    description: predict digits from image inputs ("file" parameter)
+    image: tensorflow/tensorflow:2.6.0
+    wsgi: predict:predict
+    files:
+      - name: model
+        description: Model output file from TensorFlow
+        path: model.h5
 """
 
 INVALID_CONFIG_YAML = """
