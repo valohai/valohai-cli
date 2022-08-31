@@ -58,6 +58,16 @@ def test_run_tags(run_test_setup):
     run_test_setup.run()
 
 
+def test_run_spot_restart(run_test_setup):
+    run_test_setup.args.append('--environment=018161d4-2911-7bbb-85ea-8820559cce89')
+    run_test_setup.values['environment'] = '018161d4-2911-7bbb-85ea-8820559cce89'
+    run_test_setup.args.append('--autorestart')
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
+        'autorestart': True
+    }
+
+
 def test_run_with_yaml_path(run_test_setup):
     run_test_setup.args.remove('train')
     # Use a step which is only present in the evaluation YAML
