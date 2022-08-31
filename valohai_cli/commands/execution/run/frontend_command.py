@@ -111,8 +111,8 @@ def run(
                     f"does not seem valid (it should start with `ssh`)"
                 )
         runtime_config["debug_key"] = key
-    if autorestart_spot:
-        runtime_config["autorestart"] = autorestart_spot
+    if autorestart:
+        runtime_config["autorestart"] = autorestart
 
     rc = RunCommand(
         project=project,
