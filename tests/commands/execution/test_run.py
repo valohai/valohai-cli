@@ -59,7 +59,6 @@ def test_run_tags(run_test_setup):
 
 def test_run_spot_restart(run_test_setup):
     run_test_setup.args.append('--autorestart-spot=True')
-    run_test_setup.values['autorestart-spot'] = True
     run_test_setup.run()
     assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
         'autorestart': True
