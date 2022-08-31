@@ -37,7 +37,7 @@ run_epilog = (
 @click.option('--yaml', default=None, help='The path to the configuration YAML (valohai.yaml) file to use.')
 @click.option('--debug-port', type=int)
 @click.option('--debug-key-file', type=click.Path(file_okay=True, readable=True, writable=False))
-@click.option('--autorestart-spot', '-r', is_flag=True, help='Enable Automatic Restart on Spot Instance Interruption')
+@click.option('--autorestart/--no-autorestart', help='Enable Automatic Restart on Spot Instance Interruption')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(
@@ -58,7 +58,7 @@ def run(
     watch: bool,
     debug_port: int,
     debug_key_file: Optional[str],
-    autorestart_spot: bool,
+    autorestart: bool,
 ) -> Any:
     """
     Start an execution of a step.
