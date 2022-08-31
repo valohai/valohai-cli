@@ -57,6 +57,14 @@ def test_run_tags(run_test_setup):
     run_test_setup.values['tags'] = ['bark', 'bork', 'vuh', 'hau']
     run_test_setup.run()
 
+def test_run_spot_restart(run_test_setup):
+    run_test_setup.args.append('--autorestart-spot=True')
+    run_test_setup.values['autorestart-spot'] = True
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
+        'autorestart': True
+    }
+
 
 def test_run_with_yaml_path(run_test_setup):
     run_test_setup.args.remove('train')
