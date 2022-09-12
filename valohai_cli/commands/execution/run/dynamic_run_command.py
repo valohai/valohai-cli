@@ -89,7 +89,8 @@ class RunCommand(click.Command):
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
-            epilog='Multiple files per input: --my-input=myurl --my-input=myotherurl',
+            epilog='Multiple styled parameters: --my-parameter=value1 --my-parameter=value2\n\n'
+                   'Multiple files per input: --my-input=myurl --my-input=myotherurl',
             add_help_option=True,
         )
         self.params.append(click.Option(
@@ -121,12 +122,17 @@ class RunCommand(click.Command):
         Convert a Parameter into a click Option.
         """
         assert isinstance(parameter, Parameter)
+        help = parameter.description
+        is_multiple = parameter.multiple is not None
+        if is_multiple:
+            help = "(Multiple) " + (help if help else "")
         option = click.Option(
             param_decls=list(generate_sanitized_options(parameter.name)),
             required=False,  # This is done later
             default=parameter.default,
-            help=parameter.description,
+            help=help,
             type=self.parameter_type_map.get(parameter.type, click.STRING),
+            multiple=is_multiple,
         )
         option.name = f'~{parameter.name}'  # Tildify so we can pick these out of kwargs easily
         option.help_group = 'Parameter Options'  # type: ignore[attr-defined]
