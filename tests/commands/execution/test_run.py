@@ -199,6 +199,16 @@ def test_multi_parameter_serialization(run_test_setup):
     assert payload['parameters']['multi-parameter'] == ["one", "two", "three"]
 
 
+def test_multi_parameter_command_line_argument(run_test_setup):
+    run_test_setup.args.append('--multi-parameter=four')
+    run_test_setup.args.append('--multi-parameter=5')
+    run_test_setup.args.append('--multi-parameter="six"')
+    run_test_setup.run()
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+
+    assert payload['parameters']['multi-parameter'] == ["four", "5", "\"six\""]
+
+
 def test_typo_check(runner, logged_in_and_linked, patch_git, default_run_api_mock):
     with open(get_project().get_config_filename(), 'w') as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
