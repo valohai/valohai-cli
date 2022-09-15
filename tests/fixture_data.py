@@ -462,6 +462,10 @@ CONFIG_YAML = """
         default: 0.1337
       - name: enable_mega_boost
         type: flag
+      - name: multi-parameter
+        default: ["one","two","three"]
+        type: string
+        multiple: separate
     environment-variables:
       - name: testenvvar
         default: 'test'

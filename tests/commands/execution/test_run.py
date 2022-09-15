@@ -107,6 +107,16 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
         values['parameters']['learning_rate'] = 1700
     run_test_setup.values.update(values)
     run_test_setup.run()
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+    if pass_param == 'direct':
+        assert payload['parameters']['max_steps'] == 1801
+        assert payload['parameters']['learning_rate'] == 0.1337
+    if pass_param == 'file':
+        assert payload['parameters']['max_steps'] == 300
+        assert payload['parameters']['learning_rate'] == 1700.0
+    if pass_param == 'mix':
+        assert payload['parameters']['max_steps'] == 1801
+        assert payload['parameters']['learning_rate'] == 1700.0
 
 
 def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git, default_run_api_mock):
@@ -181,6 +191,22 @@ def test_param_input_sanitization(runner, logged_in_and_linked, patch_git, defau
     assert '--parameter-with-highly-convoluted-name' in output
     assert '--Ridiculously-Complex-Input-Name' in output
     assert '--ridiculously-complex-input-name' in output
+
+
+def test_multi_parameter_serialization(run_test_setup):
+    run_test_setup.run()
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+    assert payload['parameters']['multi-parameter'] == ["one", "two", "three"]
+
+
+def test_multi_parameter_command_line_argument(run_test_setup):
+    run_test_setup.args.append('--multi-parameter=four')
+    run_test_setup.args.append('--multi-parameter=5')
+    run_test_setup.args.append('--multi-parameter="six"')
+    run_test_setup.run()
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+
+    assert payload['parameters']['multi-parameter'] == ["four", "5", "\"six\""]
 
 
 def test_typo_check(runner, logged_in_and_linked, patch_git, default_run_api_mock):
