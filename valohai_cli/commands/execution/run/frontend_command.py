@@ -29,6 +29,7 @@ run_epilog = (
 @click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
 @click.option('--title', '-t', default=None, help='Title of the execution.')
 @click.option('--watch', '-w', is_flag=True, help='Start "exec watch"ing the execution after it starts.')
+@click.option('--open-browser', is_flag=True, help='Open default web browser to execution page after it starts.')
 @click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
 @click.option('--tag', 'tags', multiple=True, help='Tag the execution. May be repeated.')
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
@@ -56,6 +57,7 @@ def run(
     title: Optional[str],
     validate_adhoc: bool,
     watch: bool,
+    open_browser: bool,
     debug_port: int,
     debug_key_file: Optional[str],
     autorestart: bool,
@@ -119,6 +121,7 @@ def run(
         step=step,
         commit=commit,
         environment=environment,
+        open_browser=open_browser,
         watch=watch,
         download_directory=download_directory,
         image=image,
