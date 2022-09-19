@@ -53,6 +53,7 @@ class RunCommand(click.Command):
         image: Optional[str] = None,
         title: Optional[str] = None,
         watch: bool = False,
+        open_browser: bool = False,
         download_directory: Optional[str] = None,
         environment_variables: Optional[Dict[str, str]] = None,
         tags: Optional[Sequence[str]] = None,
@@ -81,6 +82,7 @@ class RunCommand(click.Command):
         self.environment = environment
         self.image = image
         self.watch = bool(watch)
+        self.open_browser = bool(open_browser)
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
@@ -205,6 +207,10 @@ class RunCommand(click.Command):
                 sync=True,
                 download_directory=self.download_directory,
             )
+
+        if self.open_browser:
+            import webbrowser
+            webbrowser.open(resp['urls']['display'])
 
         if self.watch:
             from valohai_cli.commands.execution.watch import watch
