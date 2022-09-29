@@ -22,11 +22,13 @@ from valohai_cli.utils.matching import match_from_list_with_error
 @click.option('--name', '-n', 'version_name', default=None, help='Name of the created version (defaults to a name based on the creation date).')
 @click.option('--inherit-env-vars/--no-inherit-env-vars', default=True, help='Use project environment variables in deployment.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='ENDPOINT-OPTIONS...')
+@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then create a deployment version from it.')
 @click.pass_context
 def create_version(
     ctx: click.Context,
     *,
     args: List[str],
+    adhoc: bool,
     commit: Optional[str],
     deployment: str,
     environment_variables: List[str],
@@ -42,7 +44,7 @@ def create_version(
     commit = create_or_resolve_commit(
         project,
         commit=commit,
-        adhoc=False,
+        adhoc=adhoc,
         yaml_path=None,
     )
     deployments = request('get', '/api/v0/deployments/', params={'project': project.id}).json()['results']
