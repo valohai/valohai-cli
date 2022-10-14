@@ -35,6 +35,10 @@ def find_error(
     message: Optional[StringOrPattern] = None,
     matcher: Optional[Callable] = None,
 ) -> Optional[Any]:
+    if response_data is None:
+        # Error not found in response
+        return False
+
     iterable: Optional[Iterable[Any]] = None
     if isinstance(response_data, str):
         return match_error({'message': response_data, 'code': None}, code=code, message=message, matcher=matcher)
