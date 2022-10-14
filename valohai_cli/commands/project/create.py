@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Callable, List, Optional
 
 import click
 from click import prompt
@@ -47,32 +47,40 @@ def create_project(
         info('Links left alone.')
 
 
+def prompt_for_owner(
+    *,
+    command_prompt: str,
+    value_proc: Optional[Callable[[Any], Any]] = None,
+) -> Optional[str]:
+    try:
+        options: List[str] = request('get', '/api/v0/projects/ownership_options/').json()
+    except APINotFoundError:  # Endpoint not there, ah well!
+        return None
+    except APIError as ae:
+        warn(f'Unable to retrieve ownership options: {ae}')
+        return None
+    if not options:
+        return None
+    if len(options) == 1:
+        return options[0]
+    print('Who should own this project? The options available to you are:')
+    for option in options:
+        print(f' * {option}')
+    return str(prompt(
+        command_prompt,
+        default=options[0],
+        type=click.Choice(options),
+        show_choices=False,
+        value_proc=value_proc,
+    ))
+
+
 class OwnerOptionsOption(click.Option):
-
     def prompt_for_value(self, ctx: Context) -> Optional[str]:
-        try:
-            options: List[str] = request('get', '/api/v0/projects/ownership_options/').json()
-        except APINotFoundError:  # Endpoint not there, ah well!
-            return None
-        except APIError as ae:
-            warn(f'Unable to retrieve ownership options: {ae}')
-            return None
-        if not options:
-            return None
-        if len(options) == 1:
-            return options[0]
-
-        print('Who should own this project? The options available to you are:')
-        for option in options:
-            print(f' * {option}')
-
-        return str(prompt(
-            str(self.prompt),
-            default=options[0],
-            type=click.Choice(options),
-            show_choices=False,
+        return prompt_for_owner(
+            command_prompt=self.prompt or 'Owner',
             value_proc=lambda x: self.process_value(ctx, x),
-        ))
+        )
 
 
 @click.command()
