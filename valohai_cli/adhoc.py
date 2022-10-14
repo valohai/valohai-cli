@@ -59,7 +59,7 @@ def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_pat
     :return: Commit response object from API
     """
     yaml_path = yaml_path or project.get_yaml_path()
-    commit_obj = _get_pre_existing_commit(tarball)
+    commit_obj = _get_pre_existing_commit(tarball, project.id)
     if commit_obj:
         success(f"Ad-hoc code {commit_obj['identifier']} already uploaded")
     else:
@@ -67,7 +67,7 @@ def create_adhoc_commit_from_tarball(*, project: Project, tarball: str, yaml_pat
     return commit_obj
 
 
-def _get_pre_existing_commit(tarball: str) -> Optional[dict]:
+def _get_pre_existing_commit(tarball: str, project_id: str) -> Optional[dict]:
     try:
         # This is the same mechanism used by the server to
         # calculate the identifier for an ad-hoc tarball.
@@ -75,7 +75,11 @@ def _get_pre_existing_commit(tarball: str) -> Optional[dict]:
             commit_identifier = f'~{get_fp_sha256(tarball_fp)}'
 
         # See if we have a commit with that identifier
-        commit_obj: Dict[str, Any] = request('get', f'/api/v0/commits/{commit_identifier}/').json()
+        commit_obj: Dict[str, Any] = request(
+            'get',
+            f'/api/v0/commits/{commit_identifier}/',
+            params={'project': project_id},
+        ).json()
         return (commit_obj if commit_obj.get('adhoc') else None)
     except APIError:
         # In the case of any API errors, let's just assume the commit doesn't exist.
