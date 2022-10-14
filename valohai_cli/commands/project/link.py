@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Sequence
 import click
 
 from valohai_cli.api import request
-from valohai_cli.commands.project.create import create_project
+from valohai_cli.commands.project.create import create_project, prompt_for_owner
 from valohai_cli.consts import yes_option
 from valohai_cli.ctx import get_project, set_project_link
 from valohai_cli.messages import warn
@@ -93,5 +93,6 @@ def link(project: Optional[str], yes: bool) -> Any:
         set_project_link(dir, project_obj, inform=True)
     except NewProjectInstead:
         name = click.prompt('Name the new project')
+        owner = prompt_for_owner(command_prompt='Owner')
         if name:
-            create_project(dir, name, yes=yes)
+            create_project(dir, name, yes=yes, owner=owner)
