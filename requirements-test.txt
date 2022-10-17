@@ -1,5 +1,5 @@
 # This file is deliberately not locked with pip-tools so as to allow
 # each CI target platform's pip to find suitable versions itself.
-pytest-cov~=3.0
+pytest-cov~=4.0
 pytest~=7.0
 requests-mock~=1.10
