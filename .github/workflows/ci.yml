@@ -27,7 +27,7 @@ jobs:
           cache: "pip"
           cache-dependency-path: "**/requirements*txt"
       - run: pip install -U pip setuptools wheel
-      - run: "pip install -e . -r requirements-dev.txt"
+      - run: "pip install -e . -r requirements-test.txt"
       - run: make test
         env:
           EMAIL: foo@example.com
@@ -44,7 +44,7 @@ jobs:
           cache: "pip"
           cache-dependency-path: "**/requirements*txt"
       - run: pip install -U pip setuptools wheel
-      - run: "pip install -r requirements-dev.txt"
+      - run: "pip install -r requirements-lint.txt"
       - run: make lint
   Mypy:
     runs-on: ubuntu-20.04
