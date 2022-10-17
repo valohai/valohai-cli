@@ -78,7 +78,7 @@ testfixtures==6.18.5
     # via flake8-isort
 toml==0.10.2
     # via autopep8
-tomli==1.2.3
+tomli==2.0.1
     # via
     #   -r requirements-dev.in
     #   coverage

@@ -9,4 +9,4 @@ pip-tools
 pytest
 pytest-cov
 requests-mock
-tomli<2.0.0
+tomli<3.0.0
