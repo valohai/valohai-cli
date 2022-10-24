@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from urllib.parse import urlparse
 
 import click
@@ -28,6 +28,7 @@ Use a login token instead:
 @click.option('--token', '-t', envvar='VALOHAI_TOKEN', help='A Valohai API token (instead of username and password)')
 @click.option('--host', '-h', help='Valohai host to login on (for private installations)')
 @click.option('--verify-ssl/--no-verify-ssl', default=True, help='Whether to verify SSL connections (this setting is persisted)')
+@click.option('--ca-file', help='Path to bundle file or directory with trusted SSL certificates (this setting is persisted)')
 @yes_option
 def login(
     username: str,
@@ -35,7 +36,8 @@ def login(
     token: Optional[str],
     host: Optional[str],
     yes: bool,
-    verify_ssl: bool,
+    verify_ssl: Union[bool, str],
+    ca_file: Optional[str],
 ) -> None:
     """Log in into Valohai."""
     if settings.user and settings.token:
@@ -52,6 +54,13 @@ def login(
     if not (token or username or password or host):
         # Don't show the banner if this seems like a non-interactive login.
         click.secho(f'Welcome to Valohai CLI {__version__}!', bold=True)
+
+    if ca_file and not verify_ssl:
+        error('You cannot specify a CA file and not verify SSL connections.')
+        raise Exit(1)
+
+    # Since `requests` allows `verify` to be a boolean or a string, this is all we really need to do.
+    verify_ssl = (ca_file or verify_ssl)
 
     host = validate_host(host)
     if token:
@@ -88,7 +97,7 @@ def do_user_pass_login(
     host: str,
     username: Optional[str] = None,
     password: Optional[str] = None,
-    verify_ssl: bool = True,
+    verify_ssl: Union[bool, str] = True,
 ) -> str:
     click.echo(f'\nIf you don\'t yet have an account, please create one at {host} first.\n')
     if not username:
@@ -98,12 +107,12 @@ def do_user_pass_login(
     if not password:
         password = click.prompt(f'{username} on {host} - Password', hide_input=True)
     click.echo(f'Retrieving API token from {host}...')
-    with APISession(host) as sess:
+    with APISession(host, verify_ssl=verify_ssl) as sess:
         try:
             token_data = sess.post('/api/v0/get-token/', data={
                 'username': username,
                 'password': password,
-            }, verify=verify_ssl).json()
+            }).json()
             return str(token_data['token'])
         except APIError as ae:
             code = ae.code
