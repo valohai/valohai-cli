@@ -63,11 +63,14 @@ class Settings:
         return self._get('host')
 
     @property
-    def verify_ssl(self) -> bool:
+    def verify_ssl(self) -> Union[bool, str]:
         """
-        Whether to verify SSL connections to the Valohai API.
+        Whether to verify SSL connections to the Valohai API, or a path to a CA bundle.
         """
-        return bool(self._get('verify_ssl', default=True))
+        value = self._get('verify_ssl', default=True)
+        if value is True or value is False:
+            return value
+        return str(value)
 
     @property
     def token(self) -> Optional[str]:

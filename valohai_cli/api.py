@@ -1,5 +1,5 @@
 import platform
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 
 import click
@@ -34,8 +34,13 @@ class APISession(requests.Session):
         base_url: str,
         token: Optional[str] = None,
         *,
-        verify_ssl: bool = True,
+        verify_ssl: Union[bool, str] = True,
     ) -> None:
+        """
+        :param verify_ssl: Path to a CA bundle to use,
+                           or True to use the system's default CA bundle,
+                           or False to disable SSL verification.
+        """
         super().__init__()
         self.verify = verify_ssl
         self.base_url = base_url
