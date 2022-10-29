@@ -1,5 +1,5 @@
 import contextlib
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import click
 from click import Context
@@ -22,8 +22,17 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
+@click.option('--tag', 'tags', multiple=True, help='Tag the pipeline. May be repeated.')
 @click.pass_context
-def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optional[str], adhoc: bool, yaml: Optional[str]) -> None:
+def run(
+    ctx: Context,
+    name: Optional[str],
+    commit: Optional[str],
+    title: Optional[str],
+    adhoc: bool,
+    yaml: Optional[str],
+    tags: List[str],
+) -> None:
     """
     Start a pipeline run.
     """
@@ -46,7 +55,7 @@ def run(ctx: Context, name: Optional[str], commit: Optional[str], title: Optiona
     matched_pipeline = match_pipeline(config, name)
     pipeline = config.pipelines[matched_pipeline]
 
-    start_pipeline(config, pipeline, project.id, commit, title)
+    start_pipeline(config, pipeline, project.id, commit, tags, title)
 
 
 def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
@@ -65,11 +74,13 @@ def start_pipeline(
     pipeline: Pipeline,
     project_id: str,
     commit: str,
+    tags: List[str],
     title: Optional[str] = None,
 ) -> None:
     payload: Dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
+        "tags": tags,
         **PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline),
     }
 
