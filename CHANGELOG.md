@@ -1,5 +1,18 @@
 ### Changelog
 
+#### [v0.22.0](https://github.com/valohai/valohai-cli/compare/v0.21.0...v0.22.0)
+
+> 31 October 2022
+
+- Add description values to package metadata [`#203`](https://github.com/valohai/valohai-cli/pull/203)
+- Allow selecting an owner for the new project [`#219`](https://github.com/valohai/valohai-cli/pull/219)
+- Allow specifying --ca-file during login (or in settings) [`#234`](https://github.com/valohai/valohai-cli/pull/234)
+- Allow tagging pipelines [`#209`](https://github.com/valohai/valohai-cli/issues/209)
+- Ensure valohai-utils entry in requirements is prepended by newline [`#240`](https://github.com/valohai/valohai-cli/pull/240)
+- Execution run command: handle multiple-styled parameters [`#212`](https://github.com/valohai/valohai-cli/pull/212)
+- Spot restart [`#210`](https://github.com/valohai/valohai-cli/pull/210)
+- Validate commit in respect to the active project [`#218`](https://github.com/valohai/valohai-cli/pull/218)
+
 #### [v0.21.0](https://github.com/valohai/valohai-cli/compare/v0.20.1...v0.21.0)
 
 > 23 June 2022
