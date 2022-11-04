@@ -1,6 +1,6 @@
 .PHONY: default
 default:
-	echo "Try another target"
+	@echo "check README for usage"
 
 .PHONY: mypy
 mypy:
