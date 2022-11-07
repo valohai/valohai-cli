@@ -50,7 +50,7 @@ def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
         return commit_identifier
 
     try:
-        commit_obj = project.resolve_commit(commit_identifier=commit_identifier)
+        matching_commits = project.resolve_commits(commit_identifier=commit_identifier)
     except KeyError:
         warn(f'Commit {commit_identifier} is not known for the project. Have you pushed it?')
         raise click.Abort()
@@ -58,8 +58,15 @@ def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
         warn('No commits are known for the project.')
         raise click.Abort()
 
+    commit_obj = matching_commits[0]
     resolved_commit_identifier: str = commit_obj['identifier']
-    if not commit_identifier:
+    if len(matching_commits) > 1:
+        ambiguous_str = ", ".join([c['identifier'] for c in matching_commits[1:]])
+        click.echo(
+            f'Resolved to commit {resolved_commit_identifier}, which is ambiguous with {ambiguous_str}',
+            err=True,
+        )
+    elif not commit_identifier:
         click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
 
     return resolved_commit_identifier
