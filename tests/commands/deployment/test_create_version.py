@@ -12,10 +12,10 @@ from valohai_cli.models.project import Project
 def test_create_version(runner, logged_in_and_linked, monkeypatch, name):
     commit_identifier = 'f' * 16
 
-    def mock_resolve_commit(mock_self, *, commit_identifier):
-        return {'identifier': commit_identifier}
+    def mock_resolve_commits(mock_self, *, commit_identifier):
+        return [{'identifier': commit_identifier}]
 
-    monkeypatch.setattr(Project, 'resolve_commit', mock_resolve_commit)
+    monkeypatch.setattr(Project, 'resolve_commits', mock_resolve_commits)
 
     project = get_project()
     apimock_kwargs = {'deployment_version_name': name} if name else {}
