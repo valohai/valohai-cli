@@ -8,9 +8,7 @@ mypy==0.982
     # via -r requirements-typecheck.in
 mypy-extensions==0.4.3
     # via mypy
-tomli==2.0.1
-    # via mypy
-types-pyyaml==6.0.12.1
+types-pyyaml==6.0.12.2
     # via -r requirements-typecheck.in
 types-requests==2.28.11.2
     # via -r requirements-typecheck.in
