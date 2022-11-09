@@ -1,6 +1,8 @@
 name: CI
 "on":
   push:
+    tags:
+      - "v*"
     branches:
       - master
   pull_request:
@@ -70,3 +72,14 @@ jobs:
           cache-dependency-path: "**/requirements*txt"
       - run: pip install build
       - run: python -m build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - name: Publish distribution to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print_hash: true
+          password: ${{ secrets.PYPI_API_TOKEN }}
