@@ -1,14 +1,16 @@
-from subprocess import check_call
+import pytest
 
+from tests.stub_git import StubGit
 from valohai_cli.git import get_current_commit
 
 
-def test_get_current_commit(tmpdir):
-    dir = str(tmpdir)
-    check_call('git init', cwd=dir, shell=True)
-    check_call('git config user.name Robot', cwd=dir, shell=True)
-    check_call('git config user.email robot@example.com', cwd=dir, shell=True)
-    tmpdir.join('test').write_text('test', 'utf8')
-    check_call('git add .', cwd=dir, shell=True)
-    check_call('git commit -mtest', cwd=dir, shell=True)
-    assert len(get_current_commit(dir)) == 40
+class TestGit:
+
+    @pytest.fixture(scope='class')
+    def my_git(self, stub_git) -> StubGit:
+        stub_git.write('test.txt')
+        stub_git.commit()
+        return stub_git
+
+    def test_get_current_commit(self, my_git):
+        assert len(get_current_commit(my_git.dir_str)) == 40

@@ -1,11 +1,12 @@
 import os
-from subprocess import check_call, check_output
+from subprocess import check_output
 from typing import Set
 
 import pytest
 from click import termui
 
 import valohai_cli.packager as pkg
+from tests.stub_git import StubGit
 from valohai_cli.exceptions import ConfigurationError, NoCommit, PackageTooLarge
 from valohai_cli.git import describe_current_commit
 
@@ -51,16 +52,17 @@ def get_expected_filenames(original_set: Set[str], *, with_gitignore, with_vhign
 @pytest.mark.parametrize('with_commit', (False, True))
 @pytest.mark.parametrize('with_vhignore', (False, True))
 def test_package_git(tmpdir, with_commit, with_vhignore):
-    check_call('git init', cwd=str(tmpdir), shell=True)
+    stub_git = StubGit(tmpdir)
+    stub_git.init()
     write_temp_files(tmpdir, with_vhignore=with_vhignore)
     if with_commit:
-        check_call('git add .', cwd=str(tmpdir), shell=True)
-        check_call('git commit -m test', cwd=str(tmpdir), shell=True)
-        assert describe_current_commit(str(tmpdir))
+        stub_git.add_all()
+        stub_git.commit()
+        assert describe_current_commit(stub_git.dir_str)
     else:
         with pytest.raises(NoCommit):
-            describe_current_commit(str(tmpdir))
-    tarball = pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
+            describe_current_commit(stub_git.dir_str)
+    tarball = pkg.package_directory(directory=stub_git.dir_str, yaml_path='valohai.yaml')
     # the dotfile and asbestos do not appear
     assert get_tar_files(tarball) == get_expected_filenames(
         {'kahvikuppi', 'valohai.yaml'},
