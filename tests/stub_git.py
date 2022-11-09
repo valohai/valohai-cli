@@ -1,8 +1,8 @@
 import os
 import tempfile
 from pathlib import Path
-from subprocess import check_call
-from typing import Any, Optional, Tuple, Union
+from subprocess import check_call, check_output
+from typing import Any, List, Optional, Tuple, Union
 
 from valohai_cli.utils import get_random_string
 
@@ -64,6 +64,11 @@ class StubGit:
 
     def commit(self, message: str = 'bugfix'):
         check_call(f'git commit -m "{message}"', cwd=self.dir_str, shell=True)
+
+    def log(self) -> List[str]:
+        # full git commit SHAs in reverse chronological order (the latest first)
+        raw = check_output('git log --pretty=format:%H', cwd=self.dir_str, shell=True)
+        return raw.decode('utf-8').split()
 
     def _pathify(self, path: Union[Path, str]) -> Tuple[Path, Path]:
         if isinstance(path, str):
