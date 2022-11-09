@@ -1,5 +1,13 @@
 ### Changelog
 
+
+#### [v0.22.1](https://github.com/valohai/valohai-cli/compare/v0.22.0...v0.22.1)
+
+> 9 November 2022
+
+- 🐛 Allow partial matches when resolving commits [`#243`](https://github.com/valohai/valohai-cli/pull/243)
+- 🧑‍💻🔨 Improve developer experience [`#242`](https://github.com/valohai/valohai-cli/pull/242)
+
 #### [v0.22.0](https://github.com/valohai/valohai-cli/compare/v0.21.0...v0.22.0)
 
 > 31 October 2022
