@@ -1,9 +1,16 @@
 ### Changelog
 
+#### [v0.22.2](https://github.com/valohai/valohai-cli/compare/v0.22.1...v0.22.2)
+
+> 10 November 2022
+
+- ♻️✅ Conflate how git is managed in tests [`#247`](https://github.com/valohai/valohai-cli/pull/247)
+- CI: publish to PyPI too [`#248`](https://github.com/valohai/valohai-cli/pull/248)
+
 
 #### [v0.22.1](https://github.com/valohai/valohai-cli/compare/v0.22.0...v0.22.1)
 
-> 9 November 2022
+> 9 November 2022 (not released)
 
 - 🐛 Allow partial matches when resolving commits [`#243`](https://github.com/valohai/valohai-cli/pull/243)
 - 🧑‍💻🔨 Improve developer experience [`#242`](https://github.com/valohai/valohai-cli/pull/242)
