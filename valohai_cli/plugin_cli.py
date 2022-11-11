@@ -139,7 +139,7 @@ class RecursiveHelpPluginCLI(PluginCLI):
             # (see https://github.com/pallets/click/pull/1623).
             import json
 
-            return json.dumps(ctx.to_info_dict())
+            return json.dumps(ctx.to_info_dict(), default=str)
 
         return super().get_help(ctx)
 
