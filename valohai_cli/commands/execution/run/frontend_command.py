@@ -79,7 +79,7 @@ def run(
 
     if not commit and project.is_remote:
         # For remote projects, we need to resolve early.
-        commit = project.resolve_commit()['identifier']
+        commit = project.resolve_commits()[0]['identifier']
         info(f'Using remote project {project.name}\'s newest commit {commit}')
 
     # We need to pass commit=None when adhoc=True to `get_config`, but

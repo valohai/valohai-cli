@@ -130,6 +130,9 @@ def create_or_update_requirements(project: Project) -> None:
             requirements_lines = list(requirements)
 
     if not any('valohai-utils' in line for line in requirements_lines):
+        if requirements_lines and "\n" not in requirements_lines[-1]:
+            # last line didn't end with a newline, so add one now
+            requirements_lines.append('\n')
         requirements_lines.append('valohai-utils\n')
         with open(requirements_path, 'w') as requirements:
             requirements.write("".join(requirements_lines))

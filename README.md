@@ -24,7 +24,7 @@ This ensures that `valohai-cli`'s dependencies don't conflict with other Python 
 Once you have installed and configured `pipx` (see the link above), you can
 
 ```bash
-$ pipx valohai-cli
+$ pipx install valohai-cli
 ```
 
 and to upgrade it later on,
@@ -67,16 +67,28 @@ See the [tutorial document](./TUTORIAL.md)!
 
 ## Developing
 
-To work on the `valohai-cli` code: pull the repository, create and activate a virtualenv, then run
+Development requires Python 3.10+; otherwise you'll get false positive type failures.
+CI will run tests on older Python versions.
 
+To work on the `valohai-cli` code: pull the repository, create and activate a virtualenv, then run:
+
+```bash
+make dev
 ```
-pip install -e .
+
+This installs `valohai-cli` as an "editable" `vh` command available in the virtualenv, but linked to 
+the working copy's source. That is, you can now edit the source under `valohai_cli` in your working 
+directory, and try it out with `vh`.
+
+```bash
+vh --help
+# Usage: vh [OPTIONS] COMMAND [ARGS]...
 ```
 
-(The `-e` stands for `--editable`.)
+To run lints, type checks and tests:
 
-This makes a new `vh` command available in the virtualenv, but linked to the working copy's
-source. That is, you can now edit the source under `valohai_cli` in your working directory,
-and try it out with `vh`.
+```bash
+make lint mypy test
+```
 
 [pipx]: https://github.com/pypa/pipx

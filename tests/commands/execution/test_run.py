@@ -17,10 +17,10 @@ def run_test_setup(request, logged_in_and_linked, monkeypatch):
 
 @pytest.fixture()
 def patch_git(monkeypatch):
-    def mock_resolve_commit(mock_self, *, commit_identifier):
-        return {'identifier': commit_identifier}
+    def mock_resolve_commits(mock_self, *, commit_identifier):
+        return [{'identifier': commit_identifier}]
 
-    monkeypatch.setattr(Project, 'resolve_commit', mock_resolve_commit)
+    monkeypatch.setattr(Project, 'resolve_commits', mock_resolve_commits)
 
 
 def test_run_requires_step(runner, logged_in_and_linked):

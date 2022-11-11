@@ -1,5 +1,33 @@
 ### Changelog
 
+#### [v0.22.2](https://github.com/valohai/valohai-cli/compare/v0.22.1...v0.22.2)
+
+> 10 November 2022
+
+- ♻️✅ Conflate how git is managed in tests [`#247`](https://github.com/valohai/valohai-cli/pull/247)
+- CI: publish to PyPI too [`#248`](https://github.com/valohai/valohai-cli/pull/248)
+
+
+#### [v0.22.1](https://github.com/valohai/valohai-cli/compare/v0.22.0...v0.22.1)
+
+> 9 November 2022 (not released)
+
+- 🐛 Allow partial matches when resolving commits [`#243`](https://github.com/valohai/valohai-cli/pull/243)
+- 🧑‍💻🔨 Improve developer experience [`#242`](https://github.com/valohai/valohai-cli/pull/242)
+
+#### [v0.22.0](https://github.com/valohai/valohai-cli/compare/v0.21.0...v0.22.0)
+
+> 31 October 2022
+
+- Add description values to package metadata [`#203`](https://github.com/valohai/valohai-cli/pull/203)
+- Allow selecting an owner for the new project [`#219`](https://github.com/valohai/valohai-cli/pull/219)
+- Allow specifying --ca-file during login (or in settings) [`#234`](https://github.com/valohai/valohai-cli/pull/234)
+- Allow tagging pipelines [`#209`](https://github.com/valohai/valohai-cli/issues/209)
+- Ensure valohai-utils entry in requirements is prepended by newline [`#240`](https://github.com/valohai/valohai-cli/pull/240)
+- Execution run command: handle multiple-styled parameters [`#212`](https://github.com/valohai/valohai-cli/pull/212)
+- Spot restart [`#210`](https://github.com/valohai/valohai-cli/pull/210)
+- Validate commit in respect to the active project [`#218`](https://github.com/valohai/valohai-cli/pull/218)
+
 #### [v0.21.0](https://github.com/valohai/valohai-cli/compare/v0.20.1...v0.21.0)
 
 > 23 June 2022

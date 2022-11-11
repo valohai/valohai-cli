@@ -108,24 +108,46 @@ class Project:
             self._commit_list = commits
         return self._commit_list
 
-    def resolve_commit(self, commit_identifier: Optional[str] = None) -> dict:
+    def resolve_commits(self, commit_identifier: Optional[str] = None) -> List[dict]:
         """
-        Resolve a commit identifier to a commit dict.
+        Resolve a commit identifier to a list of matching commit dicts.
 
-        :raises KeyError: if an explicitly named identifier is not found
+        If a blank identifier is requested, resolve to a list with just the latest commit.
+
+        Tries to find prefix partial matches if an exact match is not found.
+
+        Commit dicts are returned in descending commit time order.
+
+        :raises KeyError: if an exact or partial identifier is not found
         :raises IndexError: if there are no commits
         """
         commits = self.load_commit_list()
+
         if commit_identifier:
+            # try to find exact match before sorting...
             by_identifier = {c['identifier']: c for c in commits}
-            return by_identifier[commit_identifier]
-        newest_commit = sorted(
+            exact_commit = by_identifier.get(commit_identifier)
+            if exact_commit:
+                return [exact_commit]
+
+        sorted_commits = sorted(
             (c for c in commits if not c.get('adhoc')),
             key=lambda c: str(c['commit_time']),
             reverse=True,
-        )[0]
+        )
+
+        if commit_identifier:
+            partial_matches = [
+                c for c in sorted_commits
+                if c['identifier'].startswith(commit_identifier)
+            ]
+            if not partial_matches:
+                raise KeyError(commit_identifier)
+            return partial_matches
+
+        newest_commit = sorted_commits[0]
         assert newest_commit['identifier']
-        return newest_commit
+        return [newest_commit]
 
     def load_full_commit(self, identifier: Optional[str] = None) -> dict:
         """
