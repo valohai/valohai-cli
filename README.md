@@ -24,7 +24,7 @@ This ensures that `valohai-cli`'s dependencies don't conflict with other Python 
 Once you have installed and configured `pipx` (see the link above), you can
 
 ```bash
-$ pipx valohai-cli
+$ pipx install valohai-cli
 ```
 
 and to upgrade it later on,
