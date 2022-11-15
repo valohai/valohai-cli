@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-typecheck.in
 #
-mypy==0.990
+mypy==0.991
     # via -r requirements-typecheck.in
 mypy-extensions==0.4.3
     # via mypy
