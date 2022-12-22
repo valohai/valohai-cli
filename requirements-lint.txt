@@ -18,7 +18,7 @@ flake8-isort==5.0.3
     # via -r requirements-lint.in
 flake8-unused-arguments==0.0.12
     # via -r requirements-lint.in
-isort==5.10.1
+isort==5.11.4
     # via
     #   -r requirements-lint.in
     #   flake8-isort
