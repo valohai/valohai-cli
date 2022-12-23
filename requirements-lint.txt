@@ -14,7 +14,7 @@ flake8==5.0.4
     #   flake8-unused-arguments
 flake8-bugbear==22.12.6
     # via -r requirements-lint.in
-flake8-isort==5.0.3
+flake8-isort==6.0.0
     # via -r requirements-lint.in
 flake8-unused-arguments==0.0.12
     # via -r requirements-lint.in
