@@ -25,7 +25,8 @@ from valohai_cli.table import print_json, print_table
     default=9001,
     help='How many executions to show',
 )
-def list(status: str, count: int) -> None:
+@click.option('--deleted', '-d', is_flag=True, help='Show only deleted executions')
+def list(status: str, count: int, deleted: bool) -> None:
     """
     Show a list of executions for the project.
     """
@@ -39,6 +40,8 @@ def list(status: str, count: int) -> None:
     }
     if status:
         params['status'] = set(status)
+    if deleted:
+        params['deleted'] = deleted
     executions = request('get', '/api/v0/executions/', params=params).json()['results']
     if settings.output_format == 'json':
         return print_json(executions)
