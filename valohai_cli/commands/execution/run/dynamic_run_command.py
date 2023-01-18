@@ -200,7 +200,9 @@ class RunCommand(click.Command):
         ctx = get_current_context()
 
         if self.download_directory:
-            from valohai_cli.commands.execution.outputs import outputs as outputs_command
+            from valohai_cli.commands.execution.outputs import (
+                outputs as outputs_command,
+            )
             ctx.invoke(
                 outputs_command,
                 counter=resp['counter'],

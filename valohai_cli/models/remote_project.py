@@ -8,7 +8,7 @@ from valohai_cli.models.project import Project
 class RemoteProject(Project):
     is_remote = True
 
-    def get_config(self, commit_identifier: Optional[str] = None, yaml_path: Optional[str] = None) -> Config:  # NOQA U100
+    def get_config(self, commit_identifier: Optional[str] = None, yaml_path: Optional[str] = None) -> Config:  # noqa: ARG002
         if not commit_identifier:
             raise ValueError('RemoteProjects require an explicit commit identifier')
         commit = self.load_full_commit(commit_identifier)

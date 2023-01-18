@@ -3,7 +3,9 @@ from typing import Any, List, Optional
 import click
 
 from valohai_cli.api import request
-from valohai_cli.commands.deployment.create_version.dynamic_creation_command import CreationCommand
+from valohai_cli.commands.deployment.create_version.dynamic_creation_command import (
+    CreationCommand,
+)
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings

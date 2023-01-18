@@ -20,19 +20,19 @@ that let you use a pre-acquired API token and use the tool without a linked proj
 
 * You can get your project ID from the Valohai API (`/api/v0/projects`), or, again, by looking at your
   configuration file.
-  
+
 * If you do not set `VALOHAI_PROJECT_MODE`, the CLI will attempt to sniff around for `valohai.yaml`
   in the project root directory.  If it finds one, it assumes the project is local. See below.
   Otherwise the project is assumed to be remote.
-  
-  
+
+
 Modes
 -----
 
 * In Local mode, the CLI will use local git history and `valohai.yaml` files. Ad-hoc runs are available.
-* In Remote mode, all configuration (incl. the contents of `valohai.yaml` files per-commit) 
+* In Remote mode, all configuration (incl. the contents of `valohai.yaml` files per-commit)
   is fetched from the Valohai server. Ad-hoc runs are not available in this mode.
-  
+
 Example
 -------
 
@@ -48,4 +48,3 @@ $ vh exec list
     [...]
 $ vh exec run Train
 ```
-  

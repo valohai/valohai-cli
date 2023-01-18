@@ -1,4 +1,14 @@
-from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import click
 
@@ -43,7 +53,7 @@ class HelpfulArgument(click.Argument):
         self.help = help
         super().__init__(param_decls, **kwargs)
 
-    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # noqa: U100
+    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # noqa: ARG002
         if self.name and self.help:
             return (self.name, self.help)
         return None

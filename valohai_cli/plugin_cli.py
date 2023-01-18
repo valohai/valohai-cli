@@ -48,7 +48,7 @@ class PluginCLI(click.MultiCommand):
             self._command_to_canonical_map = command_map
         return self._command_to_canonical_map
 
-    def list_commands(self, ctx: Context) -> List[str]:  # noqa: U100
+    def list_commands(self, ctx: Context) -> List[str]:  # noqa: ARG002
         return self.command_modules
 
     def get_command(self, ctx: Context, name: str) -> Optional[Union[Command, 'PluginCLI']]:
