@@ -105,7 +105,7 @@ def package_files_into(
     files = sorted(file_stats.keys())
 
     # Manually creating the gzipfile to force mtime to 0.
-    with gzip.GzipFile('data.tar', mode='w', fileobj=dest_fp, mtime=0) as gzf:
+    with gzip.GzipFile('data.tar', mode='w', fileobj=dest_fp, mtime=0) as gzf:  # noqa: SIM117
         with tarfile.open(name='data.tar', mode='w', fileobj=gzf) as tarball:  # type: ignore[arg-type]
             progress_bar = click.progressbar(
                 files,
@@ -174,7 +174,7 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterab
 
         # Limited support of .gitignore even without git
         if os.path.exists(gitignore_path):
-            with open(gitignore_path, "r") as gitignore_file:
+            with open(gitignore_path) as gitignore_file:
                 gitignore_rules = list(gitignorant.parse_gitignore_file(gitignore_file))
             if gitignore_rules:
                 return (
@@ -190,7 +190,7 @@ def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, VhIgnoreUsag
     vhignore_path = os.path.join(dir, '.vhignore')
 
     if os.path.isfile(vhignore_path):
-        with open(vhignore_path, "r") as vhignore_file:
+        with open(vhignore_path) as vhignore_file:
             vhignore_rules = list(gitignorant.parse_gitignore_file(vhignore_file))
         if vhignore_rules:
             return (

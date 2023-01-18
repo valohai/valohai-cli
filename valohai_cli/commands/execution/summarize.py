@@ -44,6 +44,7 @@ def summarize(counters: List[str]) -> None:
         row = subset_keys(execution, {'counter', 'id', 'duration'})
         row.update(metadata)
         table_data.append(row)
-    columns = ['counter', 'duration'] + list(sorted(all_metadata_keys))
-    headers = ['Execution', 'Duration'] + list(sorted(all_metadata_keys))
+    sorted_metadata_keys = sorted(all_metadata_keys)
+    columns = ['counter', 'duration', *sorted_metadata_keys]
+    headers = ['Execution', 'Duration', *sorted_metadata_keys]
     print_table(table_data, columns=columns, headers=headers)

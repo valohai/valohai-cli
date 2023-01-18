@@ -14,7 +14,7 @@ from valohai_cli.utils.matching import match_from_list_with_error
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True),
+    context_settings={"ignore_unknown_options": True},
     add_help_option=False,
 )
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')

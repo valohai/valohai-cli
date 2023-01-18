@@ -58,7 +58,7 @@ class RunCommand(click.Command):
         environment_variables: Optional[Dict[str, str]] = None,
         tags: Optional[Sequence[str]] = None,
         runtime_config: Optional[dict] = None,
-    ):
+    ) -> None:
 
         """
         Initialize the dynamic run command.
@@ -233,7 +233,7 @@ class RunCommand(click.Command):
         self._process_parameters(params, parameter_file=options.get('parameter_file'))
         return (options, params, inputs)
 
-    def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:
+    def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:  # noqa: C901
         if parameter_file:
             parameter_file_data = read_data_file(parameter_file)
             if not isinstance(parameter_file_data, dict):

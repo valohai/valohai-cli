@@ -2,7 +2,7 @@ from typing import Iterable, Set, Union
 
 
 class IntegerRange:
-    def __init__(self, includes: Set[Iterable[int]], excludes: Set[Iterable[int]]):
+    def __init__(self, includes: Set[Iterable[int]], excludes: Set[Iterable[int]]) -> None:
         self.includes = set(includes)
         self.excludes = set(excludes)
 

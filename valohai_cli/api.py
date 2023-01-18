@@ -21,9 +21,12 @@ class TokenAuth(AuthBase):
         self.token = token
 
     def __call__(self, request: PreparedRequest) -> PreparedRequest:
-        if not request.headers.get('Authorization') and urlparse(request.url).netloc == self.netloc:
-            if self.token:
-                request.headers['Authorization'] = f'Token {self.token}'
+        if (
+            not request.headers.get('Authorization') and
+            urlparse(request.url).netloc == self.netloc and
+            self.token
+        ):
+            request.headers['Authorization'] = f'Token {self.token}'
         return request
 
 
@@ -63,7 +66,7 @@ class APISession(requests.Session):
             request.url = urljoin(self.base_url, request.url)
         return super().prepare_request(request)
 
-    def request(self, method, url, **kwargs) -> Response:  # type: ignore
+    def request(self, method: str, url: str, **kwargs: Any) -> Response:  # type: ignore
         api_error_class = kwargs.pop('api_error_class', APIError)
         handle_errors = bool(kwargs.pop('handle_errors', True))
         try:

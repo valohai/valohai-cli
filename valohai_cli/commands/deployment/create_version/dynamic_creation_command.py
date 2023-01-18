@@ -34,7 +34,7 @@ class CreationCommand(click.Command):
         version_name: str,
         inherit_env_vars: bool = True,
         environment_variables: Optional[Dict[str, str]] = None,
-    ):
+    ) -> None:
         self.project = project
         self.deployment = deployment
         self.endpoint_names = endpoint_names

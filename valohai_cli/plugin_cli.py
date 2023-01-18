@@ -83,7 +83,7 @@ class PluginCLI(click.MultiCommand):
             for (trail, cmd)
             in self._get_all_commands(ctx)
         }
-        s_matches = [key for key in command_map.keys() if ' ' in key and key.endswith(f' {name}')]
+        s_matches = [key for key in command_map if ' ' in key and key.endswith(f' {name}')]
         if len(s_matches) == 1:
             match = s_matches[0]
             click.echo(f'(Resolved {click.style(name, bold=True)} to {click.style(match, bold=True)}.)', err=True)
