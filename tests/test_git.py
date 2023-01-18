@@ -1,7 +1,12 @@
 import pytest
 
 from tests.stub_git import StubGit
-from valohai_cli.git import describe_current_commit, expand_commit_id, get_current_commit, get_file_at_commit
+from valohai_cli.git import (
+    describe_current_commit,
+    expand_commit_id,
+    get_current_commit,
+    get_file_at_commit,
+)
 
 
 class TestGit:

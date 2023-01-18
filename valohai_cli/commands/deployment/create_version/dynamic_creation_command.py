@@ -7,10 +7,16 @@ from click.core import Option
 from valohai_yaml.objs import File
 
 from valohai_cli.api import request
-from valohai_cli.commands.execution.run.dynamic_run_command import generate_sanitized_options
+from valohai_cli.commands.execution.run.dynamic_run_command import (
+    generate_sanitized_options,
+)
 from valohai_cli.messages import error, success
 from valohai_cli.models.project import Project
-from valohai_cli.utils import humanize_identifier, parse_environment_variable_strings, sanitize_option_name
+from valohai_cli.utils import (
+    humanize_identifier,
+    parse_environment_variable_strings,
+    sanitize_option_name,
+)
 
 DATUM_URI_PREFIX = 'datum://'
 
@@ -28,7 +34,7 @@ class CreationCommand(click.Command):
         version_name: str,
         inherit_env_vars: bool = True,
         environment_variables: Optional[Dict[str, str]] = None,
-    ):
+    ) -> None:
         self.project = project
         self.deployment = deployment
         self.endpoint_names = endpoint_names

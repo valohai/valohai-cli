@@ -14,7 +14,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True),
+    context_settings={"ignore_unknown_options": True},
     add_help_option=False
 )
 @click.argument('name', required=False, metavar='PIPELINE-NAME')

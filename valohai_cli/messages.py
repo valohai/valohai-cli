@@ -83,7 +83,7 @@ def progress(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, PROGRESS_EMOJI, None, None), err=err)
 
 
-DEFAULT_BANNER_STYLE = dict(fg='magenta', bold=True)
+DEFAULT_BANNER_STYLE = {"fg": 'magenta', "bold": True}
 
 
 def banner(message: str, banner_char: str = '=', banner_style: Optional[dict] = None) -> None:

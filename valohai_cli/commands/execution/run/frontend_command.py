@@ -19,7 +19,7 @@ run_epilog = (
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True),
+    context_settings={"ignore_unknown_options": True},
     add_help_option=False,
     epilog=run_epilog,
 )
@@ -105,7 +105,7 @@ def run(
         )
     if debug_port and debug_key_file:
         runtime_config["debug_port"] = debug_port
-        with open(debug_key_file, "r") as file:
+        with open(debug_key_file) as file:
             key = file.read().strip()
             if not key.startswith("ssh"):
                 raise click.UsageError(
