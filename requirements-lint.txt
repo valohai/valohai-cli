@@ -12,7 +12,7 @@ flake8==6.0.0
     #   flake8-bugbear
     #   flake8-isort
     #   flake8-unused-arguments
-flake8-bugbear==22.12.6
+flake8-bugbear==23.1.17
     # via -r requirements-lint.in
 flake8-isort==6.0.0
     # via -r requirements-lint.in
