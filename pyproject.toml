@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Command line client for Valohai"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 authors = [
     { name = "Valohai", email = "hait@valohai.com" },
 ]

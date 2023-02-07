@@ -1,7 +1,7 @@
 # Development
 
 ## Setting up
-This project is written in Python 3.6+.
+This project is written in Python 3.7+.
 
 ```bash
 pip install -e .
