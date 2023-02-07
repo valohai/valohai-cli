@@ -40,11 +40,8 @@ class APIError(CLIException):
     kind = 'API Error'
 
     def __init__(self, response: Response) -> None:
-        if '<!DOCTYPE html>' in response.text:
-            # Don't shower the user with a blob of HTML
-            text = 'Internal error'
-        else:
-            text = response.text
+        # Don't shower the user with a blob of HTML
+        text = ('Internal error' if '<!DOCTYPE html>' in response.text else response.text)
         super().__init__(text)
         self.response = response
         self.request = response.request
