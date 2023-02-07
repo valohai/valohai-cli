@@ -104,7 +104,6 @@ def run(
             "Both or neither of --debug-port and --debug-key-file must be set."
         )
     if debug_port and debug_key_file:
-        runtime_config["debug_port"] = debug_port
         with open(debug_key_file) as file:
             key = file.read().strip()
             if not key.startswith("ssh"):
@@ -112,7 +111,10 @@ def run(
                     f"The public key read from {debug_key_file} "
                     f"does not seem valid (it should start with `ssh`)"
                 )
-        runtime_config["debug_key"] = key
+        runtime_config["remote_debug"] = {
+          "debug_port": debug_port,
+          "debug_key": key,
+        }
     if autorestart:
         runtime_config["autorestart"] = autorestart
 
