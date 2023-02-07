@@ -88,10 +88,7 @@ def choose_image() -> str:
             ),
             nonlist_validator=lambda s: s.strip()
         )
-        if isinstance(image, dict):
-            image_name = str(image['name'])
-        else:
-            image_name = str(image)
+        image_name = str(image["name"]) if isinstance(image, dict) else str(image)
         if click.confirm(f'Is {click.style(image_name, bold=True)} correct?'):
             break
     success(f'Great! Using {image_name}.')

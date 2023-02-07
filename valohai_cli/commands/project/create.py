@@ -37,7 +37,7 @@ def create_project(
     success(f'Project {long_name} created.')
     if link:
         current_project = get_project(directory)
-        if current_project and not yes:
+        if current_project and not yes:  # noqa: SIM102
             if not click.confirm(
                 f'The directory is already linked to {current_project.name}. Override that?'
             ):

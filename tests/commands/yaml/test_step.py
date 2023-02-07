@@ -3,7 +3,11 @@ import os
 import pytest
 
 from tests.commands.yaml.utils import build_args
-from tests.fixture_data import CONFIG_YAML, PYTHON_SOURCE, PYTHON_SOURCE_USING_VALOHAI_UTILS
+from tests.fixture_data import (
+    CONFIG_YAML,
+    PYTHON_SOURCE,
+    PYTHON_SOURCE_USING_VALOHAI_UTILS,
+)
 from valohai_cli.commands.yaml.step import step
 from valohai_cli.ctx import get_project
 

@@ -44,7 +44,7 @@ This is equivalent to invoking `vh ex watch N`, where N is the number of the exe
 
 Running a pipeline
 ------------------
-In a linked project directory, you can start a pipeline run using `vh pipeline run <pipeline-name>`. 
+In a linked project directory, you can start a pipeline run using `vh pipeline run <pipeline-name>`.
 
 Further steps
 -------------

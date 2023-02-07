@@ -19,7 +19,7 @@ run_epilog = (
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True),
+    context_settings={"ignore_unknown_options": True},
     add_help_option=False,
     epilog=run_epilog,
 )
@@ -104,16 +104,17 @@ def run(
             "Both or neither of --debug-port and --debug-key-file must be set."
         )
     if debug_port and debug_key_file:
-        runtime_config["remote_debug"] = {}
-        runtime_config["remote_debug"]["debug_port"] = debug_port
-        with open(debug_key_file, "r") as file:
+        with open(debug_key_file) as file:
             key = file.read().strip()
             if not key.startswith("ssh"):
                 raise click.UsageError(
                     f"The public key read from {debug_key_file} "
                     f"does not seem valid (it should start with `ssh`)"
                 )
-        runtime_config["remote_debug"]["debug_key"] = key
+        runtime_config["remote_debug"] = {
+          "debug_port": debug_port,
+          "debug_key": key,
+        }
     if autorestart:
         runtime_config["autorestart"] = autorestart
 

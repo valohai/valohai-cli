@@ -76,8 +76,8 @@ To work on the `valohai-cli` code: pull the repository, create and activate a vi
 make dev
 ```
 
-This installs `valohai-cli` as an "editable" `vh` command available in the virtualenv, but linked to 
-the working copy's source. That is, you can now edit the source under `valohai_cli` in your working 
+This installs `valohai-cli` as an "editable" `vh` command available in the virtualenv, but linked to
+the working copy's source. That is, you can now edit the source under `valohai_cli` in your working
 directory, and try it out with `vh`.
 
 ```bash

@@ -3,7 +3,9 @@ from typing import Any, List, Optional
 import click
 
 from valohai_cli.api import request
-from valohai_cli.commands.deployment.create_version.dynamic_creation_command import CreationCommand
+from valohai_cli.commands.deployment.create_version.dynamic_creation_command import (
+    CreationCommand,
+)
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
@@ -12,7 +14,7 @@ from valohai_cli.utils.matching import match_from_list_with_error
 
 
 @click.command(
-    context_settings=dict(ignore_unknown_options=True),
+    context_settings={"ignore_unknown_options": True},
     add_help_option=False,
 )
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
