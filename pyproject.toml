@@ -1,9 +1,40 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "valohai-cli"
+dynamic = ["version"]
+description = "Command line client for Valohai"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.6"
+authors = [
+    { name = "Valohai", email = "hait@valohai.com" },
 ]
-build-backend = "setuptools.build_meta"
+dependencies = [
+    "click>=7.0",
+    "gitignorant>=0.2.0",
+    "requests-toolbelt>=0.7.1",
+    "requests>=2.0.0",
+    "typing-extensions>=3.7",
+    "valohai-utils>=0.3.0",
+    "valohai-yaml>=0.25.2",
+]
+
+[project.scripts]
+vh = "valohai_cli.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/valohai/valohai-cli"
+
+[tool.hatch.version]
+path = "valohai_cli/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/valohai_cli",
+]
 
 [tool.mypy]
 exclude = ".*test.*"
