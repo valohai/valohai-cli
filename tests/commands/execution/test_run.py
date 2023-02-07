@@ -242,8 +242,10 @@ def test_remote(run_test_setup, tmpdir):
     run_test_setup.args.append(f'--debug-key-file={key}')
     run_test_setup.run()
     assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
-        'debug_key': 'ssh blarp blep',
-        'debug_port': 8101,
+        "remote_debug": {
+            'debug_key': 'ssh blarp blep',
+            'debug_port': 8101,
+        }
     }
 
 
