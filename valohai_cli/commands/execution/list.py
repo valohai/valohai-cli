@@ -43,7 +43,7 @@ def list(status: str, count: int, deleted: bool, owned:bool) -> None:
         params['status'] = set(status)
     if deleted:
         params['deleted'] = deleted
-    if owned:
+    if owned and settings.user:
         params['creator'] = settings.user['id']
     executions = request('get', '/api/v0/executions/', params=params).json()['results']
     if settings.output_format == 'json':
