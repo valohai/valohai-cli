@@ -1,6 +1,5 @@
 # Valohai Command Line Client
 
-![CircleCI](https://img.shields.io/github/workflow/status/valohai/valohai-cli/CI.svg)
 ![Codecov](https://img.shields.io/codecov/c/github/valohai/valohai-cli.svg)
 ![PyPI](https://img.shields.io/pypi/v/valohai-cli.svg)
 ![MIT License](https://img.shields.io/github/license/valohai/valohai-cli.svg)
