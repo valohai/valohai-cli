@@ -1,5 +1,5 @@
 from typing import Optional, Union
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import click
 from click.exceptions import Exit
@@ -16,7 +16,7 @@ Oops!
 The error code "{code}" indicates username + password authentication is not possible.
 Use a login token instead:
  1. Log in on {host}
- 2. Visit {host}auth/tokens/ to generate an authentication token
+ 2. Visit {token_url} to generate an authentication token
  3. Once you have an authentication token, log in with:
     {command}
 '''.strip()
@@ -27,8 +27,10 @@ Use a login token instead:
 @click.option('--password', '-p', envvar='VALOHAI_PASSWORD', help='Your Valohai password')
 @click.option('--token', '-t', envvar='VALOHAI_TOKEN', help='A Valohai API token (instead of username and password)')
 @click.option('--host', '-h', help='Valohai host to login on (for private installations)')
-@click.option('--verify-ssl/--no-verify-ssl', default=True, help='Whether to verify SSL connections (this setting is persisted)')
-@click.option('--ca-file', help='Path to bundle file or directory with trusted SSL certificates (this setting is persisted)')
+@click.option('--verify-ssl/--no-verify-ssl', default=True,
+              help='Whether to verify SSL connections (this setting is persisted)')
+@click.option('--ca-file',
+              help='Path to bundle file or directory with trusted SSL certificates (this setting is persisted)')
 @yes_option
 def login(
     username: str,
@@ -120,7 +122,12 @@ def do_user_pass_login(
                 command = 'vh login --token TOKEN_HERE '
                 if host != default_app_host:
                     command += f'--host {host}'
-                banner(TOKEN_LOGIN_HELP.format(code=code, host=host, command=command))
+                banner(TOKEN_LOGIN_HELP.format(
+                    code=code,
+                    host=host,
+                    command=command,
+                    token_url=urljoin(host, '/auth/tokens/')
+                ))
             raise
 
 
