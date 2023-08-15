@@ -26,9 +26,23 @@ def logged_in_and_linked(monkeypatch):
     monkeypatch.setattr(settings, 'persistence', Persistence(data))
 
 
+class PedanticCliRunner(CliRunner):
+    """Override runner.invoke() to let any raised exceptions bubble through,
+    as the default is to catch it.
+
+    Tests can explicitly check exit status if the command failed due to an uncaught exception,
+    but they generally do not do this.
+    """
+    def invoke(self, *args, **kwargs):
+        catch_exceptions = kwargs.pop("catch_exceptions", None)
+        # This flips the default to False
+        catch_exceptions = catch_exceptions is not None
+        return super().invoke(*args, catch_exceptions=catch_exceptions, **kwargs)
+
+
 @pytest.fixture
 def runner():
-    return CliRunner()
+    return PedanticCliRunner()
 
 
 @pytest.fixture(autouse=True)
