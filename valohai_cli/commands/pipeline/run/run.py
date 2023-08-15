@@ -50,7 +50,7 @@ def run(
         raise click.UsageError('--yaml is only valid with --adhoc')
 
     commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc, yaml_path=yaml)
-    config = project.get_config()
+    config = project.get_config(yaml_path=yaml)
 
     matched_pipeline = match_pipeline(config, name)
     pipeline = config.pipelines[matched_pipeline]
