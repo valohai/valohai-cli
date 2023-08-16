@@ -89,7 +89,15 @@ vh --help
 To run lints, type checks and tests:
 
 ```bash
-make lint mypy test
+# setup development dependencies
+pip install -e . -r requirements-test.txt pre-commit
+pre-commit install
+
+# run linting and type checks
+pre-commit run --all-files
+
+# run tests
+make test
 ```
 
 [pipx]: https://github.com/pypa/pipx
