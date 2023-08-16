@@ -89,12 +89,8 @@ vh --help
 To run lints, type checks and tests:
 
 ```bash
-# setup development dependencies
-pip install -e . -r requirements-test.txt pre-commit
-pre-commit install
-
 # run linting and type checks
-pre-commit run --all-files
+make lint
 
 # run tests
 make test
