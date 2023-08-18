@@ -67,3 +67,27 @@ def add_valid_pipeline_yaml(yaml_path=None):
     config_filename = project.get_config_filename(yaml_path=yaml_path)
     with open(config_filename, 'w') as yaml_fp:
         yaml_fp.write(PIPELINE_YAML)
+
+
+def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
+    add_valid_pipeline_yaml()
+    # Test if it lets unknown pipeline parameters pass through
+    overriding_value = '123'
+    args = ['--adhoc', 'Train Pipeline', '--not-known',  overriding_value]
+    with RunAPIMock(PROJECT_DATA['id']):
+        output = runner.invoke(run, args).output
+        assert "Unknown pipeline parameter not-known" in output
+
+    args = ['--adhoc', 'Train Pipeline', '--pipeline_max_steps', overriding_value]
+    with RunAPIMock(PROJECT_DATA['id']) as mock_api:
+        output = runner.invoke(run, args).output
+
+        # Test that it runs successfully
+        assert 'Success' in output
+        assert 'Uploaded ad-hoc code' in output
+        assert 'Pipeline =21 queued' in output
+
+        # Test that the pipeline parameter was overridden
+
+        payload = mock_api.last_create_pipeline_payload['parameters']['pipeline_max_steps']
+        assert payload['expression'] == overriding_value

@@ -23,6 +23,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
 @click.option('--tag', 'tags', multiple=True, help='Tag the pipeline. May be repeated.')
+@click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='PIPELINE-OPTIONS...')
 @click.pass_context
 def run(
     ctx: Context,
@@ -32,6 +33,7 @@ def run(
     adhoc: bool,
     yaml: Optional[str],
     tags: List[str],
+    args: List[str],
 ) -> None:
     """
     Start a pipeline run.
@@ -55,7 +57,7 @@ def run(
     matched_pipeline = match_pipeline(config, name)
     pipeline = config.pipelines[matched_pipeline]
 
-    start_pipeline(config, pipeline, project.id, commit, tags, title)
+    start_pipeline(config, pipeline, project.id, commit, tags, args, title)
 
 
 def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
@@ -69,19 +71,34 @@ def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
                 click.echo(f'   * {pipeline_name}', color=ctx.color)
 
 
+def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str, Any]) -> Dict[str, Any]:
+    for arg in args:
+        if arg.startswith('--'):
+            arg_name = arg[2:]
+        elif arg_name in pipeline_parameters:
+            pipeline_parameters[arg_name]['expression'] = arg
+        else:
+            raise click.UsageError(f'Unknown pipeline parameter {arg_name}')
+    return pipeline_parameters
+
+
 def start_pipeline(
-    config: Config,
-    pipeline: Pipeline,
-    project_id: str,
-    commit: str,
-    tags: List[str],
-    title: Optional[str] = None,
+        config: Config,
+        pipeline: Pipeline,
+        project_id: str,
+        commit: str,
+        tags: List[str],
+        args: List[str],
+        title: Optional[str] = None,
 ) -> None:
+    converted_pipeline = PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline)
+    if args:
+        converted_pipeline['parameters'] = override_pipeline_parameters(args, converted_pipeline['parameters'])
     payload: Dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
         "tags": tags,
-        **PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline),
+        **converted_pipeline,
     }
 
     resp = request(
