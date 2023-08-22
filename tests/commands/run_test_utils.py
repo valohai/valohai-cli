@@ -34,6 +34,7 @@ class RunAPIMock(requests_mock.Mocker):
     ):
         super().__init__()
         self.last_create_execution_payload = None
+        self.last_create_pipeline_payload = None
         self.project_id = project_id
         self.commit_id = commit_id
         self.deployment_id = deployment_id
@@ -152,7 +153,10 @@ class RunAPIMock(requests_mock.Mocker):
         assert body_json['project'] == self.project_id
         assert len(body_json['edges']) == 5
         assert len(body_json['nodes']) == 3
+        if "parameters" in body_json:
+            assert len(body_json['parameters']) == 1
         context.status_code = 201
+        self.last_create_pipeline_payload = body_json
         return PIPELINE_DATA.copy()
 
     def handle_create_commit(self, request, context):

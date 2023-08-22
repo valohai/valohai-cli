@@ -23,6 +23,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
 @click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
 @click.option('--tag', 'tags', multiple=True, help='Tag the pipeline. May be repeated.')
+@click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='PIPELINE-OPTIONS...')
 @click.pass_context
 def run(
     ctx: Context,
@@ -32,6 +33,7 @@ def run(
     adhoc: bool,
     yaml: Optional[str],
     tags: List[str],
+    args: List[str],
 ) -> None:
     """
     Start a pipeline run.
@@ -55,7 +57,42 @@ def run(
     matched_pipeline = match_pipeline(config, name)
     pipeline = config.pipelines[matched_pipeline]
 
-    start_pipeline(config, pipeline, project.id, commit, tags, title)
+    start_pipeline(config, pipeline, project.id, commit, tags, args, title)
+
+
+def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str, Any]) -> Dict[str, Any]:
+    args_dict = process_args(args)
+    if not pipeline_parameters and args_dict:
+        raise click.UsageError('Pipeline does not have any parameters')
+
+    for param in pipeline_parameters:
+        if param in args_dict:
+            pipeline_parameters[param]['expression'] = args_dict[param]
+            args_dict.pop(param)
+
+    if args_dict:
+        raise click.UsageError(f'Unknown pipeline parameter {list(args_dict.keys())}')
+
+    return pipeline_parameters
+
+
+def process_args(args: List[str]) -> Dict[str, str]:
+    i = 0
+    args_dict = {}
+    for arg in args:
+        if arg.startswith("--"):
+            arg_name = arg.lstrip("-")
+            if "=" in arg_name: # --param=value
+                name, value = arg_name.split("=", 1)
+                args_dict[name] = value
+            else: # --param value
+                next_arg_idx = i + 1
+                if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
+                    args_dict[arg_name] = args[next_arg_idx]
+                else: # --param --param2 --param3 (flag)
+                    args_dict[arg_name] = "true" # doesn't support bool as we are using strings for pipeline parameters
+        i += 1
+    return args_dict
 
 
 def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
@@ -70,18 +107,22 @@ def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
 
 
 def start_pipeline(
-    config: Config,
-    pipeline: Pipeline,
-    project_id: str,
-    commit: str,
-    tags: List[str],
-    title: Optional[str] = None,
+        config: Config,
+        pipeline: Pipeline,
+        project_id: str,
+        commit: str,
+        tags: List[str],
+        args: List[str],
+        title: Optional[str] = None,
 ) -> None:
+    converted_pipeline = PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline)
+    if args:
+        converted_pipeline['parameters'] = override_pipeline_parameters(args, converted_pipeline['parameters'])
     payload: Dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
         "tags": tags,
-        **PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline),
+        **converted_pipeline,
     }
 
     resp = request(

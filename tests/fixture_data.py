@@ -360,6 +360,11 @@ PIPELINE_YAML = """
       - [preprocess.output.*test-images*, train.input.test-set-images]
       - [preprocess.output.*test-labels*, train.input.test-set-labels]
       - [train.output.model*, evaluate.input.model]
+    parameters:
+      - name: pipeline_max_steps
+        default: 1000
+        targets:
+            - Train model (MNIST).parameters.max_steps
 
 - pipeline:
     name: Train Pipeline
@@ -385,6 +390,11 @@ PIPELINE_YAML = """
       - [preprocess.output.*test-images*, train.input.test-set-images]
       - [preprocess.output.*test-labels*, train.input.test-set-labels]
       - [train.output.model*, evaluate.input.model]
+    parameters:
+      - name: pipeline_max_steps
+        default: 1000
+        targets:
+            - Train model (MNIST).parameters.max_steps
 """
 
 YAML_WITH_EXTRACT_TRAIN_EVAL = """
