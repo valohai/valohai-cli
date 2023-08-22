@@ -76,7 +76,7 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
     args = ['--adhoc', 'Train Pipeline', '--not-known',  overriding_value]
     with RunAPIMock(PROJECT_DATA['id']):
         output = runner.invoke(run, args).output
-        assert "Unknown pipeline parameter not-known" in output
+        assert "Unknown pipeline parameter ['not-known']" in output
 
     args = ['--adhoc', 'Train Pipeline', '--pipeline_max_steps', overriding_value]
     with RunAPIMock(PROJECT_DATA['id']) as mock_api:

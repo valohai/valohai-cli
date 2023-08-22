@@ -60,6 +60,41 @@ def run(
     start_pipeline(config, pipeline, project.id, commit, tags, args, title)
 
 
+def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str, Any]) -> Dict[str, Any]:
+    args_dict = process_args(args)
+    if not pipeline_parameters and args_dict:
+        raise click.UsageError('Pipeline does not have any parameters')
+
+    for param in pipeline_parameters:
+        if param in args_dict:
+            pipeline_parameters[param]['expression'] = args_dict[param]
+            args_dict.pop(param)
+
+    if args_dict:
+        raise click.UsageError(f'Unknown pipeline parameter {list(args_dict.keys())}')
+
+    return pipeline_parameters
+
+
+def process_args(args: List[str]) -> Dict[str, str]:
+    i = 0
+    args_dict = {}
+    for arg in args:
+        if arg.startswith("--"):
+            arg_name = arg.lstrip("-")
+            if "=" in arg_name: # --param=value
+                name, value = arg_name.split("=", 1)
+                args_dict[name] = value
+            else: # --param value
+                next_arg_idx = i + 1
+                if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
+                    args_dict[arg_name] = args[next_arg_idx]
+                else: # --param --param2 --param3 (flag)
+                    args_dict[arg_name] = "true" # doesn't support bool as we are using strings for pipeline parameters
+        i += 1
+    return args_dict
+
+
 def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
     with contextlib.suppress(Exception):  # If we fail to extract the pipeline list, it's not that big of a deal.
         project = get_project(require=True)
@@ -69,17 +104,6 @@ def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
             click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
             for pipeline_name in sorted(config.pipelines):
                 click.echo(f'   * {pipeline_name}', color=ctx.color)
-
-
-def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str, Any]) -> Dict[str, Any]:
-    for arg in args:
-        if arg.startswith('--'):
-            arg_name = arg[2:]
-        elif arg_name in pipeline_parameters:
-            pipeline_parameters[arg_name]['expression'] = arg
-        else:
-            raise click.UsageError(f'Unknown pipeline parameter {arg_name}')
-    return pipeline_parameters
 
 
 def start_pipeline(
