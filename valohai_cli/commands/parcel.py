@@ -56,6 +56,9 @@ def parcel(
     docker_images: bool,
     unparcel_script: bool,
 ) -> None:
+    """
+    Package a project for offline execution. (Experimental)
+    """
     project = get_project(require=True)
 
     if not destination:

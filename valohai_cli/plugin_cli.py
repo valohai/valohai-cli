@@ -1,3 +1,4 @@
+import os
 import pkgutil
 from collections import defaultdict
 from importlib import import_module
@@ -8,6 +9,7 @@ import click
 from click.core import Command, Context
 from click.formatting import HelpFormatter
 
+from valohai_cli.consts import json_help_envvar
 from valohai_cli.utils.cli_utils import join_with_style
 from valohai_cli.utils.matching import match_prefix
 
@@ -125,11 +127,21 @@ def walk_commands(
 
 class RecursiveHelpPluginCLI(PluginCLI):
 
+    def get_help(self, ctx: Context) -> str:
+        if os.environ.get(json_help_envvar):
+            # Dump JSON help. The format of this is not guaranteed to be stable,
+            # as (as you can see) it's currently directly provided by Click
+            # (see https://github.com/pallets/click/pull/1623).
+            import json
+            return json.dumps(ctx.to_info_dict())
+
+        return super().get_help(ctx)
+
     def format_commands(self, ctx: Context, formatter: HelpFormatter) -> None:
         rows_by_prefix = defaultdict(list)
         for trail, command in self._get_all_commands(ctx):
             prefix = (' '.join(trail[:1]) if len(trail) > 1 else '')
-            help = (command.short_help or command.help or '').partition('\n')[0]
+            help = command.get_short_help_str(90)
             rows_by_prefix[prefix.strip()].append((' '.join(trail).strip(), help))
 
         for prefix, rows in sorted(rows_by_prefix.items()):

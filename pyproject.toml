@@ -13,7 +13,7 @@ authors = [
     { name = "Valohai", email = "hait@valohai.com" },
 ]
 dependencies = [
-    "click>=7.0",
+    "click>=8.0",
     "gitignorant>=0.2.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",

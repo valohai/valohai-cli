@@ -10,6 +10,9 @@ from valohai_cli.messages import warn
 
 @click.command()
 def update_check() -> None:
+    """
+    Check if there's a newer version of Valohai-CLI available.
+    """
     data = get_pypi_info()
     current_version = valohai_cli.__version__
     latest_version = data['info']['version']
