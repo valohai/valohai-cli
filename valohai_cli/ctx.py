@@ -1,7 +1,6 @@
-from typing import Optional, Union, overload
+from typing import Literal, Optional, Union, overload
 
 import click
-from typing_extensions import Literal
 
 from valohai_cli.exceptions import NoProject
 from valohai_cli.messages import success
