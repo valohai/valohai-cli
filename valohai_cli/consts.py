@@ -25,3 +25,4 @@ complete_execution_statuses = {
 execution_statuses = incomplete_execution_statuses | complete_execution_statuses
 
 default_app_host = 'https://app.valohai.com/'
+json_help_envvar = "VH_CLI_JSON_HELP"
