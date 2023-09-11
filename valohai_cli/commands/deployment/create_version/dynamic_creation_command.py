@@ -25,6 +25,7 @@ class CreationCommand(click.Command):
     """
     A dynamically-generated subcommand that has Click options for files for deployments.
     """
+
     def __init__(
         self,
         project: Project,

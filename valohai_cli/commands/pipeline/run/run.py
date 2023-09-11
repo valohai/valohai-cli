@@ -82,15 +82,15 @@ def process_args(args: List[str]) -> Dict[str, str]:
     for arg in args:
         if arg.startswith("--"):
             arg_name = arg.lstrip("-")
-            if "=" in arg_name: # --param=value
+            if "=" in arg_name:  # --param=value
                 name, value = arg_name.split("=", 1)
                 args_dict[name] = value
-            else: # --param value
+            else:  # --param value
                 next_arg_idx = i + 1
                 if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
                     args_dict[arg_name] = args[next_arg_idx]
-                else: # --param --param2 --param3 (flag)
-                    args_dict[arg_name] = "true" # doesn't support bool as we are using strings for pipeline parameters
+                else:  # --param --param2 --param3 (flag)
+                    args_dict[arg_name] = "true"  # doesn't support bool as we are using strings for pipeline parameters
         i += 1
     return args_dict
 
@@ -107,13 +107,13 @@ def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
 
 
 def start_pipeline(
-        config: Config,
-        pipeline: Pipeline,
-        project_id: str,
-        commit: str,
-        tags: List[str],
-        args: List[str],
-        title: Optional[str] = None,
+    config: Config,
+    pipeline: Pipeline,
+    project_id: str,
+    commit: str,
+    tags: List[str],
+    args: List[str],
+    title: Optional[str] = None,
 ) -> None:
     converted_pipeline = PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline)
     if args:

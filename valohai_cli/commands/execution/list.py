@@ -27,7 +27,7 @@ from valohai_cli.table import print_json, print_table
 )
 @click.option('--deleted', '-d', is_flag=True, help='Show only deleted executions')
 @click.option('--owned', '-o', is_flag=True, help='Show only executions that I\'ve created')
-def list(status: str, count: int, deleted: bool, owned:bool) -> None:
+def list(status: str, count: int, deleted: bool, owned: bool) -> None:
     """
     Show a list of executions for the project.
     """

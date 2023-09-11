@@ -112,8 +112,8 @@ def run(
                     f"does not seem valid (it should start with `ssh`)"
                 )
         runtime_config["remote_debug"] = {
-          "debug_port": debug_port,
-          "debug_key": key,
+            "debug_port": debug_port,
+            "debug_key": key,
         }
     if autorestart:
         runtime_config["autorestart"] = autorestart
