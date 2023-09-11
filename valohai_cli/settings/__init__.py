@@ -37,7 +37,11 @@ class Settings:
 
     @property
     def table_format(self) -> str:
-        warnings.warn('table_format is deprecated; use output_format', category=PendingDeprecationWarning)
+        warnings.warn(
+            "table_format is deprecated; use output_format",
+            category=PendingDeprecationWarning,
+            stacklevel=2,
+        )
         return self.output_format
 
     @table_format.setter
