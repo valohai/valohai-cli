@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Command line client for Valohai"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 authors = [
     { name = "Valohai", email = "hait@valohai.com" },
 ]
@@ -17,7 +17,6 @@ dependencies = [
     "gitignorant>=0.2.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
-    "typing-extensions>=3.7",
     "valohai-utils>=0.3.0",
     "valohai-yaml>=0.31.0",
 ]
@@ -56,7 +55,7 @@ norecursedirs = [".git", ".tox"]
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py38"
 ignore = [
     "E501",
     "B904",
