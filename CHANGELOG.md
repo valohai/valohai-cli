@@ -1,5 +1,31 @@
 ### Changelog
 
+#### [v0.25.0](https://github.com/valohai/valohai-cli/compare/v0.24.0...v0.25.0)
+
+> 11 September 2023
+
+- Add commit_identifier in pipeline's run [`#287`](https://github.com/valohai/valohai-cli/pull/287)
+- Pipeline parameters overriding [`#285`](https://github.com/valohai/valohai-cli/pull/285)
+- Honour --yaml flag to parse configuration in vh pipeline run --adhoc [`#281`](https://github.com/valohai/valohai-cli/pull/281)
+- Add missing slash into authtoken url [`#278`](https://github.com/valohai/valohai-cli/pull/278)
+- Add Override support for pipeline parameters [`89d83c5`](https://github.com/valohai/valohai-cli/commit/89d83c55ea77e342078d8c9ba1bb41902b749ee5)
+- Use --yaml flag to parse current configuration in pipeline run [`603934b`](https://github.com/valohai/valohai-cli/commit/603934b833c2db1bb3e06708f5656dc184e6698b)
+
+#### [v0.24.0](https://github.com/valohai/valohai-cli/compare/v0.23.0...v0.24.0)
+
+> 22 February 2023
+
+- Add option to list only my executions [`#275`](https://github.com/valohai/valohai-cli/pull/275)
+- Drop support for EOL Python 3.6 [`df1b8b1`](https://github.com/valohai/valohai-cli/commit/df1b8b1dc66cde5cae8807899b09e17f6a7fc9d7)
+
+#### [v0.23.0](https://github.com/valohai/valohai-cli/compare/v0.22.2...v0.23.0)
+
+> 7 February 2023
+
+- Fix exec remote debug API call correct format [`#273`](https://github.com/valohai/valohai-cli/pull/273)
+- Lint with pre-commit + ruff [`#272`](https://github.com/valohai/valohai-cli/pull/272)
+- List only deleted executions [`#267`](https://github.com/valohai/valohai-cli/pull/267)
+
 #### [v0.22.2](https://github.com/valohai/valohai-cli/compare/v0.22.1...v0.22.2)
 
 > 10 November 2022
