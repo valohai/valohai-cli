@@ -141,7 +141,7 @@ class RecursiveHelpPluginCLI(PluginCLI):
         rows_by_prefix = defaultdict(list)
         for trail, command in self._get_all_commands(ctx):
             prefix = (' '.join(trail[:1]) if len(trail) > 1 else '')
-            help = (command.short_help or command.help or '').partition('\n')[0]
+            help = command.get_short_help_str(90)
             rows_by_prefix[prefix.strip()].append((' '.join(trail).strip(), help))
 
         for prefix, rows in sorted(rows_by_prefix.items()):
