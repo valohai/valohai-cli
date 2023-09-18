@@ -17,8 +17,8 @@ dependencies = [
     "gitignorant>=0.2.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
-    "valohai-utils>=0.3.0",
-    "valohai-yaml>=0.31.0",
+    "valohai-utils>=0.3.0,<0.5.0",
+    "valohai-yaml>=0.31.0,<0.33.0",
 ]
 
 [project.scripts]
