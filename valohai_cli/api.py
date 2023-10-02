@@ -72,10 +72,10 @@ class APISession(requests.Session):
         try:
             resp = super().request(method, url, **kwargs)
         except requests.ConnectionError as ce:
-            host = urlparse(ce.request.url).netloc
+            host = urlparse(ce.request.url).netloc if ce.request else self.base_netloc
             if 'Connection refused' in str(ce):
                 raise CLIException(
-                    f'Unable to connect to {host} (connection refused); try again soon.'
+                    f'Unable to connect to {host!r} (connection refused); try again soon.'
                 ) from ce
             raise
 
