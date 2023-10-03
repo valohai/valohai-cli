@@ -1,9 +1,12 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import click
+from click import get_current_context
 
 from valohai_cli import git as git
 from valohai_cli.adhoc import package_adhoc_commit
+from valohai_cli.commands.project.fetch import fetch
+from valohai_cli.ctx import get_project
 from valohai_cli.exceptions import NoGitRepo
 from valohai_cli.messages import warn
 from valohai_cli.models.project import Project
@@ -45,6 +48,7 @@ def get_git_commit(project: Project) -> Optional[str]:
 
 
 def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
+    matching_commits = []
     if commit_identifier and commit_identifier.startswith('~'):
         # Assume ad-hoc commits are qualified already
         return commit_identifier
@@ -52,10 +56,13 @@ def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
     try:
         matching_commits = project.resolve_commits(commit_identifier=commit_identifier)
     except KeyError:
-        warn(f'Commit {commit_identifier} is not known for the project. Have you pushed it?')
-        raise click.Abort()
+        warn(f'Commit {commit_identifier} is not known for the project')
+        if click.confirm('Would you like to fetch new commits?', default=True):
+            matching_commits = fetch_latest_commits(commit_identifier)
     except IndexError:
         warn('No commits are known for the project.')
+
+    if not matching_commits:
         raise click.Abort()
 
     commit_obj = matching_commits[0]
@@ -70,3 +77,10 @@ def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
         click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
 
     return resolved_commit_identifier
+
+
+def fetch_latest_commits(commit_identifier: Optional[str]) -> List[dict]:
+    ctx = get_current_context(silent=True)
+    ctx.invoke(fetch)
+    project = get_project(require=True)
+    return project.resolve_commits(commit_identifier=commit_identifier)

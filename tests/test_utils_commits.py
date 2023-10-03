@@ -78,14 +78,29 @@ class TestResolveCommit:
         out, err = capsys.readouterr()
         assert 'which is ambiguous with' in err
 
-    def test_fails_if_not_found(self, logged_in, project, commits):
+
+    @pytest.mark.parametrize('confirm', [True, False])
+    def test_asks_to_fetch_latest_if_not_found(self, logged_in, project, commits, monkeypatch, confirm):
+        new_commit = '94c9d70834f53ce765f3b86bac50f015278d8bd4'
         with requests_mock.mock() as m:
             m.get(self.commit_api_url, json={'results': commits})
-            with pytest.raises(click.exceptions.Abort):
-                resolve_commit('94c9d70834f53ce765f3b86bac50f015278d8bd4', project)
 
-    def test_fails_if_no_commits(self, logged_in, project):
+            # When the commit is not found, it should ask to fetch latest commits
+            monkeypatch.setattr(click, 'confirm', lambda *args, **kwargs: confirm)
+
+            if confirm:
+                # When the latest commit is fetched, it should return the new commit
+                monkeypatch.setattr('valohai_cli.utils.commits.fetch_latest_commits', lambda unknown_commit: [{'identifier': new_commit}])
+                assert resolve_commit(new_commit, project) == new_commit
+            else:
+                with pytest.raises(click.exceptions.Abort):
+                    resolve_commit(new_commit, project)
+
+    def test_fails_if_no_commits(self, logged_in, project, monkeypatch):
         with requests_mock.mock() as m:
             m.get(self.commit_api_url, json={'results': []})
+            monkeypatch.setattr(click, 'confirm', lambda *args, **kwargs: True)
+            monkeypatch.setattr('valohai_cli.utils.commits.fetch_latest_commits',
+                                lambda unknown_commit: [])
             with pytest.raises(click.exceptions.Abort):
                 resolve_commit('c243d40ff7feb63aa7e15e8eda1d8859010ebc53', project)
