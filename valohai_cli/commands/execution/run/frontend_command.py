@@ -18,6 +18,9 @@ run_epilog = (
 )
 
 
+EMPTY_DICT_PLACEHOLDER = object()
+
+
 @click.command(
     context_settings={"ignore_unknown_options": True},
     add_help_option=False,
@@ -39,6 +42,12 @@ run_epilog = (
 @click.option('--debug-port', type=int)
 @click.option('--debug-key-file', type=click.Path(file_okay=True, readable=True, writable=False))
 @click.option('--autorestart/--no-autorestart', help='Enable Automatic Restart on Spot Instance Interruption')
+@click.option('--k8s-cpu-min', help="Kubernetes only. CPU resouce request", type=float)
+@click.option('--k8s-memory-min', help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)", type=int)
+@click.option('--k8s-cpu-max', help="Kubernetes only. CPU resouce request", type=float)
+@click.option('--k8s-memory-max', help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)", type=int)
+@click.option('--k8s-device', 'k8s_devices', multiple=True, help="Kubernetes only. Custom device claim. Format: NAME=VALUE. May be repeated for multiple limits.")
+@click.option('--k8s-device-none', is_flag=True, help="Kubernetes only. Request no device claims, not even if there is a default")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(
@@ -61,6 +70,12 @@ def run(
     debug_port: int,
     debug_key_file: Optional[str],
     autorestart: bool,
+    k8s_cpu_min: Optional[float],
+    k8s_memory_min: Optional[int],
+    k8s_cpu_max: Optional[float],
+    k8s_memory_max: Optional[int],
+    k8s_devices: List[str],
+    k8s_device_none: bool,
 ) -> Any:
     """
     Start an execution of a step.
@@ -118,6 +133,38 @@ def run(
     if autorestart:
         runtime_config["autorestart"] = autorestart
 
+    if k8s_devices and k8s_device_none:
+        raise click.UsageError('--k8s-device=(...) and --k8s-device-none cannot be used together. '
+                               'Using --k8s-device=(...) will discard all Kubernetes device default values on its own.')
+
+    kubernetes_dict = recursive_compact_kubernetes_dict({
+        'containers': {
+            'workload': {
+                'resources': {
+                    'requests': {
+                        'cpu': k8s_cpu_min or step.resources.cpu.min,
+                        'memory': k8s_memory_min or step.resources.memory.min,
+                    },
+                    'limits': {
+                        'cpu': k8s_cpu_max or step.resources.cpu.max,
+                        'memory': k8s_memory_max or step.resources.memory.max,
+                        'devices': (
+                            parse_environment_variable_strings(k8s_devices, coerce=int)
+                            if k8s_devices
+                            else EMPTY_DICT_PLACEHOLDER
+                            if k8s_device_none
+                            else EMPTY_DICT_PLACEHOLDER
+                            if isinstance(step.resources.devices.devices, dict) and step.resources.devices.devices == {}
+                            else step.resources.devices.devices
+                        ),
+                    }
+                }
+            }
+        }
+    })
+    if kubernetes_dict:
+        runtime_config['kubernetes'] = kubernetes_dict
+
     rc = RunCommand(
         project=project,
         step=step,
@@ -143,3 +190,15 @@ def print_step_list(ctx: click.Context, commit: Optional[str]) -> None:
             click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
             for step in sorted(config.steps):
                 click.echo(f'   * {step}', color=ctx.color)
+
+
+def recursive_compact_kubernetes_dict(dct: dict) -> dict:
+    ret = {}
+    for key, value in dct.items():
+        if isinstance(value, dict):
+            value = recursive_compact_kubernetes_dict(value)
+        if key and value not in [None, {}]:
+            if value is EMPTY_DICT_PLACEHOLDER:
+                value = {}
+            ret[key] = value
+    return ret

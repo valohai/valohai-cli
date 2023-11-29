@@ -5,7 +5,7 @@ import re
 import string
 import unicodedata
 import webbrowser
-from typing import Any, Dict, Iterable, Iterator, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
 
 import click
 
@@ -132,7 +132,13 @@ def sanitize_option_name(name: str) -> str:
     return re.sub(r'[^-a-z0-9]+', '-', name, flags=re.IGNORECASE).strip('-')
 
 
-def parse_environment_variable_strings(envvar_strings: Iterable[str]) -> Dict[str, str]:
+# Once mypy supports using TypeVars in default arguments, we can make a more specific type for coerce.
+# Mypy issue: https://github.com/python/mypy/issues/3737
+def parse_environment_variable_strings(
+    envvar_strings: Iterable[str],
+    *,
+    coerce: Callable[[str], Any] = str
+) -> Dict[str, Any]:
     """
     Parse a list of environment variable strings into a dict.
     """
@@ -142,7 +148,7 @@ def parse_environment_variable_strings(envvar_strings: Iterable[str]) -> Dict[st
         key = key.strip()
         if not key:
             continue
-        environment_variables[key] = value.strip()
+        environment_variables[key] = coerce(value.strip())
     return environment_variables
 
 
