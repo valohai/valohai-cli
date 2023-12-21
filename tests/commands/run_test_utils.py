@@ -173,14 +173,14 @@ class RunAPIMock(requests_mock.Mocker):
 
 
 class RunTestSetup:
-    def __init__(self, monkeypatch, adhoc, step_name='train'):
+    def __init__(self, monkeypatch, adhoc, step_name='train', config_yaml=CONFIG_YAML):
         self.adhoc = adhoc
         self.project_id = PROJECT_DATA['id']
         self.commit_id = 'f' * 40
         monkeypatch.setattr(git, 'get_current_commit', lambda dir: self.commit_id)
 
         with open(get_project().get_config_filename(), 'w') as yaml_fp:
-            yaml_fp.write(CONFIG_YAML)
+            yaml_fp.write(config_yaml)
 
         # Create an alternative yaml as well (monorepo style)
         with open(get_project().get_config_filename(yaml_path=ALTERNATIVE_YAML), 'w') as yaml_fp:
@@ -198,7 +198,7 @@ class RunTestSetup:
             self._run_api_mock = RunAPIMock(self.project_id, self.commit_id, self.values)
         return self._run_api_mock
 
-    def run(self, *, catch_exceptions=True, verify_adhoc=True) -> str:
+    def run(self, *, catch_exceptions=False, verify_adhoc=True) -> str:
         with self.run_api_mock:
             output = CliRunner().invoke(run, self.args, catch_exceptions=catch_exceptions).output
             if verify_adhoc:

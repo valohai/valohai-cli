@@ -566,3 +566,56 @@ def main(config) -> Pipeline:
 
     return pipe
 """
+
+KUBE_RESOURCE_YAML = """
+---
+
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+    inputs:
+      - name: in1
+        default: http://example.com/
+    parameters:
+      - name: max_steps
+        pass-as: --max_steps={v}
+        description: Number of steps to run the trainer
+        type: integer
+        default: 300
+      - name: learning_rate
+        type: float
+        default: 0.1337
+      - name: enable_mega_boost
+        type: flag
+      - name: multi-parameter
+        default: ["one","two","three"]
+        type: string
+        multiple: separate
+    environment-variables:
+      - name: testenvvar
+        default: 'test'
+    resources:
+      cpu:
+        min: 1.0
+        max: 2
+      memory:
+        min: 3
+        max: 4
+      devices:
+        nvidia.com/gpu: 1
+- endpoint:
+    name: greet
+    image: python:3.9
+    port: 8000
+    server-command: python -m wsgiref.simple_server
+- endpoint:
+    name: predict-digit
+    description: predict digits from image inputs ("file" parameter)
+    image: tensorflow/tensorflow:2.6.0
+    wsgi: predict:predict
+    files:
+      - name: model
+        description: Model output file from TensorFlow
+        path: model.h5
+"""
