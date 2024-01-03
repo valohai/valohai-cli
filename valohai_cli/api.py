@@ -8,7 +8,12 @@ from requests.auth import AuthBase
 from requests.models import PreparedRequest, Request, Response
 
 from valohai_cli import __version__ as VERSION
-from valohai_cli.exceptions import APIError, APINotFoundError, CLIException, NotLoggedIn
+from valohai_cli.exceptions import (
+    APIConnectionError,
+    APIError,
+    APINotFoundError,
+    NotLoggedIn,
+)
 from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
@@ -72,12 +77,11 @@ class APISession(requests.Session):
         try:
             resp = super().request(method, url, **kwargs)
         except requests.ConnectionError as ce:
-            host = urlparse(ce.request.url).netloc if ce.request else self.base_netloc
             if 'Connection refused' in str(ce):
-                raise CLIException(
-                    f'Unable to connect to {host!r} (connection refused); try again soon.'
-                ) from ce
-            raise
+                host = urlparse(ce.request.url).netloc if ce.request else self.base_netloc
+                msg = f'Unable to connect to {host!r} (connection refused); try again soon.'
+                raise APIConnectionError(msg) from ce
+            raise APIConnectionError(str(ce)) from ce
 
         if handle_errors and resp.status_code >= 400:
             cls = (APINotFoundError if resp.status_code == 404 else api_error_class)

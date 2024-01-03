@@ -108,6 +108,10 @@ class PackageTooLarge(CLIException):
     pass
 
 
+class APIConnectionError(CLIException):
+    pass
+
+
 class NoGitRepo(CLIException):
     color = 'yellow'
 
