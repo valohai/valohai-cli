@@ -58,6 +58,7 @@ class RunCommand(click.Command):
         environment_variables: Optional[Dict[str, str]] = None,
         tags: Optional[Sequence[str]] = None,
         runtime_config: Optional[dict] = None,
+        runtime_config_preset: Optional[str] = None,
     ) -> None:
 
         """
@@ -74,6 +75,7 @@ class RunCommand(click.Command):
         :param image: Image override
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
         :param runtime_config: Runtime config dict
+        :param runtime_config_preset: Runtime config preset identifier (UUID)
         """
         assert isinstance(step, Step)
         self.project = project
@@ -88,6 +90,7 @@ class RunCommand(click.Command):
         self.environment_variables = dict(environment_variables or {})
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
+        self.runtime_config_preset = runtime_config_preset
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -158,7 +161,7 @@ class RunCommand(click.Command):
         option.help_group = 'Input Options'  # type: ignore[attr-defined]
         return option
 
-    def execute(self, **kwargs: Any) -> None:
+    def execute(self, **kwargs: Any) -> None:  # noqa: C901
         """
         Execute the creation of the execution. (Heh.)
 
@@ -188,6 +191,8 @@ class RunCommand(click.Command):
             payload['tags'] = self.tags
         if self.runtime_config:
             payload['runtime_config'] = self.runtime_config
+        if self.runtime_config_preset:
+            payload['runtime_config_preset'] = self.runtime_config_preset
 
         resp = request(
             method='post',
