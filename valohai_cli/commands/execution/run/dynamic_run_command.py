@@ -161,7 +161,7 @@ class RunCommand(click.Command):
         option.help_group = 'Input Options'  # type: ignore[attr-defined]
         return option
 
-    def execute(self, **kwargs: Any) -> None:  # noqa: C901
+    def execute(self, **kwargs: Any) -> None:
         """
         Execute the creation of the execution. (Heh.)
 
@@ -170,29 +170,7 @@ class RunCommand(click.Command):
         :param kwargs: Assorted kwargs (as passed in by Click).
         :return: Naught
         """
-        options, parameters, inputs = self._sift_kwargs(kwargs)
-
-        payload = {
-            'commit': self.commit,
-            'inputs': inputs,
-            'parameters': parameters,
-            'project': self.project.id,
-            'step': self.step.name,
-        }
-        if self.environment:
-            payload['environment'] = self.environment
-        if self.image:
-            payload['image'] = self.image
-        if self.title:
-            payload['title'] = self.title
-        if self.environment_variables:
-            payload['environment_variables'] = self.environment_variables
-        if self.tags:
-            payload['tags'] = self.tags
-        if self.runtime_config:
-            payload['runtime_config'] = self.runtime_config
-        if self.runtime_config_preset:
-            payload['runtime_config_preset'] = self.runtime_config_preset
+        payload = self._build_payload(**kwargs)
 
         resp = request(
             method='post',
@@ -222,6 +200,30 @@ class RunCommand(click.Command):
         if self.watch:
             from valohai_cli.commands.execution.watch import watch
             ctx.invoke(watch, counter=resp['counter'])
+
+    def _build_payload(self, **kwargs: Any) -> dict:
+        _options, parameters, inputs = self._sift_kwargs(kwargs)
+
+        payload = {
+            'commit': self.commit,
+            'inputs': inputs,
+            'parameters': parameters,
+            'project': self.project.id,
+            'step': self.step.name,
+        }
+        payload.update(self._optional_item('environment'))
+        payload.update(self._optional_item('image'))
+        payload.update(self._optional_item('title'))
+        payload.update(self._optional_item('environment_variables'))
+        payload.update(self._optional_item('tags'))
+        payload.update(self._optional_item('runtime_config'))
+        payload.update(self._optional_item('runtime_config_preset'))
+
+        return payload
+
+    def _optional_item(self, attribute_name: str) -> dict:
+        value = getattr(self, attribute_name, None)
+        return {attribute_name: value} if value else {}
 
     def _sift_kwargs(self, kwargs: Dict[str, str]) -> Tuple[dict, dict, dict]:
         # Sift kwargs into params, options, and inputs
