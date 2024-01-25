@@ -71,7 +71,7 @@ class RunCommand(click.Command):
         :param environment: Environment identifier (slug or UUID)
         :param environment_variables: Mapping of environment variables
         :param tags: Tags to apply
-        :param watch: Whether to chain to `exec watch` afterwards
+        :param watch: Whether to chain to `exec watch` afterward
         :param image: Image override
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
         :param runtime_config: Runtime config dict
@@ -130,7 +130,7 @@ class RunCommand(click.Command):
         help = parameter.description
         is_multiple = parameter.multiple is not None
         if is_multiple:
-            help = "(Multiple) " + (help if help else "")
+            help = "(Multiple) " + (help or "")
         option = click.Option(
             param_decls=list(generate_sanitized_options(parameter.name)),
             required=False,  # This is done later
@@ -143,7 +143,8 @@ class RunCommand(click.Command):
         option.help_group = 'Parameter Options'  # type: ignore[attr-defined]
         return option
 
-    def convert_input_to_option(self, input: Input) -> Option:
+    @staticmethod
+    def convert_input_to_option(input: Input) -> Option:
         """
         Convert an Input into a click Option.
         """
@@ -238,7 +239,7 @@ class RunCommand(click.Command):
             else:
                 options[key] = value
         self._process_parameters(params, parameter_file=options.get('parameter_file'))
-        return (options, params, inputs)
+        return options, params, inputs
 
     def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:  # noqa: C901
         if parameter_file:
