@@ -48,6 +48,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 @click.option('--k8s-memory-max', help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)", type=int)
 @click.option('--k8s-device', 'k8s_devices', multiple=True, help="Kubernetes only. Custom device claim. Format: NAME=VALUE. May be repeated for multiple limits.")
 @click.option('--k8s-device-none', is_flag=True, help="Kubernetes only. Request no device claims, not even if there is a default")
+@click.option('--k8s-preset', default=None, help="Kubernetes only. Custom runtime config preset UUID")
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
 @click.pass_context
 def run(
@@ -76,6 +77,7 @@ def run(
     k8s_memory_max: Optional[int],
     k8s_devices: List[str],
     k8s_device_none: bool,
+    k8s_preset: Optional[str],
 ) -> Any:
     """
     Start an execution of a step.
@@ -178,6 +180,7 @@ def run(
         environment_variables=parse_environment_variable_strings(environment_variables),
         tags=tags,
         runtime_config=runtime_config,
+        runtime_config_preset=k8s_preset,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)

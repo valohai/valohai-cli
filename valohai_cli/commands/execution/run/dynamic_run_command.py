@@ -58,6 +58,7 @@ class RunCommand(click.Command):
         environment_variables: Optional[Dict[str, str]] = None,
         tags: Optional[Sequence[str]] = None,
         runtime_config: Optional[dict] = None,
+        runtime_config_preset: Optional[str] = None,
     ) -> None:
 
         """
@@ -70,10 +71,11 @@ class RunCommand(click.Command):
         :param environment: Environment identifier (slug or UUID)
         :param environment_variables: Mapping of environment variables
         :param tags: Tags to apply
-        :param watch: Whether to chain to `exec watch` afterwards
+        :param watch: Whether to chain to `exec watch` afterward
         :param image: Image override
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
         :param runtime_config: Runtime config dict
+        :param runtime_config_preset: Runtime config preset identifier (UUID)
         """
         assert isinstance(step, Step)
         self.project = project
@@ -88,6 +90,7 @@ class RunCommand(click.Command):
         self.environment_variables = dict(environment_variables or {})
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
+        self.runtime_config_preset = runtime_config_preset
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -127,7 +130,7 @@ class RunCommand(click.Command):
         help = parameter.description
         is_multiple = parameter.multiple is not None
         if is_multiple:
-            help = "(Multiple) " + (help if help else "")
+            help = "(Multiple) " + (help or "")
         option = click.Option(
             param_decls=list(generate_sanitized_options(parameter.name)),
             required=False,  # This is done later
@@ -140,7 +143,8 @@ class RunCommand(click.Command):
         option.help_group = 'Parameter Options'  # type: ignore[attr-defined]
         return option
 
-    def convert_input_to_option(self, input: Input) -> Option:
+    @staticmethod
+    def convert_input_to_option(input: Input) -> Option:
         """
         Convert an Input into a click Option.
         """
@@ -167,27 +171,7 @@ class RunCommand(click.Command):
         :param kwargs: Assorted kwargs (as passed in by Click).
         :return: Naught
         """
-        options, parameters, inputs = self._sift_kwargs(kwargs)
-
-        payload = {
-            'commit': self.commit,
-            'inputs': inputs,
-            'parameters': parameters,
-            'project': self.project.id,
-            'step': self.step.name,
-        }
-        if self.environment:
-            payload['environment'] = self.environment
-        if self.image:
-            payload['image'] = self.image
-        if self.title:
-            payload['title'] = self.title
-        if self.environment_variables:
-            payload['environment_variables'] = self.environment_variables
-        if self.tags:
-            payload['tags'] = self.tags
-        if self.runtime_config:
-            payload['runtime_config'] = self.runtime_config
+        payload = self._build_payload(**kwargs)
 
         resp = request(
             method='post',
@@ -218,6 +202,30 @@ class RunCommand(click.Command):
             from valohai_cli.commands.execution.watch import watch
             ctx.invoke(watch, counter=resp['counter'])
 
+    def _build_payload(self, **kwargs: Any) -> dict:
+        _options, parameters, inputs = self._sift_kwargs(kwargs)
+
+        payload = {
+            'commit': self.commit,
+            'inputs': inputs,
+            'parameters': parameters,
+            'project': self.project.id,
+            'step': self.step.name,
+        }
+        payload.update(self._optional_item('environment'))
+        payload.update(self._optional_item('image'))
+        payload.update(self._optional_item('title'))
+        payload.update(self._optional_item('environment_variables'))
+        payload.update(self._optional_item('tags'))
+        payload.update(self._optional_item('runtime_config'))
+        payload.update(self._optional_item('runtime_config_preset'))
+
+        return payload
+
+    def _optional_item(self, attribute_name: str) -> dict:
+        value = getattr(self, attribute_name, None)
+        return {attribute_name: value} if value else {}
+
     def _sift_kwargs(self, kwargs: Dict[str, str]) -> Tuple[dict, dict, dict]:
         # Sift kwargs into params, options, and inputs
         options = {}
@@ -231,7 +239,7 @@ class RunCommand(click.Command):
             else:
                 options[key] = value
         self._process_parameters(params, parameter_file=options.get('parameter_file'))
-        return (options, params, inputs)
+        return options, params, inputs
 
     def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:  # noqa: C901
         if parameter_file:
