@@ -31,6 +31,7 @@ class RunAPIMock(requests_mock.Mocker):
         deployment_id=666,
         additional_payload_values=None,
         deployment_version_name='220801.0',
+        num_parameters=None,
     ):
         super().__init__()
         self.last_create_execution_payload = None
@@ -40,6 +41,7 @@ class RunAPIMock(requests_mock.Mocker):
         self.deployment_id = deployment_id
         self.deployment_version_name = deployment_version_name
         self.additional_payload_values = (additional_payload_values or {})
+        self.num_parameters = num_parameters
         self.get(
             f'https://app.valohai.com/api/v0/projects/{project_id}/',
             json=self.handle_project,
@@ -154,7 +156,7 @@ class RunAPIMock(requests_mock.Mocker):
         assert len(body_json['edges']) == 5
         assert len(body_json['nodes']) == 3
         if "parameters" in body_json:
-            assert len(body_json['parameters']) == 1
+            assert len(body_json['parameters']) == self.num_parameters
         context.status_code = 201
         self.last_create_pipeline_payload = body_json
         return PIPELINE_DATA.copy()

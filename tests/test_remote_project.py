@@ -16,7 +16,7 @@ def remote_project_setup(request, monkeypatch, tmpdir):
     project_id = PROJECT_DATA['id']
     request.addfinalizer(lambda: settings.reset())
     monkeypatch.chdir(tmpdir)
-    with RunAPIMock(project_id, 'f' * 40, {}):
+    with RunAPIMock(project_id, 'f' * 40, {}, num_parameters=2):
         configure_token_login(None, test_token)
         configure_project_override(project_id=project_id, mode=None)
         assert isinstance(settings.override_project, RemoteProject)

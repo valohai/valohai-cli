@@ -11,7 +11,7 @@ from valohai_cli.ctx import get_project
 def test_pipeline_run_success(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['training']
-    with RunAPIMock(PROJECT_DATA['id']):
+    with RunAPIMock(PROJECT_DATA['id'], num_parameters=1):
         output = runner.invoke(run, args).output
 
     assert 'Success' in output
@@ -21,7 +21,7 @@ def test_pipeline_run_success(runner, logged_in_and_linked):
 def test_pipeline_adhoc_run_success(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['--adhoc', 'training']
-    with RunAPIMock(PROJECT_DATA['id']):
+    with RunAPIMock(PROJECT_DATA['id'], num_parameters=1):
         output = runner.invoke(run, args).output
 
     assert 'Success' in output
@@ -32,7 +32,7 @@ def test_pipeline_adhoc_run_success(runner, logged_in_and_linked):
 def test_pipeline_adhoc_with_yaml_path_run_success(runner, logged_in_and_linked):
     add_valid_pipeline_yaml(yaml_path='bark.yaml')
     args = ['--adhoc', '--yaml=bark.yaml', 'training']
-    with RunAPIMock(PROJECT_DATA['id']):
+    with RunAPIMock(PROJECT_DATA['id'], num_parameters=1):
         output = runner.invoke(run, args).output
 
     assert 'Success' in output
@@ -43,7 +43,7 @@ def test_pipeline_adhoc_with_yaml_path_run_success(runner, logged_in_and_linked)
 def test_pipeline_run_no_name(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = ['']
-    with RunAPIMock(PROJECT_DATA['id']):
+    with RunAPIMock(PROJECT_DATA['id'], num_parameters=1):
         output = runner.invoke(run, args).output
     assert 'Usage: ' in output
 
@@ -76,10 +76,11 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
     args = ['--adhoc', 'Train Pipeline', '--not-known', overriding_value]
     with RunAPIMock(PROJECT_DATA['id']):
         output = runner.invoke(run, args).output
-        assert "Unknown pipeline parameter ['not-known']" in output
+        assert "Unknown pipeline parameters: ['not-known']" in output
 
-    args = ['--adhoc', 'Train Pipeline', '--pipeline_max_steps', overriding_value]
-    with RunAPIMock(PROJECT_DATA['id']) as mock_api:
+    args = ['--adhoc', 'Train Pipeline', '--pipeline_max_steps', overriding_value,
+            '--sources+=laituri', '--sources+=satama']
+    with RunAPIMock(PROJECT_DATA['id'], num_parameters=2) as mock_api:
         output = runner.invoke(run, args).output
 
         # Test that it runs successfully
@@ -87,7 +88,15 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
         assert 'Uploaded ad-hoc code' in output
         assert 'Pipeline =21 queued' in output
 
-        # Test that the pipeline parameter was overridden
+        # Test that the pipeline parameters were overridden
 
-        payload = mock_api.last_create_pipeline_payload['parameters']['pipeline_max_steps']
-        assert payload['expression'] == overriding_value
+        max_steps = mock_api.last_create_pipeline_payload['parameters']['pipeline_max_steps']
+        assert max_steps['expression'] == overriding_value
+        sources = mock_api.last_create_pipeline_payload['parameters']['sources']
+        assert sources['expression'] == {
+            'style': 'single',
+            # Use local sources
+            'rules': {
+                'value': ['laituri', 'satama']
+            }
+        }
