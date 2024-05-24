@@ -90,7 +90,7 @@ def banner(message: str, banner_char: str = '=', banner_style: Optional[dict] = 
     if banner_style is None:
         banner_style = DEFAULT_BANNER_STYLE
 
-    longest_line_len = max(len(line) for line in message.splitlines())
+    longest_line_len = max(len(line) for line in click.unstyle(message).splitlines())
 
     banner_line = banner_char * longest_line_len
     click.secho(banner_line, **banner_style)
