@@ -94,7 +94,7 @@ def test_file_soft_size_warn(tmpdir, capsys, monkeypatch):
     monkeypatch.setattr(termui, 'visible_prompt_func', lambda x: 'y\n')
     write_temp_files(tmpdir, with_yaml=True, large_file_size=int(pkg.FILE_SIZE_WARN_THRESHOLD + 50))
     pkg.package_directory(directory=str(tmpdir), yaml_path='valohai.yaml')
-    out, err = capsys.readouterr()
+    _out, err = capsys.readouterr()
     assert 'Large file large_file.dat' in err
 
 

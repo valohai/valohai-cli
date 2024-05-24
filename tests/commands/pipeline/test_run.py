@@ -73,7 +73,7 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     # Test if it lets unknown pipeline parameters pass through
     overriding_value = '123'
-    args = ['--adhoc', 'Train Pipeline', '--not-known',  overriding_value]
+    args = ['--adhoc', 'Train Pipeline', '--not-known', overriding_value]
     with RunAPIMock(PROJECT_DATA['id']):
         output = runner.invoke(run, args).output
         assert "Unknown pipeline parameter ['not-known']" in output

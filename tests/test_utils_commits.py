@@ -65,7 +65,7 @@ class TestResolveCommit:
             m.get(self.commit_api_url, json={'results': commits})
             resolved = resolve_commit('', project=project)
         assert resolved == 'c243d40ff7feb63aa7e15e8eda1d8859010ebc53'
-        out, err = capsys.readouterr()
+        _out, err = capsys.readouterr()
         assert 'Resolved to commit' in err
         assert 'ambiguous' not in err
 
@@ -75,9 +75,8 @@ class TestResolveCommit:
             # partial match to the latest matching commit identifier with an extension
             resolved = resolve_commit('b5b50f5d183ebc645460dba1329ee48798f31482', project=project)
         assert resolved == 'b5b50f5d183ebc645460dba1329ee48798f31482-beta'
-        out, err = capsys.readouterr()
+        _out, err = capsys.readouterr()
         assert 'which is ambiguous with' in err
-
 
     @pytest.mark.parametrize('confirm', [True, False])
     def test_asks_to_fetch_latest_if_not_found(self, logged_in, project, commits, monkeypatch, confirm):

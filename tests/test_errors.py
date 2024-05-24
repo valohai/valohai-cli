@@ -16,7 +16,7 @@ def test_api_error(logged_in, capsys):
         with pytest.raises(APIError) as aei:
             request('get', 'https://app.valohai.com/api/foo/')
         aei.value.show()
-        out, err = capsys.readouterr()
+        _out, err = capsys.readouterr()
         assert message in err
 
 
