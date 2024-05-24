@@ -17,8 +17,7 @@ The error code "{code}" indicates username + password authentication is not poss
 Use a login token instead:
  1. Log in on {host}
  2. Visit {token_url} to generate an authentication token
- 3. Once you have an authentication token, log in with:
-    {command}
+ 3. Once you have an authentication token, paste it below and we'll try it out.
 '''.strip()
 
 
@@ -78,10 +77,7 @@ def login(
             verify_ssl=verify_ssl,
         )
 
-    click.echo(f'Verifying API token on {host}...')
-
-    with APISession(host, token, verify_ssl=verify_ssl) as sess:
-        user_data = sess.get('/api/v0/users/me/').json()
+    user_data = verify_token(host=host, token=token, verify_ssl=verify_ssl)
     settings.persistence.update(
         host=host,
         user=user_data,
@@ -92,6 +88,12 @@ def login(
     success(f"Logged in. Hey {user_data.get('username', 'there')}!")
     if not verify_ssl:
         warn("SSL verification is off. This may leave you vulnerable to man-in-the-middle attacks.")
+
+
+def verify_token(*, host: str, token: str, verify_ssl: Union[bool, str] = True) -> dict:
+    click.echo(f'Verifying API token on {host}...')
+    with APISession(host, token, verify_ssl=verify_ssl) as sess:
+        return sess.get('/api/v0/users/me/').json()
 
 
 def do_user_pass_login(
@@ -117,18 +119,34 @@ def do_user_pass_login(
             }).json()
             return str(token_data['token'])
         except APIError as ae:
-            code = ae.code
-            if code in ('has_external_identity', 'has_2fa'):
-                command = 'vh login --token TOKEN_HERE '
-                if host != default_app_host:
-                    command += f'--host {host}'
-                banner(TOKEN_LOGIN_HELP.format(
-                    code=code,
+            if ae.code in ("has_external_identity", "has_2fa"):
+                return do_interactive_token_login(
                     host=host,
-                    command=command,
-                    token_url=urljoin(host, '/auth/tokens/')
-                ))
+                    verify_ssl=verify_ssl,
+                    login_error_code=ae.code,
+                )
             raise
+
+
+def do_interactive_token_login(
+    *,
+    host: str,
+    verify_ssl: Union[bool, str] = True,
+    login_error_code: Optional[str] = None,
+) -> str:
+    banner(TOKEN_LOGIN_HELP.format(
+        code=login_error_code or "(unknown)",
+        host=click.style(host, bold=True),
+        token_url=click.style(urljoin(host, '/auth/tokens/'), bold=True),
+    ))
+    while True:
+        token = click.prompt('Enter generated token', hide_input=True)
+        try:
+            verify_token(host=host, token=token, verify_ssl=verify_ssl)
+        except APIError as ae:
+            error(f"That didn't work: {ae}")
+            continue
+        return token
 
 
 def validate_host(host: Optional[str]) -> str:
