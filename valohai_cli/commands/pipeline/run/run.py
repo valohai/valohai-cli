@@ -77,9 +77,8 @@ def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str,
 
 
 def process_args(args: List[str]) -> Dict[str, str]:
-    i = 0
     args_dict = {}
-    for arg in args:
+    for i, arg in enumerate(args):
         if arg.startswith("--"):
             arg_name = arg.lstrip("-")
             if "=" in arg_name:  # --param=value
@@ -91,7 +90,6 @@ def process_args(args: List[str]) -> Dict[str, str]:
                     args_dict[arg_name] = args[next_arg_idx]
                 else:  # --param --param2 --param3 (flag)
                     args_dict[arg_name] = "true"  # doesn't support bool as we are using strings for pipeline parameters
-        i += 1
     return args_dict
 
 
