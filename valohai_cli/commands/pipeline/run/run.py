@@ -1,5 +1,5 @@
 import contextlib
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import click
 from click import Context
@@ -60,31 +60,26 @@ def run(
     start_pipeline(config, pipeline, project.id, commit, tags, args, title)
 
 
-def override_pipeline_parameters(args: List[str], pipeline_parameters: Dict[str, Any]) -> Dict[str, Any]:
-    args_dict = process_args(args)
-    if not pipeline_parameters and args_dict:
-        raise click.UsageError('Pipeline does not have any parameters')
-
-    for param in pipeline_parameters:
-        if param in args_dict:
-            pipeline_parameters[param]['expression'] = args_dict[param]
-            args_dict.pop(param)
-
-    if args_dict:
-        raise click.UsageError(f'Unknown pipeline parameter {list(args_dict.keys())}')
-
-    return pipeline_parameters
-
-
-def process_args(args: List[str]) -> Dict[str, str]:
-    args_dict = {}
+def process_args(args: List[str]) -> Dict[str, Union[str, list]]:
+    args_dict: Dict[str, Union[str, list]] = {}
     for i, arg in enumerate(args):
         if arg.startswith("--"):
             arg_name = arg.lstrip("-")
-            if "=" in arg_name:  # --param=value
+            if "+=" in arg_name:  # --param+=value
+                name, value = arg_name.split("+=", 1)
+                value_list: Union[list, str] = args_dict.get(name) or []
+                if not isinstance(value_list, list):
+                    raise click.UsageError(f'[{name}] Cannot mix "+=" with other parameter assignments')
+                value_list.append(value)
+                args_dict[name] = value_list
+            elif "=" in arg_name:  # --param=value
                 name, value = arg_name.split("=", 1)
+                if name in args_dict:
+                    raise click.UsageError(f'[{name}] Parameter assigned more than once')
                 args_dict[name] = value
             else:  # --param value
+                if arg_name in args_dict:
+                    raise click.UsageError(f'[{arg_name}] Parameter assigned more than once')
                 next_arg_idx = i + 1
                 if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
                     args_dict[arg_name] = args[next_arg_idx]
@@ -113,16 +108,24 @@ def start_pipeline(
     args: List[str],
     title: Optional[str] = None,
 ) -> None:
-    converted_pipeline = PipelineConverter(config=config, commit_identifier=commit).convert_pipeline(pipeline)
-    if args:
-        converted_pipeline['parameters'] = override_pipeline_parameters(args, converted_pipeline['parameters'])
+    args_dict: Dict[str, Union[str, list]]
+    args_dict = process_args(args) if args else {}
+
+    converter = PipelineConverter(config=config, commit_identifier=commit, parameter_arguments=args_dict)
+    converted_pipeline = converter.convert_pipeline(pipeline)
+
+    unused_args = [k for k in args_dict if k not in converted_pipeline['parameters']]
+    if unused_args:
+        if not converted_pipeline['parameters']:
+            raise click.UsageError(f'Pipeline does not have any parameters, but parameters were given: {unused_args}')
+        raise click.UsageError(f'Unknown pipeline parameters: {unused_args}')
+
     payload: Dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
         "tags": tags,
         **converted_pipeline,
     }
-
     resp = request(
         method='post',
         url='/api/v0/pipelines/',

@@ -305,6 +305,14 @@ PIPELINE_YAML = CONFIG_YAML + """
     name: Preprocess dataset (MNIST)
     image: tensorflow/tensorflow:1.13.1-gpu-py3
     command: python preprocess.py
+    parameters:
+      - name: sources
+        type: string
+        multiple: separate
+        multiple-separator: '-'
+        default:
+        - port
+        - railyard
     inputs:
       - name: training-set-images
         default: https://valohaidemo.blob.core.windows.net/mnist/train-images-idx3-ubyte.gz
@@ -440,6 +448,10 @@ PIPELINE_YAML = CONFIG_YAML + """
         default: 1000
         targets:
             - Train model (MNIST).parameters.max_steps
+      - name: sources
+        default: [airport]
+        targets:
+            - preprocess.parameters.sources
 """
 
 YAML_WITH_EXTRACT_TRAIN_EVAL = """
