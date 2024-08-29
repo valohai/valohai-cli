@@ -53,8 +53,8 @@ class VhIgnoreUsage(Enum):
     VHIGNORE = 1
 
 
-def package_directory(*, directory: str, yaml_path: str, progress: bool = False, validate: bool = True) -> str:
-    file_stats = get_files_for_package(directory)
+def package_directory(*, directory: str, yaml_path: str, progress: bool = False, validate: bool = True, allow_git: bool = True) -> str:
+    file_stats = get_files_for_package(directory, allow_git=allow_git)
 
     if validate and yaml_path not in file_stats:
         raise ConfigurationError(f'configuration file {yaml_path} missing from {directory}')

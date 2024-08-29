@@ -37,6 +37,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 @click.option('--tag', 'tags', multiple=True, help='Tag the execution. May be repeated.')
 @click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
+@click.option('--disable_git_packaging', '-g', is_flag=True, default=False, help='When using ad-hoc execution, whether to disable git for packaging directory contents.')
 @click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
 @click.option('--yaml', default=None, help='The path to the configuration YAML (valohai.yaml) file to use.')
 @click.option('--debug-port', type=int)
@@ -55,6 +56,7 @@ def run(
     ctx: click.Context,
     *,
     adhoc: bool,
+    disable_git_packaging: bool,
     args: List[str],
     commit: Optional[str],
     yaml: Optional[str],
@@ -110,6 +112,7 @@ def run(
         project,
         commit=commit,
         adhoc=adhoc,
+        allow_git_packaging=not disable_git_packaging,
         validate_adhoc_commit=validate_adhoc,
         yaml_path=yaml,
     )

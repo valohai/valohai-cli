@@ -20,13 +20,14 @@ def create_or_resolve_commit(
     yaml_path: Optional[str],
     adhoc: bool,
     validate_adhoc_commit: bool = True,
+    allow_git_packaging: bool = True,
 ) -> str:
     if adhoc:
         if project.is_remote:
             raise click.UsageError('--adhoc can not be used with remote projects.')
         if commit:
             raise click.UsageError('--commit and --adhoc are mutually exclusive.')
-        commit = str(package_adhoc_commit(project, validate=validate_adhoc_commit, yaml_path=yaml_path)['identifier'])
+        commit = str(package_adhoc_commit(project, validate=validate_adhoc_commit, yaml_path=yaml_path, allow_git=allow_git_packaging)['identifier'])
     elif yaml_path:
         raise click.UsageError('--yaml can only be used with --adhoc.')
 

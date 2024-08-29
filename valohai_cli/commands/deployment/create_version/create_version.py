@@ -25,12 +25,14 @@ from valohai_cli.utils.matching import match_from_list_with_error
 @click.option('--inherit-env-vars/--no-inherit-env-vars', default=True, help='Use project environment variables in deployment.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='ENDPOINT-OPTIONS...')
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then create a deployment version from it.')
+@click.option('--disable_git_packaging', '-g', is_flag=True, default=False, help='When using ad-hoc execution, whether to disable git for packaging directory contents.')
 @click.pass_context
 def create_version(
     ctx: click.Context,
     *,
     args: List[str],
     adhoc: bool,
+    disable_git_packaging: bool,
     commit: Optional[str],
     deployment: str,
     environment_variables: List[str],
@@ -47,6 +49,7 @@ def create_version(
         project,
         commit=commit,
         adhoc=adhoc,
+        allow_git_packaging=not disable_git_packaging,
         yaml_path=None,
     )
     deployments = request('get', '/api/v0/deployments/', params={'project': project.id}).json()['results']
