@@ -14,7 +14,7 @@ from valohai_cli.utils.file_size_format import filesizeformat
 from valohai_cli.utils.hashing import get_fp_sha256
 
 
-def package_adhoc_commit(project: Project, validate: bool = True, yaml_path: Optional[str] = None) -> Dict[str, Any]:
+def package_adhoc_commit(project: Project, validate: bool = True, yaml_path: Optional[str] = None, allow_git: bool = True) -> Dict[str, Any]:
     """
     Create an ad-hoc tarball and commit of the project directory.
 
@@ -38,7 +38,7 @@ def package_adhoc_commit(project: Project, validate: bool = True, yaml_path: Opt
             click.echo(f'Packaging {directory}...')
 
         yaml_path = yaml_path or project.get_yaml_path()
-        tarball = package_directory(directory=directory, progress=True, validate=validate, yaml_path=yaml_path)
+        tarball = package_directory(directory=directory, progress=True, validate=validate, yaml_path=yaml_path, allow_git=allow_git)
         return create_adhoc_commit_from_tarball(project=project, tarball=tarball, yaml_path=yaml_path, description=description)
     finally:
         if tarball:

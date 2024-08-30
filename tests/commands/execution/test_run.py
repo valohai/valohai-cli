@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 import pytest
 import yaml
 
@@ -406,3 +409,22 @@ def test_kube_no_runtime_config_preset_argument(run_test_setup_kube):
     run_test_setup_kube.run()
 
     assert "runtime_config_preset" not in run_test_setup_kube.run_api_mock.last_create_execution_payload
+
+
+@pytest.mark.parametrize("allow_git_packaging", (True, False))
+def test_no_git_adhoc_packaging(logged_in_and_linked, monkeypatch, allow_git_packaging):
+    proj_dir = os.environ["VALOHAI_PROJECT_DIR"]  # set by `isolate_cli` autouse fixture
+    rts = RunTestSetup(monkeypatch=monkeypatch, adhoc=True)
+    try:
+        subprocess.check_call("git init -b x", cwd=proj_dir, shell=True)
+        subprocess.check_call("git add .", cwd=proj_dir, shell=True)
+        subprocess.check_call("git commit -q -m x", cwd=proj_dir, shell=True)
+    except subprocess.CalledProcessError as e:
+        pytest.skip(f"Failed to set up git repository: {e}")
+    if not allow_git_packaging:
+        rts.args.append("--no-git-packaging")
+    output = rts.run()
+    if allow_git_packaging:
+        assert "Used git to find" in output
+    else:
+        assert "Walked filesystem and found" in output
