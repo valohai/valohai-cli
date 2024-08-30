@@ -28,6 +28,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.pass_context
 def run(
     ctx: Context,
+    *,
     name: Optional[str],
     commit: Optional[str],
     title: Optional[str],
