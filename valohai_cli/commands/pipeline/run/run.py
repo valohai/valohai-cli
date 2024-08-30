@@ -21,7 +21,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 @click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
 @click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
 @click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
-@click.option('--disable_git_packaging', '-g', is_flag=True, default=False, help='When using ad-hoc execution, whether to disable git for packaging directory contents.')
+@click.option('--git-packaging/--no-git-packaging', '-g/-G', default=True, is_flag=True, help='When creating ad-hoc pipelines, whether to allow using Git for packaging directory contents.')
 @click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
 @click.option('--tag', 'tags', multiple=True, help='Tag the pipeline. May be repeated.')
 @click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='PIPELINE-OPTIONS...')
@@ -32,7 +32,7 @@ def run(
     commit: Optional[str],
     title: Optional[str],
     adhoc: bool,
-    disable_git_packaging: bool,
+    git_packaging: bool = True,
     yaml: Optional[str],
     tags: List[str],
     args: List[str],
@@ -53,7 +53,7 @@ def run(
     if yaml and not adhoc:
         raise click.UsageError('--yaml is only valid with --adhoc')
 
-    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc, yaml_path=yaml, allow_git_packaging=not disable_git_packaging)
+    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc, yaml_path=yaml, allow_git_packaging=git_packaging)
     config = project.get_config(commit_identifier=commit if project.is_remote else None, yaml_path=yaml)
 
     matched_pipeline = match_pipeline(config, name)
