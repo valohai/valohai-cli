@@ -3,9 +3,10 @@ import os
 import random
 import re
 import string
+import time
 import unicodedata
 import webbrowser
-from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Type, TypeVar, Union
 
 import click
 
@@ -154,3 +155,24 @@ def parse_environment_variable_strings(
 
 def compact_dict(dct: dict) -> dict:
     return {key: value for (key, value) in dct.items() if key and value}
+
+
+T = TypeVar("T")
+
+
+def call_with_retry(
+    func: Callable[[], T],
+    retries: int = 3,
+    delay_range: Tuple[int, int] = (1, 5),
+    retry_on_exception_classes: Tuple[Type[Exception], ...] = (Exception,),
+) -> T:
+    for attempt in range(retries):
+        try:
+            return func()
+        except retry_on_exception_classes as e:
+            click.echo(f"{attempt + 1}/{retries} Retrying: {e}...")
+            if attempt + 1 == retries:
+                raise RuntimeError(f"Failed after {retries} attempts") from e
+            time.sleep(random.uniform(*delay_range))
+
+    raise RuntimeError("Shouldn't get here!")
