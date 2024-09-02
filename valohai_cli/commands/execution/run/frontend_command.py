@@ -110,6 +110,11 @@ EMPTY_DICT_PLACEHOLDER = object()
 @click.option("--debug-port", type=int)
 @click.option("--debug-key-file", type=click.Path(file_okay=True, readable=True, writable=False))
 @click.option(
+    "--ssh",
+    is_flag=True,
+    help="Start ssh remote connection for debugging the execution after it starts.",
+)
+@click.option(
     "--autorestart/--no-autorestart",
     help="Enable Automatic Restart on Spot Instance Interruption",
 )
@@ -184,6 +189,7 @@ def run(
     k8s_devices: List[str],
     k8s_device_none: bool,
     k8s_preset: Optional[str],
+    ssh: bool = False,
 ) -> Any:
     """
     Start an execution of a step.
@@ -197,8 +203,8 @@ def run(
     project = get_project(require=True)
     project.refresh_details()
 
-    if download_directory and watch:
-        raise click.UsageError("Combining --sync and --watch not supported yet.")
+    if sum([watch, download_directory is not None, ssh]) > 1:
+        raise click.UsageError("Only one of --watch, --sync or --ssh can be set.")
 
     if not commit and project.is_remote:
         # For remote projects, we need to resolve early.
@@ -239,6 +245,7 @@ def run(
             "debug_port": debug_port,
             "debug_key": key,
         }
+
     if autorestart:
         runtime_config["autorestart"] = autorestart
 
@@ -291,6 +298,7 @@ def run(
         tags=tags,
         runtime_config=runtime_config,
         runtime_config_preset=k8s_preset,
+        ssh=ssh,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)

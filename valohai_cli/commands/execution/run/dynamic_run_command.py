@@ -18,6 +18,7 @@ from valohai_cli.utils import humanize_identifier, sanitize_option_name
 from valohai_cli.utils.file_input import read_data_file
 from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 
+from ..ssh import ssh
 from .excs import ExecutionCreationAPIError
 
 
@@ -59,6 +60,7 @@ class RunCommand(click.Command):
         tags: Optional[Sequence[str]] = None,
         runtime_config: Optional[dict] = None,
         runtime_config_preset: Optional[str] = None,
+        ssh: bool = False,
     ) -> None:
         """
         Initialize the dynamic run command.
@@ -75,6 +77,7 @@ class RunCommand(click.Command):
         :param download_directory: Where to (if somewhere) to download execution outputs (sync mode)
         :param runtime_config: Runtime config dict
         :param runtime_config_preset: Runtime config preset identifier (UUID)
+        :param ssh: Whether to chain to `exec ssh` afterward
         """
         assert isinstance(step, Step)
         self.project = project
@@ -90,6 +93,7 @@ class RunCommand(click.Command):
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset
+        self.ssh = ssh
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -200,6 +204,12 @@ class RunCommand(click.Command):
             import webbrowser
 
             webbrowser.open(resp["urls"]["display"])
+
+        if self.ssh:
+            try:
+                ctx.invoke(ssh, counter=resp["counter"])
+            except Exception as e:
+                warn(f"Failed to open SSH connection: {e}")
 
         if self.watch:
             from valohai_cli.commands.execution.watch import watch
