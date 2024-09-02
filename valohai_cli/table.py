@@ -24,7 +24,7 @@ def _format(datum: Union[Tuple[str, Any], str], width: Optional[int], allow_rjus
         datatype = str
     if width is None:
         return str(datum)
-    if datatype in (int, float) and allow_rjust:
+    if datatype in (int, float) and allow_rjust:  # noqa: SIM108
         datum = datum.rjust(width)
     else:
         datum = datum.ljust(width)

@@ -84,7 +84,7 @@ class Flex(LayoutElement):
         used_width = 0
         for i, cell in enumerate(self.cells):
             is_last = (i == len(self.cells) - 1)
-            if cell['flex'] <= 0:
+            if cell['flex'] <= 0:  # noqa: SIM108
                 width = len(cell['content'])
             else:
                 width = int(cell['flex'] * flex_unit)
