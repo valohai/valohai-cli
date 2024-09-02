@@ -21,43 +21,44 @@ def convert_size(size_bytes: int) -> str:
 
 @click.command()
 @click.option(
-    '--count',
-    '--limit',
-    '-n',
+    "--count",
+    "--limit",
+    "-n",
     type=int,
     default=100,
-    help='How many datums to show',
+    help="How many datums to show",
 )
 def list(count: int) -> None:
     """
     Show a list of data in the project.
     """
     params = {
-        'limit': count,
-        'ordering': '-ctime',
-        'deleted': 'false',
-        'no_count': 'true'
+        "limit": count,
+        "ordering": "-ctime",
+        "deleted": "false",
+        "no_count": "true",
     }
     project = get_project(require=True)
     assert project
     if project:
-        params['project'] = project.id
+        params["project"] = project.id
 
-    data = request('get', '/api/v0/data/', params=params).json()['results']
-    if settings.output_format == 'json':
+    data = request("get", "/api/v0/data/", params=params).json()["results"]
+    if settings.output_format == "json":
         return print_json(data)
     if not data:
-        info(f'{project}: No data.')
+        info(f"{project}: No data.")
         return
     for datum in data:
-        datum['url'] = f'datum://{datum["id"]}'
-        datum['execution_string'] = 'Not from exec' if not datum['output_execution'] else \
-            f'#{datum["output_execution"]["counter"]}'
-        datum['size'] = convert_size(datum['size'])
-        datum['uri'] = 'No URI' if not datum['uri'] else datum['uri']
+        datum["url"] = f'datum://{datum["id"]}'
+        datum["execution_string"] = (
+            "Not from exec" if not datum["output_execution"] else f'#{datum["output_execution"]["counter"]}'
+        )
+        datum["size"] = convert_size(datum["size"])
+        datum["uri"] = "No URI" if not datum["uri"] else datum["uri"]
 
     print_table(
         data,
-        columns=['name', 'size', 'execution_string', 'ctime', 'url', 'uri'],
-        headers=['Name', 'Size', 'Output of Exec', 'Created At', 'URL', 'URI'],
+        columns=["name", "size", "execution_string", "ctime", "url", "uri"],
+        headers=["Name", "Size", "Output of Exec", "Created At", "URL", "URI"],
     )

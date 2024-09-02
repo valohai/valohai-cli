@@ -20,17 +20,17 @@ def validate_file(filename: str) -> int:
     lr = lint_file(filename)
 
     if not lr.messages:
-        success(f'{filename}: No errors')
+        success(f"{filename}: No errors")
         return 0
-    click.secho(f'{filename}: {lr.error_count} errors, {lr.warning_count} warnings', fg='yellow', bold=True)
+    click.secho(f"{filename}: {lr.error_count} errors, {lr.warning_count} warnings", fg="yellow", bold=True)
     for message in lr.messages:
-        click.echo('  {type}: {message}'.format(**message))
+        click.echo("  {type}: {message}".format(**message))
     click.echo()
     return int(lr.error_count)
 
 
 @click.command()
-@click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
+@click.argument("filenames", nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
 def lint(filenames: List[str]) -> None:
     """
     Lint (syntax-check) a valohai.yaml file.
@@ -43,15 +43,17 @@ def lint(filenames: List[str]) -> None:
             project.refresh_details()
             yaml_path = project.get_yaml_path()
         else:
-            yaml_path = 'valohai.yaml'
-        directory = (project.directory if project else get_project_directory())
+            yaml_path = "valohai.yaml"
+        directory = project.directory if project else get_project_directory()
         config_file = os.path.join(directory, yaml_path)
         if not os.path.exists(config_file):
-            raise CLIException(f'There is no {config_file} file. Pass in the names of configuration files to lint?')
+            raise CLIException(
+                f"There is no {config_file} file. Pass in the names of configuration files to lint?",
+            )
         filenames = [config_file]
     total_errors = 0
     for filename in filenames:
         total_errors += validate_file(filename)
     if total_errors:
-        warn(f'There were {total_errors} total errors.')
+        warn(f"There were {total_errors} total errors.")
     click.get_current_context().exit(total_errors)

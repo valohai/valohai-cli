@@ -35,32 +35,32 @@ def init() -> None:
     current_project = get_project()
     if current_project:
         error(
-            f'The directory {current_project.directory} is already linked to {current_project.name}. '
-            f'Please unlink the directory first.'
+            f"The directory {current_project.directory} is already linked to {current_project.name}. "
+            f"Please unlink the directory first.",
         )
         sys.exit(1)
 
-    click.secho('Hello! This wizard will help you start a Valohai compatible project.', fg='green', bold=True)
+    click.secho("Hello! This wizard will help you start a Valohai compatible project.", fg="green", bold=True)
     directory = get_project_directory()
     if not click.confirm(
-        f'First, let\'s make sure {click.style(directory, bold=True)} is the root directory of your project. '
-        f'Is that correct?'
+        f"First, let's make sure {click.style(directory, bold=True)} is the root directory of your project. "
+        f"Is that correct?",
     ):  # pragma: no cover
-        click.echo('Alright! Please change to the root directory of your project and try again.')
+        click.echo("Alright! Please change to the root directory of your project and try again.")
         return
 
-    valohai_yaml_path = os.path.join(directory, 'valohai.yaml')
+    valohai_yaml_path = os.path.join(directory, "valohai.yaml")
 
     if not os.path.isfile(valohai_yaml_path):
-        click.echo('Looks like you don\'t have a Valohai.yaml file. Let\'s create one!')
+        click.echo("Looks like you don't have a Valohai.yaml file. Let's create one!")
         yaml_wizard(directory)
     else:
-        click.echo('There is a Valohai.yaml file in this directory, so let\'s skip the creation wizard.')
+        click.echo("There is a Valohai.yaml file in this directory, so let's skip the creation wizard.")
 
     try:
         get_host_and_token()
     except NotLoggedIn:  # pragma: no cover
-        error('Please log in with `vh login` before continuing.')
+        error("Please log in with `vh login` before continuing.")
         sys.exit(3)
 
     project = link_or_create_prompt(directory)
@@ -70,34 +70,40 @@ def init() -> None:
         return
 
     width = min(70, shutil.get_terminal_size()[0])
-    click.secho('*' * width, fg='green', bold=True)
-    click.echo(DONE_TEXT.strip().format(
-        command=click.style('vh exec run --adhoc --watch execute', bold=True),
-    ))
-    click.secho('*' * width, fg='green', bold=True)
+    click.secho("*" * width, fg="green", bold=True)
+    click.echo(
+        DONE_TEXT.strip().format(
+            command=click.style("vh exec run --adhoc --watch execute", bold=True),
+        ),
+    )
+    click.secho("*" * width, fg="green", bold=True)
 
 
 def link_or_create_prompt(cwd: str) -> Optional[Project]:
     while True:
-        response = click.prompt(
-            'Do you want to link this directory to a pre-existing project, or create a new one? [l/c]\n'
-            'If you\'d prefer to do neither at this point, respond [n].'
-        ).lower().strip()
-        if response.startswith('l'):
-            link.main(prog_name='vh-link', args=[], standalone_mode=False)
-        elif response.startswith('c'):
-            create.main(prog_name='vh-create', args=[], standalone_mode=False)
-        elif response.startswith('n'):
+        response = (
+            click.prompt(
+                "Do you want to link this directory to a pre-existing project, or create a new one? [l/c]\n"
+                "If you'd prefer to do neither at this point, respond [n].",
+            )
+            .lower()
+            .strip()
+        )
+        if response.startswith("l"):
+            link.main(prog_name="vh-link", args=[], standalone_mode=False)
+        elif response.startswith("c"):
+            create.main(prog_name="vh-create", args=[], standalone_mode=False)
+        elif response.startswith("n"):
             click.echo(
-                'Okay, skipping linking or creating a project for the time being.\n'
-                'You can do that later with `vh project link` or `vh project create`.'
+                "Okay, skipping linking or creating a project for the time being.\n"
+                "You can do that later with `vh project link` or `vh project create`.",
             )
             return None
         else:
-            warn('Sorry, I couldn\'t understand that.')
+            warn("Sorry, I couldn't understand that.")
             continue
         project = get_project(cwd)
         if not project:
-            error('Oops, looks like something went wrong.')
+            error("Oops, looks like something went wrong.")
             sys.exit(2)
         return project

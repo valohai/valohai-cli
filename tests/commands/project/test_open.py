@@ -9,7 +9,7 @@ from valohai_cli.commands.project.open import open
 
 def test_open(monkeypatch, runner, logged_in_and_linked):
     call_stub = make_call_stub()
-    monkeypatch.setattr(webbrowser, 'open', call_stub)
+    monkeypatch.setattr(webbrowser, "open", call_stub)
     with requests_mock.mock() as m:
         project_data = dict(PROJECT_DATA)
         m.get(f"https://app.valohai.com/api/v0/projects/{project_data['id']}/", json=project_data)

@@ -7,8 +7,8 @@ from requests.models import Response
 
 
 class CLIException(ClickException):
-    kind: str = 'Error'
-    color: str = 'red'
+    kind: str = "Error"
+    color: str = "red"
 
     def __init__(self, message: str, kind: Optional[str] = None) -> None:
         super().__init__(message)
@@ -16,32 +16,32 @@ class CLIException(ClickException):
 
     def show(self, file: Optional[Any] = None) -> None:
         formatted_message = self.format_message()
-        if formatted_message and '\n' in formatted_message:
+        if formatted_message and "\n" in formatted_message:
             # If there are newlines in the message, we'll format things a little differently.
             # Namely, the entire message is on a separate line, and to avoid "color fatigue",
             # it's not all red.
-            click.secho(f'{self.kind}:', file=file, err=True, fg=self.color)
+            click.secho(f"{self.kind}:", file=file, err=True, fg=self.color)
             click.secho(formatted_message, file=file, err=True)
         else:
-            text = f'{self.kind}: {formatted_message}'
+            text = f"{self.kind}: {formatted_message}"
             click.secho(text, file=file, err=True, fg=self.color)
 
         hints = list(self.get_hints())
         if hints:
-            click.secho('\nHint:', bold=True, err=True)
+            click.secho("\nHint:", bold=True, err=True)
             for hint in hints:
-                click.echo(f'* {hint}', err=True)
+                click.echo(f"* {hint}", err=True)
 
     def get_hints(self) -> Iterable[str]:
         return []
 
 
 class APIError(CLIException):
-    kind = 'API Error'
+    kind = "API Error"
 
     def __init__(self, response: Response) -> None:
         # Don't shower the user with a blob of HTML
-        text = ('Internal error' if '<!DOCTYPE html>' in response.text else response.text)
+        text = "Internal error" if "<!DOCTYPE html>" in response.text else response.text
         super().__init__(text)
         self.response = response
         self.request = response.request
@@ -63,7 +63,7 @@ class APIError(CLIException):
         """
         error_json = self.error_json
         if isinstance(error_json, dict):
-            return error_json.get('code')
+            return error_json.get("code")
         return None
 
     def format_message(self) -> str:
@@ -71,6 +71,7 @@ class APIError(CLIException):
             error_json = self.error_json
             if error_json:
                 from .utils.error_fmt import format_error_data
+
                 try:
                     return format_error_data(error_json)
                 except Exception:
@@ -81,11 +82,11 @@ class APIError(CLIException):
 
 
 class APINotFoundError(APIError):
-    kind = 'Not Found'
+    kind = "Not Found"
 
 
 class ConfigurationError(CLIException, RuntimeError):
-    kind = 'Configuration Error'
+    kind = "Configuration Error"
 
 
 class NotLoggedIn(ConfigurationError):
@@ -93,11 +94,11 @@ class NotLoggedIn(ConfigurationError):
 
 
 class NoProject(CLIException):
-    color = 'yellow'
+    color = "yellow"
 
 
 class NoExecution(CLIException):
-    color = 'yellow'
+    color = "yellow"
 
 
 class InvalidConfig(CLIException):
@@ -113,16 +114,16 @@ class APIConnectionError(CLIException):
 
 
 class NoGitRepo(CLIException):
-    color = 'yellow'
+    color = "yellow"
 
     def __init__(self, directory: str) -> None:
         self.directory = directory
-        super().__init__(f'{directory} is not a Git repository')
+        super().__init__(f"{directory} is not a Git repository")
 
 
 class NoCommit(ValueError, CLIException):
-    color = 'yellow'
+    color = "yellow"
 
     def __init__(self, directory: str) -> None:
         self.directory = directory
-        super().__init__(f'{directory} has no commits')
+        super().__init__(f"{directory} has no commits")

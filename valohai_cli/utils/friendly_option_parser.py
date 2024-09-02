@@ -20,11 +20,11 @@ class FriendlyOptionParser(OptionParser):
                 # No possibilities were guessed, so attempt some deeper magic
                 nse.possibilities = [
                     word
-                    for word
-                    in self._long_opt
+                    for word in self._long_opt
                     if levenshtein(
-                        word.lower().lstrip('-'),
-                        nse.option_name.lower().lstrip('-'),
-                    ) <= 4
+                        word.lower().lstrip("-"),
+                        nse.option_name.lower().lstrip("-"),
+                    )
+                    <= 4
                 ]
             raise

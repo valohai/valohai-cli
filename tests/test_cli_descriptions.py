@@ -16,9 +16,7 @@ def find_commands_with_no_help(
 ):
     command_with_trail = (*trail, command)
     full_command_name = " ".join([c["name"] for c in command_with_trail])
-    if not (
-        full_command_name == "vh" or command.get("hidden") or command.get("deprecated")
-    ):
+    if not (full_command_name == "vh" or command.get("hidden") or command.get("deprecated")):
         help_text = (command.get("short_help") or command.get("help") or "").strip()
         if not help_text:
             yield NotImplementedError(f"Command {full_command_name!r} has no help text")
@@ -39,5 +37,6 @@ def test_all_commands_have_help(runner, monkeypatch):
 
     if exceptions:
         raise ExceptionGroup(
-            f"{len(exceptions)} commands have no help text", exceptions
+            f"{len(exceptions)} commands have no help text",
+            exceptions,
         )

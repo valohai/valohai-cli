@@ -12,14 +12,14 @@ def check_git_output(args: Sequence[str], directory: str) -> bytes:
             cwd=directory,
             shell=False,
             stderr=subprocess.STDOUT,
-            env=dict(os.environ, LC_ALL='C'),
+            env=dict(os.environ, LC_ALL="C"),
         )
     except subprocess.CalledProcessError as cpe:
         if cpe.returncode == 128:
             output_text = cpe.output.decode().lower()
-            if 'not a git repository' in output_text:
+            if "not a git repository" in output_text:
                 raise NoGitRepo(directory)
-            if 'bad revision' in output_text:
+            if "bad revision" in output_text:
                 raise NoCommit(directory)
         raise
 
@@ -30,7 +30,7 @@ def get_current_commit(directory: str) -> str:
     :param directory: Directory path.
     :return: Commit SHA
     """
-    return check_git_output(['git', 'rev-parse', 'HEAD'], directory).strip().decode()
+    return check_git_output(["git", "rev-parse", "HEAD"], directory).strip().decode()
 
 
 def describe_current_commit(directory: str) -> str:
@@ -39,7 +39,11 @@ def describe_current_commit(directory: str) -> str:
     :param directory: Directory path.
     :return: Git description string
     """
-    return check_git_output(['git', 'describe', '--always', '--long', '--dirty', '--all'], directory).strip().decode()
+    return (
+        check_git_output(["git", "describe", "--always", "--long", "--dirty", "--all"], directory)
+        .strip()
+        .decode()
+    )
 
 
 def get_file_at_commit(directory: str, commit: str, path: str) -> bytes:
@@ -52,7 +56,7 @@ def get_file_at_commit(directory: str, commit: str, path: str) -> bytes:
     :param path: In-repository path
     :return: File contents as bytes
     """
-    args = ['git', 'show', f'{commit}:{path}']
+    args = ["git", "show", f"{commit}:{path}"]
     return check_git_output(args, directory)
 
 
@@ -65,4 +69,4 @@ def expand_commit_id(directory: str, commit: str) -> str:
     :param commit: Commit ID
     :return: Expanded commit ID.
     """
-    return check_git_output(['git', 'rev-parse', '--verify', commit], directory).decode().strip()
+    return check_git_output(["git", "rev-parse", "--verify", commit], directory).decode().strip()

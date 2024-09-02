@@ -13,15 +13,15 @@ def fetch() -> None:
     Fetch new commits for the linked project.
     """
     project = get_project(require=True)
-    resp = request('post', f'/api/v0/projects/{project.id}/fetch/')
+    resp = request("post", f"/api/v0/projects/{project.id}/fetch/")
     data = resp.json()
-    commits = data.get('commits', ())
+    commits = data.get("commits", ())
     if commits:
         for commit in commits:
             success(f"Fetched: {commit['ref']} ({commit['identifier']})")
-        success(f'{len(commits)} new commits were fetched!')
+        success(f"{len(commits)} new commits were fetched!")
     else:
-        info('No new commits.')
-    errors = data.get('errors', ())
+        info("No new commits.")
+    errors = data.get("errors", ())
     for error in errors:
         warning(error)

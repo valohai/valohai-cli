@@ -13,13 +13,14 @@ ProjectOrRemoteProject = Union[RemoteProject, Project]
 
 
 @overload
-def get_project(dir: Optional[str] = None, require: Literal[True] = True) -> ProjectOrRemoteProject:
-    ...
+def get_project(dir: Optional[str] = None, require: Literal[True] = True) -> ProjectOrRemoteProject: ...
 
 
 @overload
-def get_project(dir: Optional[str] = None, require: Literal[False] = False) -> Optional[ProjectOrRemoteProject]:
-    ...
+def get_project(
+    dir: Optional[str] = None,
+    require: Literal[False] = False,
+) -> Optional[ProjectOrRemoteProject]: ...
 
 
 def get_project(dir: Optional[str] = None, require: bool = False) -> Optional[ProjectOrRemoteProject]:
@@ -35,7 +36,7 @@ def get_project(dir: Optional[str] = None, require: bool = False) -> Optional[Pr
     dir = dir or get_project_directory()
     project = settings.get_project(dir)
     if not project and require:
-        raise NoProject(f'No project is linked to {dir}')
+        raise NoProject(f"No project is linked to {dir}")
     return project
 
 

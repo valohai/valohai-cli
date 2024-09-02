@@ -12,21 +12,31 @@ from valohai_cli.table import print_json, print_table
 
 @click.command()
 @click.option(
-    '--status',
+    "--status",
     multiple=True,
-    help='Filter by status (default: all)',
-    type=click.Choice(sorted(execution_statuses | {'incomplete'}))
+    help="Filter by status (default: all)",
+    type=click.Choice(sorted(execution_statuses | {"incomplete"})),
 )
 @click.option(
-    '--count',
-    '--limit',
-    '-n',
+    "--count",
+    "--limit",
+    "-n",
     type=int,
     default=9001,
-    help='How many executions to show',
+    help="How many executions to show",
 )
-@click.option('--deleted', '-d', is_flag=True, help='Show only deleted executions')
-@click.option('--owned', '-o', is_flag=True, help='Show only executions that I\'ve created')
+@click.option(
+    "--deleted",
+    "-d",
+    is_flag=True,
+    help="Show only deleted executions",
+)
+@click.option(
+    "--owned",
+    "-o",
+    is_flag=True,
+    help="Show only executions that I've created",
+)
 def list(status: str, count: int, deleted: bool, owned: bool) -> None:
     """
     Show a list of executions for the project.
@@ -34,33 +44,31 @@ def list(status: str, count: int, deleted: bool, owned: bool) -> None:
     project = get_project(require=True)
     assert project
     params = {
-        'project': project.id,
-        'limit': count,
-        'ordering': '-counter',
-        'deleted': 'false',
+        "project": project.id,
+        "limit": count,
+        "ordering": "-counter",
+        "deleted": "false",
     }
     if status:
-        params['status'] = set(status)
+        params["status"] = set(status)
     if deleted:
-        params['deleted'] = deleted
+        params["deleted"] = deleted
     if owned and settings.user:
-        params['creator'] = settings.user['id']
-    executions = request('get', '/api/v0/executions/', params=params).json()['results']
-    if settings.output_format == 'json':
+        params["creator"] = settings.user["id"]
+    executions = request("get", "/api/v0/executions/", params=params).json()["results"]
+    if settings.output_format == "json":
         return print_json(executions)
     if not executions:
-        info(f'{project}: No executions.')
+        info(f"{project}: No executions.")
         return
     for execution in executions:
-        execution['url'] = execution['urls']['display']
-        execution['duration'] = str(
-            timedelta(seconds=round(execution['duration']))
-            if execution['duration']
-            else ''
+        execution["url"] = execution["urls"]["display"]
+        execution["duration"] = str(
+            timedelta(seconds=round(execution["duration"])) if execution["duration"] else "",
         ).rjust(10)
 
     print_table(
         executions,
-        columns=['counter', 'status', 'step', 'duration', 'url'],
-        headers=['#', 'Status', 'Step', 'Duration', 'URL'],
+        columns=["counter", "status", "step", "duration", "url"],
+        headers=["#", "Status", "Step", "Duration", "URL"],
     )

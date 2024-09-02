@@ -11,5 +11,5 @@ def open() -> None:
     Open the project's view in a web browser.
     """
     project = get_project(require=True)
-    project_data = request('get', f'/api/v0/projects/{project.id}/').json()
+    project_data = request("get", f"/api/v0/projects/{project.id}/").json()
     open_browser(project_data)

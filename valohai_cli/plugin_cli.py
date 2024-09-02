@@ -16,15 +16,15 @@ from valohai_cli.utils.matching import match_prefix
 
 class PluginCLI(click.MultiCommand):
     aliases = {
-        'new': 'create',
-        'start': 'run',
+        "new": "create",
+        "start": "run",
     }
 
     def __init__(self, **kwargs: Any) -> None:
-        self._commands_module = kwargs.pop('commands_module')
+        self._commands_module = kwargs.pop("commands_module")
         self._command_modules: List[str] = []
         self._command_to_canonical_map: Dict[str, str] = {}
-        self.aliases = dict(self.aliases, **kwargs.get('aliases', {}))  # instance level copy
+        self.aliases = dict(self.aliases, **kwargs.get("aliases", {}))  # instance level copy
         super().__init__(**kwargs)
 
     @property
@@ -53,9 +53,9 @@ class PluginCLI(click.MultiCommand):
     def list_commands(self, ctx: Context) -> List[str]:  # noqa: ARG002
         return self.command_modules
 
-    def get_command(self, ctx: Context, name: str) -> Optional[Union[Command, 'PluginCLI']]:
+    def get_command(self, ctx: Context, name: str) -> Optional[Union[Command, "PluginCLI"]]:
         # Dashes aren't valid in Python identifiers, so let's just replace them here.
-        name = name.replace('-', '_')
+        name = name.replace("-", "_")
 
         command_map: Dict[str, str] = self.command_to_canonical_map
         if name in command_map:
@@ -68,7 +68,7 @@ class PluginCLI(click.MultiCommand):
             match = command_map[matches[0]]
             return self._get_command(match)
 
-        if ' ' not in name:
+        if " " not in name:
             cmd = self._try_suffix_match(ctx, name)
             if cmd:
                 return cmd
@@ -81,18 +81,23 @@ class PluginCLI(click.MultiCommand):
         # Try word suffix matching if possible.
         # That is, if the user attempts `vh link` but we know about `vh proj link`, do that.
         command_map: Dict[str, Command] = {
-            ' '.join(trail): cmd
-            for (trail, cmd)
-            in self._get_all_commands(ctx)
+            " ".join(trail): cmd for (trail, cmd) in self._get_all_commands(ctx)
         }
-        s_matches = [key for key in command_map if ' ' in key and key.endswith(f' {name}')]
+        s_matches = [key for key in command_map if " " in key and key.endswith(f" {name}")]
         if len(s_matches) == 1:
             match = s_matches[0]
-            click.echo(f'(Resolved {click.style(name, bold=True)} to {click.style(match, bold=True)}.)', err=True)
+            click.echo(
+                f"(Resolved {click.style(name, bold=True)} to {click.style(match, bold=True)}.)",
+                err=True,
+            )
             return command_map[match]
         return None
 
-    def resolve_command(self, ctx: Context, args: List[str]) -> Tuple[Optional[str], Optional[Command], List[str]]:
+    def resolve_command(
+        self,
+        ctx: Context,
+        args: List[str],
+    ) -> Tuple[Optional[str], Optional[Command], List[str]]:
         cmd_name, cmd, rest_args = super().resolve_command(ctx, args)
         return (
             getattr(cmd, "name", cmd_name),  # Always use the canonical name of the command
@@ -101,7 +106,7 @@ class PluginCLI(click.MultiCommand):
         )
 
     def _get_command(self, name: str) -> Command:
-        module = import_module(f'{self.commands_module.__name__}.{name}')
+        module = import_module(f"{self.commands_module.__name__}.{name}")
         obj = getattr(module, name)
         assert isinstance(obj, Command)
         return obj
@@ -126,13 +131,13 @@ def walk_commands(
 
 
 class RecursiveHelpPluginCLI(PluginCLI):
-
     def get_help(self, ctx: Context) -> str:
         if os.environ.get(json_help_envvar):
             # Dump JSON help. The format of this is not guaranteed to be stable,
             # as (as you can see) it's currently directly provided by Click
             # (see https://github.com/pallets/click/pull/1623).
             import json
+
             return json.dumps(ctx.to_info_dict())
 
         return super().get_help(ctx)
@@ -140,15 +145,11 @@ class RecursiveHelpPluginCLI(PluginCLI):
     def format_commands(self, ctx: Context, formatter: HelpFormatter) -> None:
         rows_by_prefix = defaultdict(list)
         for trail, command in self._get_all_commands(ctx):
-            prefix = (' '.join(trail[:1]) if len(trail) > 1 else '')
+            prefix = " ".join(trail[:1]) if len(trail) > 1 else ""
             help = command.get_short_help_str(90)
-            rows_by_prefix[prefix.strip()].append((' '.join(trail).strip(), help))
+            rows_by_prefix[prefix.strip()].append((" ".join(trail).strip(), help))
 
         for prefix, rows in sorted(rows_by_prefix.items()):
-            title = (
-                f'Commands ({prefix} ...)'
-                if prefix
-                else 'Commands'
-            )
+            title = f"Commands ({prefix} ...)" if prefix else "Commands"
             with formatter.section(title):
                 formatter.write_dl(rows)

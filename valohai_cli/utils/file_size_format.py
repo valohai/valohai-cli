@@ -1,8 +1,8 @@
 # Adapted from Jinja2. Jinja2 is (c) 2017 by the Jinja Team, licensed under the BSD license.
 from typing import Union
 
-binary_prefixes = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
-decimal_prefixes = ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+binary_prefixes = ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+decimal_prefixes = ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
 
 
 def filesizeformat(value: Union[int, float], binary: bool = False) -> str:
@@ -15,12 +15,12 @@ def filesizeformat(value: Union[int, float], binary: bool = False) -> str:
     base = 1024 if binary else 1000
     prefixes = binary_prefixes if binary else decimal_prefixes
     if bytes == 1:
-        return '1 Byte'
+        return "1 Byte"
     elif bytes < base:
-        return f'{bytes} Bytes'
+        return f"{bytes} Bytes"
     else:
         for i, prefix in enumerate(prefixes):
             unit = base ** (i + 2)
             if bytes < unit:
-                return f'{base * bytes / unit:.1f} {prefix}'
-        return f'{base * bytes / unit:.1f} {prefix}'
+                return f"{base * bytes / unit:.1f} {prefix}"
+        return f"{base * bytes / unit:.1f} {prefix}"

@@ -15,16 +15,56 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 
 @click.command(
     context_settings={"ignore_unknown_options": True},
-    add_help_option=False
+    add_help_option=False,
 )
-@click.argument('name', required=False, metavar='PIPELINE-NAME')
-@click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--title', '-c', default=None, help='The optional title of the pipeline run.')
-@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
-@click.option('--git-packaging/--no-git-packaging', '-g/-G', default=True, is_flag=True, help='When creating ad-hoc pipelines, whether to allow using Git for packaging directory contents.')
-@click.option('--yaml', default=None, help='The path to the configuration YAML file (valohai.yaml) file to use.')
-@click.option('--tag', 'tags', multiple=True, help='Tag the pipeline. May be repeated.')
-@click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='PIPELINE-OPTIONS...')
+@click.argument(
+    "name",
+    required=False,
+    metavar="PIPELINE-NAME",
+)
+@click.option(
+    "--commit",
+    "-c",
+    default=None,
+    metavar="SHA",
+    help="The commit to use. Defaults to the current HEAD.",
+)
+@click.option(
+    "--title",
+    "-c",
+    default=None,
+    help="The optional title of the pipeline run.",
+)
+@click.option(
+    "--adhoc",
+    "-a",
+    is_flag=True,
+    help="Upload the current state of the working directory, then run it as an ad-hoc execution.",
+)
+@click.option(
+    "--git-packaging/--no-git-packaging",
+    "-g/-G",
+    default=True,
+    is_flag=True,
+    help="When creating ad-hoc pipelines, whether to allow using Git for packaging directory contents.",
+)
+@click.option(
+    "--yaml",
+    default=None,
+    help="The path to the configuration YAML file (valohai.yaml) file to use.",
+)
+@click.option(
+    "--tag",
+    "tags",
+    multiple=True,
+    help="Tag the pipeline. May be repeated.",
+)
+@click.argument(
+    "args",
+    nargs=-1,
+    type=click.UNPROCESSED,
+    metavar="PIPELINE-OPTIONS...",
+)
 @click.pass_context
 def run(
     ctx: Context,
@@ -42,7 +82,7 @@ def run(
     Start a pipeline run.
     """
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
-    if name == '--help' or not name:
+    if name == "--help" or not name:
         click.echo(ctx.get_help(), color=ctx.color)
         print_pipeline_list(ctx, commit)
         ctx.exit()
@@ -52,9 +92,15 @@ def run(
     assert project
 
     if yaml and not adhoc:
-        raise click.UsageError('--yaml is only valid with --adhoc')
+        raise click.UsageError("--yaml is only valid with --adhoc")
 
-    commit = create_or_resolve_commit(project, commit=commit, adhoc=adhoc, yaml_path=yaml, allow_git_packaging=git_packaging)
+    commit = create_or_resolve_commit(
+        project,
+        commit=commit,
+        adhoc=adhoc,
+        yaml_path=yaml,
+        allow_git_packaging=git_packaging,
+    )
     config = project.get_config(commit_identifier=commit if project.is_remote else None, yaml_path=yaml)
 
     matched_pipeline = match_pipeline(config, name)
@@ -78,28 +124,36 @@ def process_args(args: List[str]) -> Dict[str, Union[str, list]]:
             elif "=" in arg_name:  # --param=value
                 name, value = arg_name.split("=", 1)
                 if name in args_dict:
-                    raise click.UsageError(f'[{name}] Parameter assigned more than once')
+                    raise click.UsageError(f"[{name}] Parameter assigned more than once")
                 args_dict[name] = value
             else:  # --param value
                 if arg_name in args_dict:
-                    raise click.UsageError(f'[{arg_name}] Parameter assigned more than once')
+                    raise click.UsageError(f"[{arg_name}] Parameter assigned more than once")
                 next_arg_idx = i + 1
                 if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
                     args_dict[arg_name] = args[next_arg_idx]
                 else:  # --param --param2 --param3 (flag)
-                    args_dict[arg_name] = "true"  # doesn't support bool as we are using strings for pipeline parameters
+                    args_dict[arg_name] = (
+                        "true"  # doesn't support bool as we are using strings for pipeline parameters
+                    )
     return args_dict
 
 
 def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
-    with contextlib.suppress(Exception):  # If we fail to extract the pipeline list, it's not that big of a deal.
+    with contextlib.suppress(
+        Exception,
+    ):  # If we fail to extract the pipeline list, it's not that big of a deal.
         project = get_project(require=True)
         assert project
         config = project.get_config(commit_identifier=commit)
         if config.pipelines:
-            click.secho('\nThese pipelines are available in the selected commit:\n', color=ctx.color, bold=True)
+            click.secho(
+                "\nThese pipelines are available in the selected commit:\n",
+                color=ctx.color,
+                bold=True,
+            )
             for pipeline_name in sorted(config.pipelines):
-                click.echo(f'   * {pipeline_name}', color=ctx.color)
+                click.echo(f"   * {pipeline_name}", color=ctx.color)
 
 
 def start_pipeline(
@@ -117,11 +171,13 @@ def start_pipeline(
     converter = PipelineConverter(config=config, commit_identifier=commit, parameter_arguments=args_dict)
     converted_pipeline = converter.convert_pipeline(pipeline)
 
-    unused_args = [k for k in args_dict if k not in converted_pipeline['parameters']]
+    unused_args = [k for k in args_dict if k not in converted_pipeline["parameters"]]
     if unused_args:
-        if not converted_pipeline['parameters']:
-            raise click.UsageError(f'Pipeline does not have any parameters, but parameters were given: {unused_args}')
-        raise click.UsageError(f'Unknown pipeline parameters: {unused_args}')
+        if not converted_pipeline["parameters"]:
+            raise click.UsageError(
+                f"Pipeline does not have any parameters, but parameters were given: {unused_args}",
+            )
+        raise click.UsageError(f"Unknown pipeline parameters: {unused_args}")
 
     payload: Dict[str, Any] = {
         "project": project_id,
@@ -130,8 +186,8 @@ def start_pipeline(
         **converted_pipeline,
     }
     resp = request(
-        method='post',
-        url='/api/v0/pipelines/',
+        method="post",
+        url="/api/v0/pipelines/",
         json=payload,
     ).json()
 

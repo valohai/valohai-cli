@@ -12,8 +12,8 @@ from .dynamic_run_command import RunCommand
 from .utils import match_step
 
 run_epilog = (
-    'More detailed help (e.g. how to define parameters and inputs) is available when you have '
-    'defined which step to run. For instance, if you have a step called Extract, '
+    "More detailed help (e.g. how to define parameters and inputs) is available when you have "
+    "defined which step to run. For instance, if you have a step called Extract, "
     'try running "vh exec run Extract --help".'
 )
 
@@ -26,31 +26,135 @@ EMPTY_DICT_PLACEHOLDER = object()
     add_help_option=False,
     epilog=run_epilog,
 )
-@click.argument('step_name', required=False, metavar='STEP-NAME')
-@click.option('--commit', '-c', default=None, metavar='SHA', help='The commit to use. Defaults to the current HEAD.')
-@click.option('--environment', '-e', default=None, help='The environment UUID or slug to use (see "vh env")')
-@click.option('--image', '-i', default=None, help='Override the Docker image specified in the step.')
-@click.option('--title', '-t', default=None, help='Title of the execution.')
-@click.option('--watch', '-w', is_flag=True, help='Start "exec watch"ing the execution after it starts.')
-@click.option('--open-browser', is_flag=True, help='Open default web browser to execution page after it starts.')
-@click.option('--var', '-v', 'environment_variables', multiple=True, help='Add environment variable (NAME=VALUE). May be repeated.')
-@click.option('--tag', 'tags', multiple=True, help='Tag the execution. May be repeated.')
-@click.option('--sync', '-s', 'download_directory', type=click.Path(file_okay=False), help='Download execution outputs to DIRECTORY.', default=None)
-@click.option('--adhoc', '-a', is_flag=True, help='Upload the current state of the working directory, then run it as an ad-hoc execution.')
-@click.option('--git-packaging/--no-git-packaging', '-g/-G', default=True, is_flag=True, help='When creating ad-hoc tasks, whether to allow using Git for packaging directory contents.')
-@click.option('--validate-adhoc/--no-validate-adhoc', help='Enable or disable validation of adhoc packaged code, on by default', default=True)
-@click.option('--yaml', default=None, help='The path to the configuration YAML (valohai.yaml) file to use.')
-@click.option('--debug-port', type=int)
-@click.option('--debug-key-file', type=click.Path(file_okay=True, readable=True, writable=False))
-@click.option('--autorestart/--no-autorestart', help='Enable Automatic Restart on Spot Instance Interruption')
-@click.option('--k8s-cpu-min', help="Kubernetes only. CPU resouce request", type=float)
-@click.option('--k8s-memory-min', help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)", type=int)
-@click.option('--k8s-cpu-max', help="Kubernetes only. CPU resouce request", type=float)
-@click.option('--k8s-memory-max', help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)", type=int)
-@click.option('--k8s-device', 'k8s_devices', multiple=True, help="Kubernetes only. Custom device claim. Format: NAME=VALUE. May be repeated for multiple limits.")
-@click.option('--k8s-device-none', is_flag=True, help="Kubernetes only. Request no device claims, not even if there is a default")
-@click.option('--k8s-preset', default=None, help="Kubernetes only. Custom runtime config preset UUID")
-@click.argument('args', nargs=-1, type=click.UNPROCESSED, metavar='STEP-OPTIONS...')
+@click.argument("step_name", required=False, metavar="STEP-NAME")
+@click.option(
+    "--commit",
+    "-c",
+    default=None,
+    metavar="SHA",
+    help="The commit to use. Defaults to the current HEAD.",
+)
+@click.option(
+    "--environment",
+    "-e",
+    default=None,
+    help='The environment UUID or slug to use (see "vh env")',
+)
+@click.option(
+    "--image",
+    "-i",
+    default=None,
+    help="Override the Docker image specified in the step.",
+)
+@click.option(
+    "--title",
+    "-t",
+    default=None,
+    help="Title of the execution.",
+)
+@click.option(
+    "--watch",
+    "-w",
+    is_flag=True,
+    help='Start "exec watch"ing the execution after it starts.',
+)
+@click.option(
+    "--open-browser",
+    is_flag=True,
+    help="Open default web browser to execution page after it starts.",
+)
+@click.option(
+    "--var",
+    "-v",
+    "environment_variables",
+    multiple=True,
+    help="Add environment variable (NAME=VALUE). May be repeated.",
+)
+@click.option(
+    "--tag",
+    "tags",
+    multiple=True,
+    help="Tag the execution. May be repeated.",
+)
+@click.option(
+    "--sync",
+    "-s",
+    "download_directory",
+    type=click.Path(file_okay=False),
+    help="Download execution outputs to DIRECTORY.",
+    default=None,
+)
+@click.option(
+    "--adhoc",
+    "-a",
+    is_flag=True,
+    help="Upload the current state of the working directory, then run it as an ad-hoc execution.",
+)
+@click.option(
+    "--git-packaging/--no-git-packaging",
+    "-g/-G",
+    default=True,
+    is_flag=True,
+    help="When creating ad-hoc tasks, whether to allow using Git for packaging directory contents.",
+)
+@click.option(
+    "--validate-adhoc/--no-validate-adhoc",
+    help="Enable or disable validation of adhoc packaged code, on by default",
+    default=True,
+)
+@click.option(
+    "--yaml",
+    default=None,
+    help="The path to the configuration YAML (valohai.yaml) file to use.",
+)
+@click.option("--debug-port", type=int)
+@click.option("--debug-key-file", type=click.Path(file_okay=True, readable=True, writable=False))
+@click.option(
+    "--autorestart/--no-autorestart",
+    help="Enable Automatic Restart on Spot Instance Interruption",
+)
+@click.option(
+    "--k8s-cpu-min",
+    help="Kubernetes only. CPU resouce request",
+    type=float,
+)
+@click.option(
+    "--k8s-memory-min",
+    help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)",
+    type=int,
+)
+@click.option(
+    "--k8s-cpu-max",
+    help="Kubernetes only. CPU resouce request",
+    type=float,
+)
+@click.option(
+    "--k8s-memory-max",
+    help="Kubernetes only. Memory resource request. Unit is binary megabytes (Mi)",
+    type=int,
+)
+@click.option(
+    "--k8s-device",
+    "k8s_devices",
+    multiple=True,
+    help="Kubernetes only. Custom device claim. Format: NAME=VALUE. May be repeated for multiple limits.",
+)
+@click.option(
+    "--k8s-device-none",
+    is_flag=True,
+    help="Kubernetes only. Request no device claims, not even if there is a default",
+)
+@click.option(
+    "--k8s-preset",
+    default=None,
+    help="Kubernetes only. Custom runtime config preset UUID",
+)
+@click.argument(
+    "args",
+    nargs=-1,
+    type=click.UNPROCESSED,
+    metavar="STEP-OPTIONS...",
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -85,7 +189,7 @@ def run(
     Start an execution of a step.
     """
     # Having to explicitly compare to `--help` is slightly weird, but it's because of the nested command thing.
-    if step_name == '--help' or not step_name:
+    if step_name == "--help" or not step_name:
         click.echo(ctx.get_help(), color=ctx.color)
         print_step_list(ctx, commit)
         ctx.exit()
@@ -94,12 +198,12 @@ def run(
     project.refresh_details()
 
     if download_directory and watch:
-        raise click.UsageError('Combining --sync and --watch not supported yet.')
+        raise click.UsageError("Combining --sync and --watch not supported yet.")
 
     if not commit and project.is_remote:
         # For remote projects, we need to resolve early.
-        commit = project.resolve_commits()[0]['identifier']
-        info(f'Using remote project {project.name}\'s newest commit {commit}')
+        commit = project.resolve_commits()[0]["identifier"]
+        info(f"Using remote project {project.name}'s newest commit {commit}")
 
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
@@ -121,7 +225,7 @@ def run(
 
     if bool(debug_port) ^ bool(debug_key_file):
         raise click.UsageError(
-            "Both or neither of --debug-port and --debug-key-file must be set."
+            "Both or neither of --debug-port and --debug-key-file must be set.",
         )
     if debug_port and debug_key_file:
         with open(debug_key_file) as file:
@@ -129,7 +233,7 @@ def run(
             if not key.startswith("ssh"):
                 raise click.UsageError(
                     f"The public key read from {debug_key_file} "
-                    f"does not seem valid (it should start with `ssh`)"
+                    f"does not seem valid (it should start with `ssh`)",
                 )
         runtime_config["remote_debug"] = {
             "debug_port": debug_port,
@@ -139,36 +243,39 @@ def run(
         runtime_config["autorestart"] = autorestart
 
     if k8s_devices and k8s_device_none:
-        raise click.UsageError('--k8s-device=(...) and --k8s-device-none cannot be used together. '
-                               'Using --k8s-device=(...) will discard all Kubernetes device default values on its own.')
+        raise click.UsageError(
+            "--k8s-device=(...) and --k8s-device-none cannot be used together. "
+            "Using --k8s-device=(...) will discard all Kubernetes device default values on its own.",
+        )
 
     kubernetes_dict = recursive_compact_kubernetes_dict({
-        'containers': {
-            'workload': {
-                'resources': {
-                    'requests': {
-                        'cpu': k8s_cpu_min or step.resources.cpu.min,
-                        'memory': k8s_memory_min or step.resources.memory.min,
+        "containers": {
+            "workload": {
+                "resources": {
+                    "requests": {
+                        "cpu": k8s_cpu_min or step.resources.cpu.min,
+                        "memory": k8s_memory_min or step.resources.memory.min,
                     },
-                    'limits': {
-                        'cpu': k8s_cpu_max or step.resources.cpu.max,
-                        'memory': k8s_memory_max or step.resources.memory.max,
-                        'devices': (
+                    "limits": {
+                        "cpu": k8s_cpu_max or step.resources.cpu.max,
+                        "memory": k8s_memory_max or step.resources.memory.max,
+                        "devices": (
                             parse_environment_variable_strings(k8s_devices, coerce=int)
                             if k8s_devices
                             else EMPTY_DICT_PLACEHOLDER
                             if k8s_device_none
                             else EMPTY_DICT_PLACEHOLDER
-                            if isinstance(step.resources.devices.devices, dict) and step.resources.devices.devices == {}
+                            if isinstance(step.resources.devices.devices, dict)
+                            and step.resources.devices.devices == {}
                             else step.resources.devices.devices
                         ),
-                    }
-                }
-            }
-        }
+                    },
+                },
+            },
+        },
     })
     if kubernetes_dict:
-        runtime_config['kubernetes'] = kubernetes_dict
+        runtime_config["kubernetes"] = kubernetes_dict
 
     rc = RunCommand(
         project=project,
@@ -193,9 +300,9 @@ def print_step_list(ctx: click.Context, commit: Optional[str]) -> None:
     with contextlib.suppress(Exception):  # If we fail to extract the step list, it's not that big of a deal.
         config = get_project(require=True).get_config(commit_identifier=commit)
         if config.steps:
-            click.secho('\nThese steps are available in the selected commit:\n', color=ctx.color, bold=True)
+            click.secho("\nThese steps are available in the selected commit:\n", color=ctx.color, bold=True)
             for step in sorted(config.steps):
-                click.echo(f'   * {step}', color=ctx.color)
+                click.echo(f"   * {step}", color=ctx.color)
 
 
 def recursive_compact_kubernetes_dict(dct: dict) -> dict:

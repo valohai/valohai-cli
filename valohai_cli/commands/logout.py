@@ -12,14 +12,17 @@ def logout(yes: bool) -> None:
     user = settings.user
     token = settings.token
     if not (user or token):
-        click.echo('You\'re not logged in.')
+        click.echo("You're not logged in.")
         return
 
     if user and not yes:
-        click.confirm((
-            f'You are logged in as {user["username"]} (on {settings.host}).\n'
-            'Are you sure you wish to remove the authentication token?'
-        ), abort=True)
+        click.confirm(
+            (
+                f'You are logged in as {user["username"]} (on {settings.host}).\n'
+                'Are you sure you wish to remove the authentication token?'
+            ),
+            abort=True,
+        )
     settings.persistence.update(host=None, user=None, token=None)
     settings.persistence.save()
-    success('Logged out.')
+    success("Logged out.")
