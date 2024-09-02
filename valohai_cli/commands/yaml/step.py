@@ -13,8 +13,13 @@ from valohai_cli.models.project import Project
 
 
 @click.command()
-@click.option('--yaml', default=None, help='Path to the YAML file to write to.')
-@click.argument('filenames', nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False), required=True)
+@click.option("--yaml", default=None, help="Path to the YAML file to write to.")
+@click.argument(
+    "filenames",
+    nargs=-1,
+    type=click.Path(file_okay=True, exists=True, dir_okay=False),
+    required=True,
+)
 def step(filenames: List[str], yaml: Optional[str]) -> None:
     """
     Update a step config(s) in valohai.yaml based on Python source file(s).
@@ -88,7 +93,7 @@ def update_yaml_from_source(source_path: str, project: Project, yaml_file: Optio
     new_config = get_updated_config(source_path, project, yaml_file)
     if old_config != new_config:
         project.refresh_details()
-        with open(project.get_config_filename(yaml_path=yaml_file), 'w') as out_file:
+        with open(project.get_config_filename(yaml_path=yaml_file), "w") as out_file:
             out_file.write(config_to_yaml(new_config))
         return True
     return False
@@ -129,11 +134,11 @@ def create_or_update_requirements(project: Project) -> None:
         with open(requirements_path) as requirements:
             requirements_lines = list(requirements)
 
-    if not any('valohai-utils' in line for line in requirements_lines):
+    if not any("valohai-utils" in line for line in requirements_lines):
         if requirements_lines and "\n" not in requirements_lines[-1]:
             # last line didn't end with a newline, so add one now
-            requirements_lines.append('\n')
-        requirements_lines.append('valohai-utils\n')
-        with open(requirements_path, 'w') as requirements:
+            requirements_lines.append("\n")
+        requirements_lines.append("valohai-utils\n")
+        with open(requirements_path, "w") as requirements:
             requirements.write("".join(requirements_lines))
         info("valohai-utils added to requirements.txt")

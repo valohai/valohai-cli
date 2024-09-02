@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 
 class Settings:
     # Non-persistent settings and their defaults:
-    output_format = 'human'
+    output_format = "human"
     override_project = None
     api_user_agent_prefix = None
 
     def __init__(self, persistence: Optional[Persistence] = None) -> None:
         if not persistence:
-            persistence = FilePersistence(get_filename=lambda: get_settings_file_name('config.json'))
+            persistence = FilePersistence(get_filename=lambda: get_settings_file_name("config.json"))
 
         self.persistence: Persistence = persistence
         self.overrides: Dict[str, Any] = {}
@@ -50,28 +50,28 @@ class Settings:
 
     @property
     def is_human_output(self) -> bool:
-        return (self.output_format == 'human')
+        return self.output_format == "human"
 
     @property
     def user(self) -> Optional[dict]:
         """
         The logged in user (dictionary or None).
         """
-        return self._get('user')
+        return self._get("user")
 
     @property
     def host(self) -> Optional[str]:
         """
         The host we're logged in to (string or None if not logged in).
         """
-        return self._get('host')
+        return self._get("host")
 
     @property
     def verify_ssl(self) -> Union[bool, str]:
         """
         Whether to verify SSL connections to the Valohai API, or a path to a CA bundle.
         """
-        value = self._get('verify_ssl', default=True)
+        value = self._get("verify_ssl", default=True)
         if value is True or value is False:
             return value
         return str(value)
@@ -81,19 +81,19 @@ class Settings:
         """
         The authentication token we have for the host we're logged in to.
         """
-        return self._get('token')
+        return self._get("token")
 
     @property
     def links(self) -> dict:
         """
         Dictionary of directory <-> project object dicts.
         """
-        links = self._get('links')
+        links = self._get("links")
         if isinstance(links, dict):
             return links
         return {}
 
-    def get_project(self, directory: str) -> Optional[Union['RemoteProject', 'Project']]:
+    def get_project(self, directory: str) -> Optional[Union["RemoteProject", "Project"]]:
         """
         Get the Valohai project object for a directory context.
         The directory tree is walked upwards to find an actual linked directory.
@@ -113,35 +113,37 @@ class Settings:
             project_obj = links.get(directory)
             if project_obj:
                 from valohai_cli.models.project import Project
+
                 return Project(data=project_obj, directory=directory)
         return None  # No project.
 
     def set_project_link(self, directory: str, project: dict) -> None:
         if self.override_project:
-            raise ValueError('Can not call set_project_link() when an override project is active')
+            raise ValueError("Can not call set_project_link() when an override project is active")
 
         links = self.links.copy()
         links[directory] = project
-        self.persistence.set('links', links)
+        self.persistence.set("links", links)
         project_for_dir = self.get_project(directory)
-        assert project_for_dir and project_for_dir.id == project['id']
+        assert project_for_dir and project_for_dir.id == project["id"]
         self.persistence.save()
 
     def set_override_project(self, project_id: str, directory: str, mode: str) -> bool:
         from valohai_cli.api import request
         from valohai_cli.models.project import Project
         from valohai_cli.models.remote_project import RemoteProject
-        assert mode in ('local', 'remote')
+
+        assert mode in ("local", "remote")
 
         try:
-            project_data = request('get', f'/api/v0/projects/{project_id}/').json()
-            project_cls = (RemoteProject if mode == 'remote' else Project)
+            project_data = request("get", f"/api/v0/projects/{project_id}/").json()
+            project_cls = RemoteProject if mode == "remote" else Project
             project = self.override_project = project_cls(data=project_data, directory=directory)
-            mode_fmt = ('local mode' if mode == 'local' else 'remote mode')
-            info(f'Using project {project.name} in {mode_fmt} (in {project.directory})')
+            mode_fmt = "local mode" if mode == "local" else "remote mode"
+            info(f"Using project {project.name} in {mode_fmt} (in {project.directory})")
             return True
         except APINotFoundError:
-            error(f'No project was found with the ID {project_id} (via --project or VALOHAI_PROJECT)')
+            error(f"No project was found with the ID {project_id} (via --project or VALOHAI_PROJECT)")
             return False
 
 

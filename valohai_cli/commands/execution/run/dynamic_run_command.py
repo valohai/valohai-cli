@@ -25,12 +25,11 @@ def generate_sanitized_options(name: str) -> Set[str]:
     sanitized_name = sanitize_option_name(name)
     return {
         choice
-        for choice in
-        (
-            f'--{sanitized_name}',
-            f'--{sanitized_name}'.lower(),
+        for choice in (
+            f"--{sanitized_name}",
+            f"--{sanitized_name}".lower(),
         )
-        if ' ' not in choice
+        if " " not in choice
     }
 
 
@@ -38,10 +37,11 @@ class RunCommand(click.Command):
     """
     A dynamically-generated subcommand that has Click options for parameters and inputs.
     """
+
     parameter_type_map = {
-        'integer': click.INT,
-        'float': click.FLOAT,
-        'flag': click.BOOL,
+        "integer": click.INT,
+        "float": click.FLOAT,
+        "flag": click.BOOL,
     }
 
     def __init__(
@@ -60,7 +60,6 @@ class RunCommand(click.Command):
         runtime_config: Optional[dict] = None,
         runtime_config_preset: Optional[str] = None,
     ) -> None:
-
         """
         Initialize the dynamic run command.
 
@@ -94,15 +93,17 @@ class RunCommand(click.Command):
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
-            epilog='Multiple styled parameters: --my-parameter=value1 --my-parameter=value2\n\n'
-                   'Multiple files per input: --my-input=myurl --my-input=myotherurl',
+            epilog="Multiple styled parameters: --my-parameter=value1 --my-parameter=value2\n\n"
+            "Multiple files per input: --my-input=myurl --my-input=myotherurl",
             add_help_option=True,
         )
-        self.params.append(click.Option(
-            ['--parameter-file'],
-            type=click.Path(exists=True, dir_okay=False),
-            help='Read parameter values from JSON/YAML file',
-        ))
+        self.params.append(
+            click.Option(
+                ["--parameter-file"],
+                type=click.Path(exists=True, dir_okay=False),
+                help="Read parameter values from JSON/YAML file",
+            ),
+        )
         for parameter in step.parameters.values():
             self.params.append(self.convert_param_to_option(parameter))
         for input in step.inputs.values():
@@ -116,10 +117,10 @@ class RunCommand(click.Command):
         for param in self.get_params(ctx):
             rv = param.get_help_record(ctx)
             if rv is not None:
-                opts_by_group[getattr(param, 'help_group', None)].append(rv)
+                opts_by_group[getattr(param, "help_group", None)].append(rv)
 
-        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: (pair[0] or '')):
-            with formatter.section(group_name or 'Options'):
+        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: (pair[0] or "")):
+            with formatter.section(group_name or "Options"):
                 formatter.write_dl(opts)
 
     def convert_param_to_option(self, parameter: Parameter) -> Option:
@@ -139,8 +140,8 @@ class RunCommand(click.Command):
             type=self.parameter_type_map.get(parameter.type, click.STRING),
             multiple=is_multiple,
         )
-        option.name = f'~{parameter.name}'  # Tildify so we can pick these out of kwargs easily
-        option.help_group = 'Parameter Options'  # type: ignore[attr-defined]
+        option.name = f"~{parameter.name}"  # Tildify so we can pick these out of kwargs easily
+        option.help_group = "Parameter Options"  # type: ignore[attr-defined]
         return option
 
     @staticmethod
@@ -154,12 +155,12 @@ class RunCommand(click.Command):
             param_decls=list(generate_sanitized_options(input.name)),
             required=(input.default is None and not input.optional),
             default=listify(input.default),
-            metavar='URL',
+            metavar="URL",
             multiple=True,
             help=f'Input "{humanize_identifier(input.name)}"',
         )
-        option.name = f'^{input.name}'  # Caretize so we can pick these out of kwargs easily
-        option.help_group = 'Input Options'  # type: ignore[attr-defined]
+        option.name = f"^{input.name}"  # Caretize so we can pick these out of kwargs easily
+        option.help_group = "Input Options"  # type: ignore[attr-defined]
         return option
 
     def execute(self, **kwargs: Any) -> None:
@@ -174,8 +175,8 @@ class RunCommand(click.Command):
         payload = self._build_payload(**kwargs)
 
         resp = request(
-            method='post',
-            url='/api/v0/executions/',
+            method="post",
+            url="/api/v0/executions/",
             json=payload,
             api_error_class=ExecutionCreationAPIError,
         ).json()
@@ -187,38 +188,41 @@ class RunCommand(click.Command):
             from valohai_cli.commands.execution.outputs import (
                 outputs as outputs_command,
             )
+
             ctx.invoke(
                 outputs_command,
-                counter=resp['counter'],
+                counter=resp["counter"],
                 sync=True,
                 download_directory=self.download_directory,
             )
 
         if self.open_browser:
             import webbrowser
-            webbrowser.open(resp['urls']['display'])
+
+            webbrowser.open(resp["urls"]["display"])
 
         if self.watch:
             from valohai_cli.commands.execution.watch import watch
-            ctx.invoke(watch, counter=resp['counter'])
+
+            ctx.invoke(watch, counter=resp["counter"])
 
     def _build_payload(self, **kwargs: Any) -> dict:
         _options, parameters, inputs = self._sift_kwargs(kwargs)
 
         payload = {
-            'commit': self.commit,
-            'inputs': inputs,
-            'parameters': parameters,
-            'project': self.project.id,
-            'step': self.step.name,
+            "commit": self.commit,
+            "inputs": inputs,
+            "parameters": parameters,
+            "project": self.project.id,
+            "step": self.step.name,
         }
-        payload.update(self._optional_item('environment'))
-        payload.update(self._optional_item('image'))
-        payload.update(self._optional_item('title'))
-        payload.update(self._optional_item('environment_variables'))
-        payload.update(self._optional_item('tags'))
-        payload.update(self._optional_item('runtime_config'))
-        payload.update(self._optional_item('runtime_config_preset'))
+        payload.update(self._optional_item("environment"))
+        payload.update(self._optional_item("image"))
+        payload.update(self._optional_item("title"))
+        payload.update(self._optional_item("environment_variables"))
+        payload.update(self._optional_item("tags"))
+        payload.update(self._optional_item("runtime_config"))
+        payload.update(self._optional_item("runtime_config_preset"))
 
         return payload
 
@@ -232,20 +236,20 @@ class RunCommand(click.Command):
         params = {}
         inputs = {}
         for key, value in kwargs.items():
-            if key.startswith('~'):
+            if key.startswith("~"):
                 params[key[1:]] = value
-            elif key.startswith('^'):
+            elif key.startswith("^"):
                 inputs[key[1:]] = value
             else:
                 options[key] = value
-        self._process_parameters(params, parameter_file=options.get('parameter_file'))
+        self._process_parameters(params, parameter_file=options.get("parameter_file"))
         return options, params, inputs
 
     def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:  # noqa: C901
         if parameter_file:
             parameter_file_data = read_data_file(parameter_file)
             if not isinstance(parameter_file_data, dict):
-                raise CLIException('Parameter file could not be parsed as a dictionary')
+                raise CLIException("Parameter file could not be parsed as a dictionary")
 
             for name, parameter in self.step.parameters.items():
                 # See if we can match the name or the sanitized name to an option
@@ -258,21 +262,21 @@ class RunCommand(click.Command):
                     parameters[name] = value
 
             if parameter_file_data:  # Not everything was popped off
-                unparsed_parameter_names = ', '.join(sorted(str(k) for k in parameter_file_data))
-                warn(f'Parameters ignored in parameter file: {unparsed_parameter_names}')
+                unparsed_parameter_names = ", ".join(sorted(str(k) for k in parameter_file_data))
+                warn(f"Parameters ignored in parameter file: {unparsed_parameter_names}")
 
         missing_required_parameters = set()
         for name, parameter in self.step.parameters.items():
             if name in parameters:
                 # Clean out default-less flag parameters whose value would be None
-                if parameter.type == 'flag' and parameters[name] is None:
+                if parameter.type == "flag" and parameters[name] is None:
                     del parameters[name]
             else:
-                required = (parameter.default is None and not parameter.optional)
+                required = parameter.default is None and not parameter.optional
                 if required:
                     missing_required_parameters.add(name)
         if missing_required_parameters:
-            raise CLIException(f'Required parameters missing: {missing_required_parameters}')
+            raise CLIException(f"Required parameters missing: {missing_required_parameters}")
 
     def make_parser(self, ctx: Context) -> FriendlyOptionParser:
         parser: FriendlyOptionParser = super().make_parser(ctx)  # type: ignore[assignment]

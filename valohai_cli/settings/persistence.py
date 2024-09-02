@@ -44,19 +44,19 @@ class FilePersistence(Persistence):
     def _load(self) -> None:
         filename = self.get_filename()
         try:
-            with codecs.open(filename, 'r', encoding='UTF-8') as infp:
+            with codecs.open(filename, "r", encoding="UTF-8") as infp:
                 self._data = json.load(infp)
         except OSError as ee:
             if ee.errno != ENOENT:
                 raise
             self._data = {}
         except Exception as exc:  # pragma: no cover
-            raise RuntimeError(f'could not read configuration file {filename}') from exc
+            raise RuntimeError(f"could not read configuration file {filename}") from exc
 
     def save(self) -> None:
         filename = self.get_filename()
         first_save = not os.path.isfile(filename)
-        with codecs.open(filename, 'w', encoding='UTF-8') as outfp:
+        with codecs.open(filename, "w", encoding="UTF-8") as outfp:
             json.dump(self.data, outfp, ensure_ascii=False, indent=2, sort_keys=True)
         if first_save:
             with contextlib.suppress(Exception):

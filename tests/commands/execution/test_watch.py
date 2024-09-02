@@ -6,14 +6,14 @@ from valohai_cli.commands.execution.watch import watch
 
 
 def no_sleep(t):
-    raise KeyboardInterrupt('no... sleep... til... Brooklyn!')
+    raise KeyboardInterrupt("no... sleep... til... Brooklyn!")
 
 
 def test_execution_watch(runner, logged_in_and_linked, monkeypatch):
-    monkeypatch.setattr(time, 'sleep', no_sleep)
+    monkeypatch.setattr(time, "sleep", no_sleep)
     with get_execution_data_mock():
-        output = runner.invoke(watch, [str(EXECUTION_DATA['counter'])], catch_exceptions=False).output
-        assert EXECUTION_DATA['status'] in output
-        assert PROJECT_DATA['name'] in output
-        assert 'hOI!!!' in output
+        output = runner.invoke(watch, [str(EXECUTION_DATA["counter"])], catch_exceptions=False).output
+        assert EXECUTION_DATA["status"] in output
+        assert PROJECT_DATA["name"] in output
+        assert "hOI!!!" in output
         # TODO: Further test output?

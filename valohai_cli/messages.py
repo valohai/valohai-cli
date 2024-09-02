@@ -4,12 +4,12 @@ from typing import List, Optional
 
 import click
 
-SUCCESS_EMOJI = [':)', '^_^']
-WARN_EMOJI = [':(', 'o_o', '-_-']
-ERROR_EMOJI = ['x_x', '._.', ':[']
-PROGRESS_EMOJI = ['...']
+SUCCESS_EMOJI = [":)", "^_^"]
+WARN_EMOJI = [":(", "o_o", "-_-"]
+ERROR_EMOJI = ["x_x", "._.", ":["]
+PROGRESS_EMOJI = ["..."]
 
-if sys.platform != 'win32':
+if sys.platform != "win32":
     # The default Win32 console can't display these properly.
 
     SUCCESS_EMOJI = [
@@ -57,36 +57,36 @@ def _format_message(
     prefix: Optional[str] = None,
     color: Optional[str] = None,
 ) -> str:
-    selected_emoji = random.choice(emoji or [''])
-    formatted_prefix = (click.style(prefix, fg=color, bold=True) if prefix else '')
+    selected_emoji = random.choice(emoji or [""])
+    formatted_prefix = click.style(prefix, fg=color, bold=True) if prefix else ""
     formatted_message = click.style(message, fg=color)
-    return f'{selected_emoji}  {formatted_prefix} {formatted_message}'
+    return f"{selected_emoji}  {formatted_prefix} {formatted_message}"
 
 
 def info(message: str, err: bool = True) -> None:
-    click.echo(_format_message(message, ['=>'], color='cyan'), err=err)
+    click.echo(_format_message(message, ["=>"], color="cyan"), err=err)
 
 
 def success(message: str, err: bool = True) -> None:
-    click.echo(_format_message(message, SUCCESS_EMOJI, 'Success!', 'green'), err=err)
+    click.echo(_format_message(message, SUCCESS_EMOJI, "Success!", "green"), err=err)
 
 
 def warn(message: str, err: bool = True) -> None:
-    click.echo(_format_message(message, WARN_EMOJI, 'Warning:', 'yellow'), err=err)
+    click.echo(_format_message(message, WARN_EMOJI, "Warning:", "yellow"), err=err)
 
 
 def error(message: str, err: bool = True) -> None:
-    click.echo(_format_message(message, ERROR_EMOJI, 'ERROR:', 'red'), err=err)
+    click.echo(_format_message(message, ERROR_EMOJI, "ERROR:", "red"), err=err)
 
 
 def progress(message: str, err: bool = True) -> None:
     click.echo(_format_message(message, PROGRESS_EMOJI, None, None), err=err)
 
 
-DEFAULT_BANNER_STYLE = {"fg": 'magenta', "bold": True}
+DEFAULT_BANNER_STYLE = {"fg": "magenta", "bold": True}
 
 
-def banner(message: str, banner_char: str = '=', banner_style: Optional[dict] = None) -> None:
+def banner(message: str, banner_char: str = "=", banner_style: Optional[dict] = None) -> None:
     if banner_style is None:
         banner_style = DEFAULT_BANNER_STYLE
 

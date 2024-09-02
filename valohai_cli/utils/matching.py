@@ -7,7 +7,11 @@ from valohai_cli.utils import force_text
 from valohai_cli.utils.cli_utils import join_with_style
 
 
-def match_prefix(choices: Iterable[Any], value: str, return_unique: bool = True) -> Union[List[Any], Any, None]:
+def match_prefix(
+    choices: Iterable[Any],
+    value: str,
+    return_unique: bool = True,
+) -> Union[List[Any], Any, None]:
     """
     Match `value` in `choices` by case-insensitive prefix matching.
 
@@ -22,10 +26,10 @@ def match_prefix(choices: Iterable[Any], value: str, return_unique: bool = True)
     """
     if return_unique and value in choices:
         return value
-    value_re = re.compile(f'^{re.escape(value)}', re.I)
+    value_re = re.compile(f"^{re.escape(value)}", re.I)
     choices = [choice for choice in choices if value_re.match(force_text(choice))]
     if return_unique:
-        return (choices[0] if len(choices) == 1 else None)
+        return choices[0] if len(choices) == 1 else None
     return choices
 
 
@@ -44,7 +48,9 @@ def match_from_list_with_error(
     if not matching_options:
         styled_options = join_with_style(sorted(options), bold=True)
         raise click.BadParameter(
-            f'"{input}" is not a known {noun} (try one of {styled_options})', param_hint=param_hint)
+            f'"{input}" is not a known {noun} (try one of {styled_options})',
+            param_hint=param_hint,
+        )
     if len(matching_options) > 1:
         styled_matches = join_with_style(sorted(matching_options), bold=True)
         styled_options = join_with_style(sorted(options), bold=True)

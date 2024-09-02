@@ -24,12 +24,19 @@ def create_or_resolve_commit(
 ) -> str:
     if adhoc:
         if project.is_remote:
-            raise click.UsageError('--adhoc can not be used with remote projects.')
+            raise click.UsageError("--adhoc can not be used with remote projects.")
         if commit:
-            raise click.UsageError('--commit and --adhoc are mutually exclusive.')
-        commit = str(package_adhoc_commit(project, validate=validate_adhoc_commit, yaml_path=yaml_path, allow_git=allow_git_packaging)['identifier'])
+            raise click.UsageError("--commit and --adhoc are mutually exclusive.")
+        commit = str(
+            package_adhoc_commit(
+                project,
+                validate=validate_adhoc_commit,
+                yaml_path=yaml_path,
+                allow_git=allow_git_packaging,
+            )["identifier"],
+        )
     elif yaml_path:
-        raise click.UsageError('--yaml can only be used with --adhoc.')
+        raise click.UsageError("--yaml can only be used with --adhoc.")
 
     commit = commit or get_git_commit(project)
     return resolve_commit(commit, project)
@@ -40,42 +47,42 @@ def get_git_commit(project: Project) -> Optional[str]:
         return git.get_current_commit(project.directory)
     except NoGitRepo:
         warn(
-            'The directory is not a Git repository. \n'
-            'Would you like to just run using the latest commit known by Valohai?'
+            "The directory is not a Git repository. \n"
+            "Would you like to just run using the latest commit known by Valohai?",
         )
-        if not click.confirm('Use latest commit?', default=True):
+        if not click.confirm("Use latest commit?", default=True):
             raise click.Abort()
         return None
 
 
 def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
     matching_commits = []
-    if commit_identifier and commit_identifier.startswith('~'):
+    if commit_identifier and commit_identifier.startswith("~"):
         # Assume ad-hoc commits are qualified already
         return commit_identifier
 
     try:
         matching_commits = project.resolve_commits(commit_identifier=commit_identifier)
     except KeyError:
-        warn(f'Commit {commit_identifier} is not known for the project')
-        if click.confirm('Would you like to fetch new commits?', default=True):
+        warn(f"Commit {commit_identifier} is not known for the project")
+        if click.confirm("Would you like to fetch new commits?", default=True):
             matching_commits = fetch_latest_commits(commit_identifier)
     except IndexError:
-        warn('No commits are known for the project.')
+        warn("No commits are known for the project.")
 
     if not matching_commits:
         raise click.Abort()
 
     commit_obj = matching_commits[0]
-    resolved_commit_identifier: str = commit_obj['identifier']
+    resolved_commit_identifier: str = commit_obj["identifier"]
     if len(matching_commits) > 1:
-        ambiguous_str = ", ".join([c['identifier'] for c in matching_commits[1:]])
+        ambiguous_str = ", ".join([c["identifier"] for c in matching_commits[1:]])
         click.echo(
-            f'Resolved to commit {resolved_commit_identifier}, which is ambiguous with {ambiguous_str}',
+            f"Resolved to commit {resolved_commit_identifier}, which is ambiguous with {ambiguous_str}",
             err=True,
         )
     elif not commit_identifier:
-        click.echo(f'Resolved to commit {resolved_commit_identifier}', err=True)
+        click.echo(f"Resolved to commit {resolved_commit_identifier}", err=True)
 
     return resolved_commit_identifier
 

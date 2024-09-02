@@ -7,9 +7,9 @@ from valohai_cli.commands.data.list import list
 def test_list(runner, logged_in_and_linked):
     with requests_mock.mock() as m:
         m.get(
-            'https://app.valohai.com/api/v0/data/',
+            "https://app.valohai.com/api/v0/data/",
             json={
-                'results': [
+                "results": [
                     DATUM_DATA,
                     DATUM_DATA,
                     DATUM_DATA,

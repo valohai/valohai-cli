@@ -10,7 +10,7 @@ from valohai_cli.messages import error, info
 
 
 @click.command()
-@click.option('--yaml', default=None, help='Path to the YAML file to update.')
+@click.option("--yaml", default=None, help="Path to the YAML file to update.")
 @click.argument(
     "filenames",
     nargs=-1,
@@ -36,8 +36,7 @@ def pipeline(filenames: List[str], yaml: Optional[str]) -> None:
             old_config = project.get_config(yaml_path=yaml)
         except FileNotFoundError as fnfe:
             raise ConfigurationError(
-                f"Did not find {yaml_filename}. "
-                f"Can't create a pipeline without preconfigured steps."
+                f"Did not find {yaml_filename}. " f"Can't create a pipeline without preconfigured steps.",
             ) from fnfe
         try:
             new_config = get_pipeline_from_source(source_path, old_config)
@@ -45,7 +44,7 @@ def pipeline(filenames: List[str], yaml: Optional[str]) -> None:
             error(
                 f"Retrieving a new pipeline definition for project {project} for {source_path} failed.\n"
                 f"The configuration file in use is {yaml_filename}. "
-                f"See the full traceback below."
+                f"See the full traceback below.",
             )
             raise
 
