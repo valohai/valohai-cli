@@ -38,7 +38,7 @@ def process_file(filename: str) -> List[str]:
     messages = []
 
     def add_message(node: ast.AST, message: str) -> None:
-        messages.append(f"{filename}:{node.lineno}: {message}")
+        messages.append(f"{filename}:{node.lineno}: {message}")  # type: ignore[attr-defined]
 
     EnsureClickHelpWalker(add_message=add_message).visit(tree)
     return messages
