@@ -36,7 +36,7 @@ def test_all_commands_have_help(runner, monkeypatch):
     exceptions = list(find_commands_with_no_help(root_command))
 
     if exceptions:
-        raise ExceptionGroup(
+        raise ExceptionGroup(  # noqa: F821
             f"{len(exceptions)} commands have no help text",
             exceptions,
         )
