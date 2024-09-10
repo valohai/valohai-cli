@@ -330,7 +330,6 @@ CONFIG_YAML = """
         path: model.h5
 """
 
-
 PIPELINE_YAML = (
     CONFIG_YAML
     + """
@@ -665,3 +664,19 @@ KUBE_RESOURCE_YAML = """
         description: Model output file from TensorFlow
         path: model.h5
 """
+
+STATUS_EVENT_RESPONSE_DATA = {
+    "total": 2,
+    "status_events": [
+        {
+            "stream": "status",
+            "message": '::ssh::{"port": 2222, "address": "127.0.0.1"}',
+            "time": "2024-09-04T12:16:20.722000",
+        },
+        {
+            "stream": "status",
+            "message": "   $ ssh -i <path-to-private-key> 127.0.0.1 -p 2222 -t /bin/bash",
+            "time": "2024-09-04T12:16:20.723000",
+        },
+    ],
+}
