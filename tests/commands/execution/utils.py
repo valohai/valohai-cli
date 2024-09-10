@@ -36,3 +36,7 @@ def get_execution_data_mock():
     m.delete(execution_by_counter_url, json={"ok": True})
     m.post(re.compile("^https://app.valohai.com/api/v0/data/(.+?)/purge/$"), json={"ok": True})
     return m
+
+
+def no_sleep(t):
+    raise KeyboardInterrupt("no... sleep... til... Brooklyn!")
