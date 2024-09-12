@@ -12,6 +12,10 @@ def get_settings_root_path() -> str:  # pragma: no cover
 
 
 def get_settings_file_name(name: str) -> str:
+    """
+    Get the path to a settings file in the user's configuration directory.
+    name can be empty string to get the directory itself.
+    """
     path = os.environ.get("VALOHAI_CONFIG_DIR")
     if path:
         if not os.path.isdir(path):
