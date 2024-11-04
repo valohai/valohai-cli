@@ -59,6 +59,9 @@ target-version = "py38"
 line-length = 110
 preview = true
 
+[tool.ruff.format]
+quote-style = "preserve"
+
 [tool.ruff.lint]
 ignore = [
     "E501",

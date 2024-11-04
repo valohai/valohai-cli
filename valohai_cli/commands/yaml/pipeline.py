@@ -36,7 +36,7 @@ def pipeline(filenames: List[str], yaml: Optional[str]) -> None:
             old_config = project.get_config(yaml_path=yaml)
         except FileNotFoundError as fnfe:
             raise ConfigurationError(
-                f"Did not find {yaml_filename}. " f"Can't create a pipeline without preconfigured steps.",
+                f"Did not find {yaml_filename}. Can't create a pipeline without preconfigured steps.",
             ) from fnfe
         try:
             new_config = get_pipeline_from_source(source_path, old_config)
