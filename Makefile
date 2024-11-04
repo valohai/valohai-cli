@@ -14,9 +14,7 @@ dev:
 ifndef UV
 	pip install -U pip
 endif
-	$(PIP_INSTALL) -r requirements-test.txt
-	$(PIP_INSTALL) pre-commit
-	$(PIP_INSTALL) -e .
+	$(PIP_INSTALL) pre-commit -e .[test]
 	pre-commit install
 
 .PHONY: lint

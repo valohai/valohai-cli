@@ -14,11 +14,18 @@ authors = [
 ]
 dependencies = [
     "click>=8.0",
-    "gitignorant>=0.2.0",
+    "gitignorant>=0.4.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
-    "valohai-utils>=0.3.0",
-    "valohai-yaml>=0.40.0",
+    "valohai-utils>=0.5.0",
+    "valohai-yaml>=0.43.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-cov~=4.0",
+    "pytest~=7.0",
+    "requests-mock~=1.10",
 ]
 
 [project.scripts]
@@ -58,6 +65,9 @@ markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 target-version = "py38"
 line-length = 110
 preview = true
+
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.ruff.lint]
 ignore = [
