@@ -37,6 +37,8 @@ jobs:
           GIT_AUTHOR_NAME: Foo Bar
           GIT_COMMITTER_NAME: Foo Bar
       - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
   Lint:
     runs-on: ubuntu-latest
     steps:
