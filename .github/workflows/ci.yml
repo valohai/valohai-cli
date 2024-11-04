@@ -26,10 +26,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
-          cache: "pip"
-          cache-dependency-path: "**/requirements*txt"
-      - run: pip install -U pip setuptools wheel
-      - run: "pip install -e . -r requirements-test.txt"
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+      - run: uv pip install --system -e .[test]
       - run: make test
         env:
           EMAIL: foo@example.com
@@ -43,8 +44,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: pyproject.toml
       - uses: pre-commit/action@v3.0.1
   Build:
     runs-on: ubuntu-20.04
@@ -53,10 +52,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
-          cache-dependency-path: "**/requirements*txt"
-      - run: pip install build
-      - run: python -m build
+      - uses: astral-sh/setup-uv@v3
+      - run: uv build --wheel
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

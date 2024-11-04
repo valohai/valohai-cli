@@ -21,6 +21,13 @@ dependencies = [
     "valohai-yaml>=0.43.0",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest-cov~=4.0",
+    "pytest~=7.0",
+    "requests-mock~=1.10",
+]
+
 [project.scripts]
 vh = "valohai_cli.cli:cli"
 
