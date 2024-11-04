@@ -1,5 +1,30 @@
 ### Changelog
 
+#### [v0.28.0](https://github.com/valohai/valohai-cli/compare/v0.27.0...v0.28.0)
+
+> 4 November 2024
+
+- Dependency upgrades & minor CI renovation [`#318`](https://github.com/valohai/valohai-cli/pull/318)
+
+#### [v0.27.0](https://github.com/valohai/valohai-cli/compare/v0.26.0...v0.27.0)
+
+> 12 September 2024
+
+- Add SSH command for executions [`#314`](https://github.com/valohai/valohai-cli/pull/314)
+- Option to disable git packaging for adhoc runs [`#313`](https://github.com/valohai/valohai-cli/pull/313)
+- Support list parameters for pipelines [`#311`](https://github.com/valohai/valohai-cli/pull/311)
+- Smoother token login flow [`#310`](https://github.com/valohai/valohai-cli/pull/310)
+- Add command line parameter for runtime config preset [`#305`](https://github.com/valohai/valohai-cli/pull/305)
+- Refactorings & upgrades
+
+#### [v0.26.0](https://github.com/valohai/valohai-cli/compare/v0.25.0...v0.26.0)
+
+> 3 January 2024
+
+- This version is the first to require Python 3.8.
+- Improved Kubernetes support.
+- Improved help text and documentation.
+
 #### [v0.25.0](https://github.com/valohai/valohai-cli/compare/v0.24.0...v0.25.0)
 
 > 11 September 2023
