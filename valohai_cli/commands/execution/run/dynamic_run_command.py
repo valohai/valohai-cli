@@ -61,6 +61,7 @@ class RunCommand(click.Command):
         runtime_config: Optional[dict] = None,
         runtime_config_preset: Optional[str] = None,
         ssh: bool = False,
+        priority: Optional[int] = None,
     ) -> None:
         """
         Initialize the dynamic run command.
@@ -94,6 +95,7 @@ class RunCommand(click.Command):
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset
         self.ssh = ssh
+        self.priority = priority
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -233,12 +235,15 @@ class RunCommand(click.Command):
         payload.update(self._optional_item("tags"))
         payload.update(self._optional_item("runtime_config"))
         payload.update(self._optional_item("runtime_config_preset"))
+        payload.update(self._optional_item("priority"))
 
         return payload
 
     def _optional_item(self, attribute_name: str) -> dict:
         value = getattr(self, attribute_name, None)
-        return {attribute_name: value} if value else {}
+        if value in ("", None):  # An explicit zero should be included
+            return {}
+        return {attribute_name: value}
 
     def _sift_kwargs(self, kwargs: Dict[str, str]) -> Tuple[dict, dict, dict]:
         # Sift kwargs into params, options, and inputs
