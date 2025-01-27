@@ -119,6 +119,12 @@ EMPTY_DICT_PLACEHOLDER = object()
     help="Enable Automatic Restart on Spot Instance Interruption",
 )
 @click.option(
+    "--priority",
+    type=int,
+    default=None,
+    help="Priority for the job; higher values mean higher priority.",
+)
+@click.option(
     "--k8s-cpu-min",
     help="Kubernetes only. CPU resouce request",
     type=float,
@@ -182,6 +188,7 @@ def run(
     debug_port: int,
     debug_key_file: Optional[str],
     autorestart: bool,
+    priority: Optional[int],
     k8s_cpu_min: Optional[float],
     k8s_memory_min: Optional[int],
     k8s_cpu_max: Optional[float],
@@ -299,6 +306,7 @@ def run(
         runtime_config=runtime_config,
         runtime_config_preset=k8s_preset,
         ssh=ssh,
+        priority=priority,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)

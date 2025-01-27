@@ -427,3 +427,10 @@ def test_no_git_adhoc_packaging(logged_in_and_linked, monkeypatch, allow_git_pac
         assert "Used git to find" in output
     else:
         assert "Walked filesystem and found" in output
+
+
+@pytest.mark.parametrize("val", (0, 7, 42))
+def test_priority(run_test_setup, val):
+    run_test_setup.args.append(f"--priority={val}")
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
