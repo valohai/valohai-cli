@@ -465,7 +465,13 @@ def test_priority(run_test_setup, val):
     assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
 
 
-def test_implicit_priority(run_test_setup):
-    run_test_setup.args.append("--priority")
+@pytest.mark.parametrize("has_flag", (False, True))
+def test_implicit_priority(run_test_setup, has_flag):
+    if has_flag:
+        run_test_setup.args.append("--priority")
     run_test_setup.run()
-    assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == 1
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+    if has_flag:
+        assert payload["priority"] == 1
+    else:
+        assert "priority" not in payload
