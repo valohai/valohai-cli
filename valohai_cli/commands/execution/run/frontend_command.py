@@ -122,6 +122,8 @@ EMPTY_DICT_PLACEHOLDER = object()
     "--priority",
     type=int,
     default=None,
+    is_flag=False,
+    flag_value=1,
     help="Priority for the job; higher values mean higher priority.",
 )
 @click.option(

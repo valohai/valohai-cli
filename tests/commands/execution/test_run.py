@@ -434,3 +434,9 @@ def test_priority(run_test_setup, val):
     run_test_setup.args.append(f"--priority={val}")
     run_test_setup.run()
     assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
+
+
+def test_implicit_priority(run_test_setup):
+    run_test_setup.args.append("--priority")
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == 1
