@@ -92,7 +92,6 @@ def update_yaml_from_source(source_path: str, project: Project, yaml_file: Optio
     old_config = get_current_config(project, yaml_file)
     new_config = get_updated_config(source_path, project, yaml_file)
     if old_config != new_config:
-        project.refresh_details()
         with open(project.get_config_filename(yaml_path=yaml_file), "w") as out_file:
             out_file.write(config_to_yaml(new_config))
         return True
