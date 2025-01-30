@@ -13,7 +13,7 @@ from valohai_cli.ctx import get_project
 
 
 @pytest.mark.parametrize("yaml_path", ["bark.yaml", None])
-def test_yaml(runner, logged_in_and_linked, default_run_api_mock, yaml_path):
+def test_yaml(runner, logged_in_and_linked, yaml_path):
     # Try to generate YAML from random .py source code
     project = get_project()
     source_path = os.path.join(project.directory, "mysnake.py")

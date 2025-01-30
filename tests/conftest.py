@@ -54,15 +54,15 @@ def isolate_cli(tmpdir, monkeypatch):
     monkeypatch.setenv("VALOHAI_PROJECT_DIR", project_dir)
 
 
-@pytest.fixture()
-def default_run_api_mock():
-    with RunAPIMock(PROJECT_DATA["id"], "f" * 16, {}) as am:
-        yield am
-
-
 @pytest.fixture(scope="module")
 def stub_git(tmp_path_factory) -> StubGit:
     repository_root = tmp_path_factory.mktemp("stub_git")
     stub = StubGit(repository_root)
     stub.init()
     return stub
+
+
+@pytest.fixture()
+def using_default_run_api_mock() -> RunAPIMock:  # type: ignore[misc]
+    with RunAPIMock() as am:
+        yield am

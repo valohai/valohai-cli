@@ -1,7 +1,6 @@
 import pytest
 
 from tests.commands.run_test_utils import RunAPIMock
-from tests.fixture_data import PROJECT_DATA
 from valohai_cli.commands.execution.run import run as exec_run
 from valohai_cli.commands.pipeline.run import run as pipeline_run
 from valohai_cli.models.remote_project import RemoteProject
@@ -13,12 +12,11 @@ test_token = "x" * 12
 
 @pytest.fixture()
 def remote_project_setup(request, monkeypatch, tmpdir):
-    project_id = PROJECT_DATA["id"]
     request.addfinalizer(lambda: settings.reset())
     monkeypatch.chdir(tmpdir)
-    with RunAPIMock(project_id, "f" * 40, {}, num_parameters=2):
+    with RunAPIMock() as m:
         configure_token_login(None, test_token)
-        configure_project_override(project_id=project_id, mode=None)
+        configure_project_override(project_id=m.project_id, mode=None)
         assert isinstance(settings.override_project, RemoteProject)
         yield
 
