@@ -41,6 +41,12 @@ EMPTY_DICT_PLACEHOLDER = object()
     help='The environment UUID or slug to use (see "vh env")',
 )
 @click.option(
+    "--environment_variable_groups",
+    "environment_variable_groups",
+    multiple=True,
+    help="Add environment variable group UUIDs.",
+)
+@click.option(
     "--image",
     "-i",
     default=None,
@@ -180,6 +186,7 @@ def run(
     download_directory: Optional[str],
     environment: Optional[str],
     environment_variables: List[str],
+    environment_variable_groups: List[str],
     image: Optional[str],
     step_name: Optional[str],
     tags: List[str],
@@ -304,6 +311,7 @@ def run(
         image=image,
         title=title,
         environment_variables=parse_environment_variable_strings(environment_variables),
+        environment_variable_groups=environment_variable_groups,
         tags=tags,
         runtime_config=runtime_config,
         runtime_config_preset=k8s_preset,
