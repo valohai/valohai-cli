@@ -41,7 +41,7 @@ EMPTY_DICT_PLACEHOLDER = object()
     help='The environment UUID or slug to use (see "vh env")',
 )
 @click.option(
-    "--environment_variable_groups",
+    "--environment-variable-groups",
     "environment_variable_groups",
     multiple=True,
     help="Add environment variable group UUIDs.",
