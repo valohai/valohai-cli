@@ -1,5 +1,12 @@
 ### Changelog
 
+#### [v0.29.0](https://github.com/valohai/valohai-cli/compare/v0.28.0...v0.29.0)
+
+> 28 Feb 2025
+
+- Add priority flag to `vh exec` command [`#319`](https://github.com/valohai/valohai-cli/pull/319), [`#321`](https://github.com/valohai/valohai-cli/pull/321)
+- Support the `time-limit` setting in `valohai.yaml`  [`#324`](https://github.com/valohai/valohai-cli/pull/324)
+
 #### [v0.28.0](https://github.com/valohai/valohai-cli/compare/v0.27.0...v0.28.0)
 
 > 4 November 2024
