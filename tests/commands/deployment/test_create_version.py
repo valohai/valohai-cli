@@ -18,8 +18,11 @@ def test_create_version(runner, logged_in_and_linked, monkeypatch, name):
     monkeypatch.setattr(Project, "resolve_commits", mock_resolve_commits)
 
     project = get_project()
-    apimock_kwargs = {"deployment_version_name": name} if name else {}
-    apimock = RunAPIMock(project.id, commit_identifier, **apimock_kwargs)
+    apimock = RunAPIMock(
+        project_id=project.id,
+        commit_id=commit_identifier,
+        deployment_version_name=name or RunAPIMock.DEFAULT_DEPLOYMENT_VERSION_NAME,
+    )
     args = ["-d", "main-deployment", "-e", "greet", "-c", commit_identifier]
     if name:
         args.extend(["-n", name])

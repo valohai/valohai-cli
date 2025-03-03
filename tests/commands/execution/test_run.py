@@ -4,8 +4,8 @@ import subprocess
 import pytest
 import yaml
 
-from tests.commands.run_test_utils import ALTERNATIVE_YAML, RunAPIMock, RunTestSetup
-from tests.fixture_data import CONFIG_YAML, KUBE_RESOURCE_YAML, PROJECT_DATA
+from tests.commands.run_test_utils import ALTERNATIVE_YAML, RunTestSetup
+from tests.fixture_data import CONFIG_YAML, KUBE_RESOURCE_YAML
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
 from valohai_cli.models.project import Project
@@ -129,8 +129,9 @@ def test_run_input(run_test_setup):
 def test_run_params(tmpdir, run_test_setup, pass_param):
     values = {
         "parameters": {  # default from YAML
-            "max_steps": 300,
             "learning_rate": 0.1337,
+            "max_steps": 300,
+            "multi-parameter": ["one", "two", "three"],
         },
     }
     if pass_param in ("direct", "mix"):
@@ -156,14 +157,14 @@ def test_run_params(tmpdir, run_test_setup, pass_param):
         assert payload["parameters"]["learning_rate"] == 1700.0
 
 
-def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git, default_run_api_mock):
+def test_param_type_validation_integer(runner, logged_in_and_linked, patch_git, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ["train", "--max-steps=plonk"], catch_exceptions=False)
     assert "'plonk' is not a valid integer" in rv.output or "plonk is not a valid integer" in rv.output
 
 
-def test_param_type_validation_flag(runner, logged_in_and_linked, patch_git, default_run_api_mock):
+def test_param_type_validation_flag(runner, logged_in_and_linked, patch_git, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     rv = runner.invoke(run, ["train", "--enable-mega-boost=please"], catch_exceptions=False)
@@ -183,28 +184,24 @@ def test_param_type_validation_flag(runner, logged_in_and_linked, patch_git, def
 )
 def test_flag_param_coercion(tmpdir, run_test_setup, value, result):
     run_test_setup.values["parameters"] = {  # default from YAML
-        "max_steps": 300,
-        "learning_rate": 0.1337,
         "enable_mega_boost": result,
+        "learning_rate": 0.1337,
+        "max_steps": 300,
+        "multi-parameter": ["one", "two", "three"],
     }
     run_test_setup.args.append(f"--enable-mega-boost={value}")
     run_test_setup.run()
 
 
-def test_run_no_git(runner, logged_in_and_linked):
-    project_id = PROJECT_DATA["id"]
-
+def test_run_no_git(runner, logged_in_and_linked, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
-    args = ["train"]
-
-    with RunAPIMock(project_id, "f" * 16, {}):
-        output = runner.invoke(run, args, catch_exceptions=False).output
-        assert "is not a Git repository" in output
+    output = runner.invoke(run, ["train"], catch_exceptions=False).output
+    assert "is not a Git repository" in output
 
 
-def test_param_input_sanitization(runner, logged_in_and_linked, patch_git, default_run_api_mock):
+def test_param_input_sanitization(runner, logged_in_and_linked, patch_git, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write("""
 - step:
@@ -243,7 +240,7 @@ def test_multi_parameter_command_line_argument(run_test_setup):
     assert payload["parameters"]["multi-parameter"] == ["four", "5", '"six"']
 
 
-def test_typo_check(runner, logged_in_and_linked, patch_git, default_run_api_mock):
+def test_typo_check(runner, logged_in_and_linked, patch_git, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
     args = ["train", "--max-setps=80"]  # Oopsy!
@@ -260,7 +257,7 @@ def test_run_help(runner, logged_in_and_linked):
     assert "Train model" in output
 
 
-def test_command_help(runner, logged_in_and_linked, patch_git, default_run_api_mock):
+def test_command_help(runner, logged_in_and_linked, patch_git, using_default_run_api_mock):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
@@ -323,7 +320,9 @@ def test_kube_options_partial(run_test_setup):
     run_test_setup.args.append("--k8s-cpu-min=1")
     run_test_setup.run()
 
-    assert run_test_setup.run_api_mock.last_create_execution_payload["runtime_config"] == {
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+    assert payload
+    assert payload["runtime_config"] == {
         "kubernetes": {
             "containers": {
                 "workload": {
@@ -338,10 +337,12 @@ def test_kube_options_partial(run_test_setup):
     }
 
 
-def test_kube_options_from_step(run_test_setup_kube):
+def test_kube_options_from_step(run_test_setup_kube: RunTestSetup):
     run_test_setup_kube.run()
 
-    assert run_test_setup_kube.run_api_mock.last_create_execution_payload["runtime_config"] == {
+    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    assert payload
+    assert payload["runtime_config"] == {
         "kubernetes": {
             "containers": {
                 "workload": {
@@ -364,13 +365,15 @@ def test_kube_options_from_step(run_test_setup_kube):
     }
 
 
-def test_kube_step_overrides(run_test_setup_kube):
+def test_kube_step_overrides(run_test_setup_kube: RunTestSetup):
     run_test_setup_kube.args.append("--k8s-cpu-min=1.5")
     run_test_setup_kube.args.append("--k8s-cpu-max=3")
     run_test_setup_kube.args.append("--k8s-device=amd.com/gpu=1")
     run_test_setup_kube.run()
 
-    assert run_test_setup_kube.run_api_mock.last_create_execution_payload["runtime_config"] == {
+    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    assert payload
+    assert payload["runtime_config"] == {
         "kubernetes": {
             "containers": {
                 "workload": {
@@ -393,11 +396,13 @@ def test_kube_step_overrides(run_test_setup_kube):
     }
 
 
-def test_kube_step_override_device_empty(run_test_setup_kube):
+def test_kube_step_override_device_empty(run_test_setup_kube: RunTestSetup):
     run_test_setup_kube.args.append("--k8s-device-none")
     run_test_setup_kube.run()
 
-    assert run_test_setup_kube.run_api_mock.last_create_execution_payload["runtime_config"] == {
+    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    assert payload
+    assert payload["runtime_config"] == {
         "kubernetes": {
             "containers": {
                 "workload": {
@@ -418,21 +423,20 @@ def test_kube_step_override_device_empty(run_test_setup_kube):
     }
 
 
-def test_kube_runtime_config_preset_argument(run_test_setup_kube):
+def test_kube_runtime_config_preset_argument(run_test_setup_kube: RunTestSetup):
     preset_uuid = "yes-this-is-my-preset-uuid"
     run_test_setup_kube.args.append(f"--k8s-preset={preset_uuid}")
     run_test_setup_kube.run()
 
-    assert (
-        run_test_setup_kube.run_api_mock.last_create_execution_payload["runtime_config_preset"] == preset_uuid
-    )
+    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    assert payload and payload["runtime_config_preset"] == preset_uuid
 
 
-def test_kube_no_runtime_config_preset_argument(run_test_setup_kube):
+def test_kube_no_runtime_config_preset_argument(run_test_setup_kube: RunTestSetup):
     """Only add the preset to payload when explicitly specified."""
     run_test_setup_kube.run()
-
-    assert "runtime_config_preset" not in run_test_setup_kube.run_api_mock.last_create_execution_payload
+    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    assert payload and "runtime_config_preset" not in payload
 
 
 @pytest.mark.parametrize("allow_git_packaging", (True, False))
@@ -461,7 +465,13 @@ def test_priority(run_test_setup, val):
     assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
 
 
-def test_implicit_priority(run_test_setup):
-    run_test_setup.args.append("--priority")
+@pytest.mark.parametrize("has_flag", (False, True))
+def test_implicit_priority(run_test_setup, has_flag):
+    if has_flag:
+        run_test_setup.args.append("--priority")
     run_test_setup.run()
-    assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == 1
+    payload = run_test_setup.run_api_mock.last_create_execution_payload
+    if has_flag:
+        assert payload["priority"] == 1
+    else:
+        assert "priority" not in payload
