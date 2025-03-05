@@ -3,6 +3,7 @@ from pytest import raises
 
 from tests.commands.run_test_utils import RunAPIMock
 from tests.fixture_data import PIPELINE_YAML, PROJECT_DATA
+from tests.utils import write_yaml_config
 from valohai_cli.commands.pipeline.run import run
 from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
@@ -62,11 +63,8 @@ def test_match_pipeline_ambiguous(runner, logged_in_and_linked):
         match_pipeline(config, "Train")
 
 
-def add_valid_pipeline_yaml(yaml_path=None):
-    project = get_project()
-    config_filename = project.get_config_filename(yaml_path=yaml_path)
-    with open(config_filename, "w") as yaml_fp:
-        yaml_fp.write(PIPELINE_YAML)
+def add_valid_pipeline_yaml(yaml_path=None) -> None:
+    write_yaml_config(PIPELINE_YAML, yaml_path=yaml_path)
 
 
 def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
