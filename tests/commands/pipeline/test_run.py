@@ -2,7 +2,7 @@ from click import BadParameter
 from pytest import raises
 
 from tests.commands.run_test_utils import RunAPIMock
-from tests.fixture_data import PIPELINE_YAML, PROJECT_DATA
+from tests.fixture_data import PIPELINE_WITH_TASK_EXAMPLE, PIPELINE_YAML, PROJECT_DATA
 from tests.utils import write_yaml_config
 from valohai_cli.commands.pipeline.run import run
 from valohai_cli.commands.pipeline.run.utils import match_pipeline
@@ -104,3 +104,20 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
                 "value": ["laituri", "satama"],
             },
         }
+
+
+def test_pipeline_environment_override(runner, logged_in_and_linked):
+    write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
+    args = ["--adhoc", "--environment=tiny", "dynamic-task"]
+    with RunAPIMock(
+        PROJECT_DATA["id"],
+        expected_edge_count=3,
+        expected_node_count=4,
+        num_parameters=0,
+    ) as mock_api:
+        output = runner.invoke(run, args).output
+        print(output)
+        assert "Success" in output
+        for node in mock_api.last_create_pipeline_payload["nodes"]:
+            if node["type"] in ("execution", "task"):
+                assert node["template"]["environment"] == "tiny"

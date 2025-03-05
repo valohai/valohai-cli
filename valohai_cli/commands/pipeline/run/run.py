@@ -59,6 +59,12 @@ from valohai_cli.utils.commits import create_or_resolve_commit
     multiple=True,
     help="Tag the pipeline. May be repeated.",
 )
+@click.option(
+    "--environment",
+    "-e",
+    default=None,
+    help='Override environment UUID or slug',
+)
 @click.argument(
     "args",
     nargs=-1,
@@ -76,6 +82,7 @@ def run(
     git_packaging: bool = True,
     yaml: Optional[str],
     tags: List[str],
+    environment: Optional[str],
     args: List[str],
 ) -> None:
     """
@@ -106,7 +113,16 @@ def run(
     matched_pipeline = match_pipeline(config, name)
     pipeline = config.pipelines[matched_pipeline]
 
-    start_pipeline(config, pipeline, project.id, commit, tags, args, title)
+    start_pipeline(
+        config=config,
+        pipeline=pipeline,
+        project_id=project.id,
+        commit=commit,
+        tags=tags,
+        title=title,
+        args=args,
+        override_environment=environment,
+    )
 
 
 def process_args(args: List[str]) -> Dict[str, Union[str, list]]:
@@ -157,6 +173,7 @@ def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
 
 
 def start_pipeline(
+    *,
     config: Config,
     pipeline: Pipeline,
     project_id: str,
@@ -164,12 +181,18 @@ def start_pipeline(
     tags: List[str],
     args: List[str],
     title: Optional[str] = None,
+    override_environment: Optional[str] = None,
 ) -> None:
     args_dict: Dict[str, Union[str, list]]
     args_dict = process_args(args) if args else {}
 
     converter = PipelineConverter(config=config, commit_identifier=commit, parameter_arguments=args_dict)
     converted_pipeline = converter.convert_pipeline(pipeline)
+
+    if override_environment:
+        for node in converted_pipeline["nodes"]:
+            if node.get("type") in ("execution", "task"):
+                node["template"]["environment"] = override_environment
 
     unused_args = [k for k in args_dict if k not in converted_pipeline["parameters"]]
     if unused_args:
