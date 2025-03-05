@@ -1,5 +1,7 @@
 from uuid import uuid4
 
+from valohai_cli.ctx import get_project
+
 
 def get_project_list_data(project_names):
     return {
@@ -38,3 +40,10 @@ def make_call_stub(retval=None):
 
     call_stub.calls = calls
     return call_stub
+
+
+def write_yaml_config(yaml_content: str, yaml_path=None) -> None:
+    project = get_project()
+    config_filename = project.get_config_filename(yaml_path=yaml_path)
+    with open(config_filename, "w") as yaml_fp:
+        yaml_fp.write(yaml_content)
