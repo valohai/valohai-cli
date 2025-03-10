@@ -2,7 +2,8 @@ from click import BadParameter
 from pytest import raises
 
 from tests.commands.run_test_utils import RunAPIMock
-from tests.fixture_data import PIPELINE_YAML, PROJECT_DATA
+from tests.fixture_data import PIPELINE_WITH_TASK_EXAMPLE, PIPELINE_YAML, PROJECT_DATA
+from tests.utils import write_yaml_config
 from valohai_cli.commands.pipeline.run import run
 from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
@@ -62,11 +63,8 @@ def test_match_pipeline_ambiguous(runner, logged_in_and_linked):
         match_pipeline(config, "Train")
 
 
-def add_valid_pipeline_yaml(yaml_path=None):
-    project = get_project()
-    config_filename = project.get_config_filename(yaml_path=yaml_path)
-    with open(config_filename, "w") as yaml_fp:
-        yaml_fp.write(PIPELINE_YAML)
+def add_valid_pipeline_yaml(yaml_path=None) -> None:
+    write_yaml_config(PIPELINE_YAML, yaml_path=yaml_path)
 
 
 def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
@@ -106,3 +104,20 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
                 "value": ["laituri", "satama"],
             },
         }
+
+
+def test_pipeline_environment_override(runner, logged_in_and_linked):
+    write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
+    args = ["--adhoc", "--environment=tiny", "dynamic-task"]
+    with RunAPIMock(
+        PROJECT_DATA["id"],
+        expected_edge_count=3,
+        expected_node_count=4,
+        num_parameters=0,
+    ) as mock_api:
+        output = runner.invoke(run, args).output
+        print(output)
+        assert "Success" in output
+        for node in mock_api.last_create_pipeline_payload["nodes"]:
+            if node["type"] in ("execution", "task"):
+                assert node["template"]["environment"] == "tiny"

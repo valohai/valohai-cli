@@ -680,3 +680,42 @@ STATUS_EVENT_RESPONSE_DATA = {
         },
     ],
 }
+
+PIPELINE_WITH_TASK_EXAMPLE = """
+- step:
+    name: preprocess
+    image: python:3.7
+    command:
+      - python ./preprocess.py
+- step:
+    name: train
+    image: python:3.7
+    command:
+      - pip install valohai-utils
+      - python ./train.py {parameters}
+    parameters:
+      - name: id
+        type: string
+- pipeline:
+    name: dynamic-task
+    nodes:
+      - name: preprocess
+        step: preprocess
+        type: execution
+      - name: train-with-errors
+        step: train
+        type: task
+        on-error: "continue"
+      - name: train-optional
+        step: train
+        type: task
+        on-error: "stop-next"
+      - name: train-critical
+        step: train
+        type: task
+        on-error: "stop-all"
+    edges:
+      - [preprocess.metadata.storeids, train-critical.parameter.id]
+      - [preprocess.metadata.storeids, train-optional.parameter.id]
+      - [preprocess.metadata.storeids, train-with-errors.parameter.id]
+"""

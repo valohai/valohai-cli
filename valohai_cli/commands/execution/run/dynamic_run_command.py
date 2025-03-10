@@ -63,6 +63,7 @@ class RunCommand(click.Command):
         runtime_config_preset: Optional[str] = None,
         ssh: bool = False,
         priority: Optional[int] = None,
+        time_limit: Optional[str] = None,
     ) -> None:
         """
         Initialize the dynamic run command.
@@ -98,6 +99,7 @@ class RunCommand(click.Command):
         self.runtime_config_preset = runtime_config_preset
         self.ssh = ssh
         self.priority = priority
+        self.time_limit = time_limit
         super().__init__(
             name=sanitize_option_name(step.name.lower()),
             callback=self.execute,
@@ -239,6 +241,7 @@ class RunCommand(click.Command):
         payload.update(self._optional_item("runtime_config"))
         payload.update(self._optional_item("runtime_config_preset"))
         payload.update(self._optional_item("priority"))
+        payload.update(self._optional_item("time_limit"))
 
         return payload
 

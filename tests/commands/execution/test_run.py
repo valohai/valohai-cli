@@ -80,6 +80,31 @@ def test_run_spot_restart(run_test_setup):
     }
 
 
+@pytest.mark.parametrize("time_limit", (None, 121, 0, "10min"))
+def test_run_time_limit(run_test_setup, time_limit):
+    """Make sure that the time-limit setting is correctly passed from YAML config to the API."""
+    step_config = """
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+"""
+    if time_limit is not None:
+        step_config += f"    time-limit: {time_limit}\n"
+
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(step_config)
+
+    run_test_setup.run()
+    if time_limit:
+        time_limit_in_seconds = 600 if time_limit == "10min" else time_limit
+        assert (
+            run_test_setup.run_api_mock.last_create_execution_payload["time_limit"] == time_limit_in_seconds
+        )
+    else:
+        assert "time_limit" not in run_test_setup.run_api_mock.last_create_execution_payload
+
+
 def test_run_with_yaml_path(run_test_setup):
     run_test_setup.args.remove("train")
     # Use a step which is only present in the evaluation YAML

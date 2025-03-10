@@ -265,6 +265,8 @@ def run(
     if autorestart:
         runtime_config["autorestart"] = autorestart
 
+    time_limit = step.time_limit.total_seconds() if step.time_limit else None
+
     if k8s_devices and k8s_device_none:
         raise click.UsageError(
             "--k8s-device=(...) and --k8s-device-none cannot be used together. "
@@ -317,6 +319,7 @@ def run(
         runtime_config_preset=k8s_preset,
         ssh=ssh,
         priority=priority,
+        time_limit=time_limit,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)
