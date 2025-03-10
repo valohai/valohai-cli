@@ -93,7 +93,8 @@ class RunCommand(click.Command):
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
-        self.environment_variable_groups = list(environment_variable_groups or [])
+        if environment_variable_groups:
+            self.environment_variable_groups = list(environment_variable_groups)
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset

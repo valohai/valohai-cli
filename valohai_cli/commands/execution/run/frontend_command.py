@@ -44,6 +44,7 @@ EMPTY_DICT_PLACEHOLDER = object()
     "--environment-variable-groups",
     "environment_variable_groups",
     multiple=True,
+    default=None,
     help="Add environment variable group UUIDs.",
 )
 @click.option(
@@ -186,7 +187,7 @@ def run(
     download_directory: Optional[str],
     environment: Optional[str],
     environment_variables: List[str],
-    environment_variable_groups: List[str],
+    environment_variable_groups: Optional[List[str]],
     image: Optional[str],
     step_name: Optional[str],
     tags: List[str],
