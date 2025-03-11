@@ -1,5 +1,5 @@
 import collections
-from typing import Any, Dict, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 import click
 from click import get_current_context
@@ -44,6 +44,8 @@ class RunCommand(click.Command):
         "float": click.FLOAT,
         "flag": click.BOOL,
     }
+
+    environment_variable_groups: Optional[List[str]]
 
     def __init__(
         self,
@@ -94,7 +96,9 @@ class RunCommand(click.Command):
         self.title = title
         self.environment_variables = dict(environment_variables or {})
         if environment_variable_groups:
-            self.environment_variable_groups = list(environment_variable_groups)
+            self.environment_variable_groups = [str(g) for g in environment_variable_groups]
+        else:
+            self.environment_variable_groups = None
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset
