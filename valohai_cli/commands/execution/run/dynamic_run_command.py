@@ -1,5 +1,5 @@
 import collections
-from typing import Any, Dict, Optional, Sequence, Set, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 import click
 from click import get_current_context
@@ -45,6 +45,8 @@ class RunCommand(click.Command):
         "flag": click.BOOL,
     }
 
+    environment_variable_groups: Optional[List[str]]
+
     def __init__(
         self,
         project: Project,
@@ -57,6 +59,7 @@ class RunCommand(click.Command):
         open_browser: bool = False,
         download_directory: Optional[str] = None,
         environment_variables: Optional[Dict[str, str]] = None,
+        environment_variable_groups: Optional[Sequence[str]] = None,
         tags: Optional[Sequence[str]] = None,
         runtime_config: Optional[dict] = None,
         runtime_config_preset: Optional[str] = None,
@@ -92,6 +95,10 @@ class RunCommand(click.Command):
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
+        if environment_variable_groups:
+            self.environment_variable_groups = [str(g) for g in environment_variable_groups]
+        else:
+            self.environment_variable_groups = None
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset
@@ -234,6 +241,7 @@ class RunCommand(click.Command):
         payload.update(self._optional_item("image"))
         payload.update(self._optional_item("title"))
         payload.update(self._optional_item("environment_variables"))
+        payload.update(self._optional_item("environment_variable_groups"))
         payload.update(self._optional_item("tags"))
         payload.update(self._optional_item("runtime_config"))
         payload.update(self._optional_item("runtime_config_preset"))
