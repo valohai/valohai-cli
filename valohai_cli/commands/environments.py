@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from operator import itemgetter
+from typing import Any
 
 import click
 
@@ -15,7 +18,10 @@ def environments(gpu: bool, price: bool, queue: bool, description: bool) -> None
     """
     List all available execution environments.
     """
-    envs_data = request("get", "/api/v0/environments/", params={"limit": 9000}).json()["results"]
+    params: dict[str, Any] = {"limit": 9000}
+    if queue:
+        params["include"] = "unfinished_job_count"
+    envs_data = request("get", "/api/v0/environments/", params=params).json()["results"]
     envs_data.sort(key=itemgetter("name"))
 
     columns_and_headers = filter(
