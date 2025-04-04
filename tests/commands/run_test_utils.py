@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import datetime
 import json
 import re
+from functools import cached_property
+from typing import Any
 
 import requests_mock
 from click.testing import CliRunner
@@ -23,21 +27,25 @@ ALTERNATIVE_YAML = "batch.yaml"
 
 
 class RunAPIMock(requests_mock.Mocker):
+    DEFAULT_DEPLOYMENT_VERSION_NAME = "220801.0"
+    DEFAULT_COMMIT_ID = "f" * 16
+    DEFAULT_PROJECT_ID = str(PROJECT_DATA["id"])
+
     def __init__(
         self,
-        project_id,
-        commit_id="f" * 16,
-        deployment_id=666,
-        additional_payload_values=None,
-        deployment_version_name="220801.0",
-        num_parameters=0,
+        project_id: str = DEFAULT_PROJECT_ID,
+        *,
+        commit_id: str = DEFAULT_COMMIT_ID,
+        deployment_id: str = "666",
+        additional_payload_values: dict[str, Any] | None = None,
+        deployment_version_name=DEFAULT_DEPLOYMENT_VERSION_NAME,
         expected_node_count=3,
         expected_edge_count=5,
+        num_pipeline_parameters: int | None = None,
     ):
         super().__init__()
         self.expected_node_count = expected_node_count
         self.expected_edge_count = expected_edge_count
-        self.num_parameters = num_parameters
         self.last_create_execution_payload = None
         self.last_create_pipeline_payload = None
         self.project_id = project_id
@@ -45,6 +53,7 @@ class RunAPIMock(requests_mock.Mocker):
         self.deployment_id = deployment_id
         self.deployment_version_name = deployment_version_name
         self.additional_payload_values = additional_payload_values or {}
+        self.num_pipeline_parameters = num_pipeline_parameters
         self.get(
             f"https://app.valohai.com/api/v0/projects/{project_id}/",
             json=self.handle_project,
@@ -158,8 +167,8 @@ class RunAPIMock(requests_mock.Mocker):
         assert body_json["project"] == self.project_id
         assert len(body_json["edges"]) == self.expected_edge_count
         assert len(body_json["nodes"]) == self.expected_node_count
-        if "parameters" in body_json:
-            assert len(body_json["parameters"]) == self.num_parameters
+        if self.num_pipeline_parameters is not None:
+            assert len(body_json["parameters"]) == self.num_pipeline_parameters
         context.status_code = 201
         self.last_create_pipeline_payload = body_json
         return PIPELINE_DATA.copy()
@@ -178,9 +187,16 @@ class RunAPIMock(requests_mock.Mocker):
 
 
 class RunTestSetup:
-    def __init__(self, monkeypatch, adhoc, step_name="train", config_yaml=CONFIG_YAML):
+    def __init__(
+        self,
+        *,
+        monkeypatch,
+        adhoc: bool,
+        step_name: str = "train",
+        config_yaml=CONFIG_YAML,
+    ):
         self.adhoc = adhoc
-        self.project_id = PROJECT_DATA["id"]
+        self.project_id = str(PROJECT_DATA["id"])
         self.commit_id = "f" * 40
         monkeypatch.setattr(git, "get_current_commit", lambda dir: self.commit_id)
 
@@ -194,14 +210,15 @@ class RunTestSetup:
         self.args = [step_name]
         if adhoc:
             self.args.insert(0, "--adhoc")
-        self.values = {}
-        self._run_api_mock = None
+        self.values: dict[str, Any] = {}
 
-    @property
+    @cached_property
     def run_api_mock(self) -> RunAPIMock:
-        if not self._run_api_mock:
-            self._run_api_mock = RunAPIMock(self.project_id, self.commit_id, self.values)
-        return self._run_api_mock
+        return RunAPIMock(
+            self.project_id,
+            commit_id=self.commit_id,
+            additional_payload_values=self.values,
+        )
 
     def run(self, *, catch_exceptions=False, verify_adhoc=True) -> str:
         with self.run_api_mock:
