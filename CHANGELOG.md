@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [v0.30.1](https://github.com/valohai/valohai-cli/compare/v0.30.0...v0.30.1)
+
+> 10 Apr 2025
+
+- Include unfinished job count with `--queue`
+
 #### [v0.30.0](https://github.com/valohai/valohai-cli/compare/v0.29.0...v0.30.0)
 
 > 5 March 2025
