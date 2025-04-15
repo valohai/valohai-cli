@@ -18,6 +18,15 @@ from valohai_cli.settings import settings
 from valohai_cli.utils import force_text
 
 
+def get_user_agent() -> str:
+    uname = ";".join(platform.uname())
+    py_version = f"{platform.python_implementation()} {platform.python_version()}"
+    user_agent = f"valohai-cli/{VERSION} on {py_version} ({uname})"
+    if settings.api_user_agent_prefix:
+        user_agent = f"{settings.api_user_agent_prefix} {user_agent}"
+    return user_agent
+
+
 class TokenAuth(AuthBase):
     def __init__(self, netloc: str, token: Optional[str]) -> None:
         super().__init__()
@@ -55,12 +64,8 @@ class APISession(requests.Session):
         self.headers["Accept"] = "application/json"
 
     def get_user_agent(self) -> str:
-        uname = ";".join(platform.uname())
-        py_version = f"{platform.python_implementation()} {platform.python_version()}"
-        user_agent = f"valohai-cli/{VERSION} on {py_version} ({uname})"
-        if settings.api_user_agent_prefix:
-            user_agent = f"{settings.api_user_agent_prefix} {user_agent}"
-        return user_agent
+        # Overridable by subclasses (even remotely implemented).
+        return get_user_agent()
 
     def prepare_request(self, request: Request) -> PreparedRequest:
         request.headers.setdefault("User-Agent", self.get_user_agent())
