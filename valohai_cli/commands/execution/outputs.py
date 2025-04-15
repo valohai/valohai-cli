@@ -156,6 +156,7 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
     total_size = sum(o["size"] for o in outputs)
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
+    is_responding_with_content = False
     with click.progressbar(
         length=total_size,
         show_pos=True,
@@ -164,19 +165,31 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
         dl_sess.headers["User-Agent"] = f"{get_user_agent()} (downloader)"
         for i, output in enumerate(outputs, 1):
             name = output["name"]
-            url = request(
+            prog.current_item = f"({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}"
+            # Force visible bar for the smallest of files:
+            prog.short_limit = 0  # type: ignore[attr-defined]
+            download_api_resp = request(
                 method="get",
                 url=f"/api/v0/data/{output['id']}/download/",
-            ).json()["url"]
+                stream=is_responding_with_content,
+            )
+            download_api_resp.raise_for_status()
+            if download_api_resp.headers.get("Content-Disposition", "").startswith("attachment"):
+                # The remote server is not giving us an URL, but the actual stream!
+                # We'll assume this is the case for any future downloads too, so let's turn
+                # streaming automatically on for future requests.
+                is_responding_with_content = True
+                resp = download_api_resp
+            else:
+                # Otherwise, let's get the URL and download it.
+                url = download_api_resp.json()["url"]
+                resp = dl_sess.get(url, stream=True)
+                resp.raise_for_status()
             out_path = os.path.join(output_path, name)
             out_dir = os.path.dirname(out_path)
             if not os.path.isdir(out_dir):
                 os.makedirs(out_dir)
-            resp = dl_sess.get(url, stream=True)
-            resp.raise_for_status()
-            prog.current_item = f"({str(i).rjust(num_width)}/{str(len(outputs)).ljust(num_width)}) {name}"
-            # Force visible bar for the smallest of files:
-            prog.short_limit = 0  # type: ignore[attr-defined]
+
             with open(out_path, "wb") as outf:
                 for chunk in resp.iter_content(chunk_size=131072):
                     prog.update(len(chunk))
