@@ -150,6 +150,9 @@ def filter_outputs(
 
 
 def download_outputs(outputs: List[dict], output_path: str, show_success_message: bool = True) -> None:
+    if not outputs:
+        info("No outputs to download.")
+        return
     total_size = sum(o["size"] for o in outputs)
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
