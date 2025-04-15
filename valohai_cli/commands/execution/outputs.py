@@ -6,7 +6,7 @@ from typing import List, Optional
 import click
 import requests
 
-from valohai_cli.api import request
+from valohai_cli.api import get_user_agent, request
 from valohai_cli.consts import complete_execution_statuses
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info, success, warn
@@ -158,6 +158,7 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
         show_pos=True,
         item_show_func=str,
     ) as prog, requests.Session() as dl_sess:
+        dl_sess.headers["User-Agent"] = f"{get_user_agent()} (downloader)"
         for i, output in enumerate(outputs, 1):
             name = output["name"]
             url = request(
