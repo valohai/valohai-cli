@@ -1,5 +1,11 @@
 ### Changelog
 
+#### [v0.31.0](https://github.com/valohai/valohai-cli/compare/v0.30.1...v0.31.0)
+
+> 15 April 2025
+
+- Handle 'Content-Disposition: attachment' when downloading outputs [`#332`](https://github.com/valohai/valohai-cli/pull/332)
+
 #### [v0.30.1](https://github.com/valohai/valohai-cli/compare/v0.30.0...v0.30.1)
 
 > 10 Apr 2025
