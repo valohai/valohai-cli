@@ -16,6 +16,7 @@ from valohai_cli.utils.matching import match_prefix
 
 class PluginCLI(click.MultiCommand):
     aliases = {
+        "add": "create",
         "new": "create",
         "start": "run",
     }
