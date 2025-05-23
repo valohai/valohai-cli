@@ -14,6 +14,7 @@ from tests.fixture_data import (
     CONFIG_YAML,
     DEPLOYMENT_VERSION_DATA,
     EXECUTION_DATA,
+    NOTEBOOK_EXECUTION_DATA,
     PIPELINE_DATA,
     PROJECT_DATA,
     YAML_WITH_EXTRACT_TRAIN_EVAL,
@@ -93,6 +94,10 @@ class RunAPIMock(requests_mock.Mocker):
         self.post(
             "https://app.valohai.com/api/v0/pipelines/",
             json=self.handle_create_pipeline,
+        )
+        self.post(
+            "https://app.valohai.com/api/v0/notebook-executions/",
+            json=self.handle_create_notebook_execution,
         )
         self.post(
             f"https://app.valohai.com/api/v0/projects/{project_id}/import-package/",
@@ -184,6 +189,13 @@ class RunAPIMock(requests_mock.Mocker):
             "ctime": "2017-03-09T14:56:53.875721Z",
             "commit_time": "2017-03-09T14:56:53.875475Z",
         }
+
+    def handle_create_notebook_execution(self, request, context):
+        body_json = json.loads(request.body.decode("utf-8"))
+        assert body_json["project"] == self.project_id
+        context.status_code = 201
+        self.last_create_execution_payload = body_json
+        return NOTEBOOK_EXECUTION_DATA.copy()
 
 
 class RunTestSetup:
