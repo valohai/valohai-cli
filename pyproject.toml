@@ -13,7 +13,7 @@ authors = [
     { name = "Valohai", email = "hait@valohai.com" },
 ]
 dependencies = [
-    "click>=8.0",
+    "click>=8.0,<8.2",  # 8.2 produces extra warnings about Git directory that break expected output in tests
     "gitignorant>=0.4.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
