@@ -340,69 +340,8 @@ NOTEBOOK_EXECUTION_DATA: dict = {
     "url": "http://127.0.0.1:8000/api/v0/executions/0196f2c4-a3aa-05c6-802a-209b7b8802d8/",
     "pipeline_tags": [],
     "priority": 0,
-    "command": "env PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_ROOT_USER_ACTION=ignore pip install --quiet --no-cache-dir https://dist.valohai.com/valohai-notebook-boot/release/valohai_notebook_boot-2024.1.22.3-py3-none-any.whl && vhnb-boot --server-addr nb.valohai.dev",
-    "environment_variables": {
-        "NB_SERVER_TOKEN": {
-            "value": None,
-            "secret": True,
-            "inherited": False,
-        },
-        "NB_IPYNB_SNAPSHOT": {
-            "value": "1",
-            "secret": False,
-            "inherited": False,
-        },
-        "NB_INSTALL_JUPYHAI": {
-            "value": "1",
-            "secret": False,
-            "inherited": False,
-        },
-        "VH_CHOWN_REPOSITORY": {
-            "value": "1",
-            "secret": False,
-            "inherited": False,
-        },
-        "NB_INSTALL_JUPYTERLAB": {
-            "value": "1",
-            "secret": False,
-            "inherited": False,
-        },
-        "NB_INSTALL_PIP_PACKAGES": {
-            "value": "jupyterlab-git",
-            "secret": False,
-            "inherited": False,
-        },
-        "VALOHAI_HOST": {
-            "value": "http://host.docker.internal:8000",
-            "secret": False,
-            "inherited": False,
-        },
-        "VALOHAI_PROJECT_ID": {
-            "value": "01942b47-f0d8-0021-c074-87370badadee",
-            "secret": False,
-            "inherited": False,
-        },
-        "VALOHAI_USER_ID": {
-            "value": "1",
-            "secret": False,
-            "inherited": False,
-        },
-        "VALOHAI_NOTEBOOK_INSTANCE_ID": {
-            "value": "nbe-0196f2c4-a3aa-05c6-802a-209b7b8802d8",
-            "secret": False,
-            "inherited": False,
-        },
-        "VALOHAI_TOKEN": {
-            "value": None,
-            "secret": True,
-            "inherited": False,
-        },
-        "VALOHAI_PROJECT": {
-            "value": "01942b47-f0d8-0021-c074-87370badadee",
-            "secret": False,
-            "inherited": False,
-        },
-    },
+    "command": "vhnb-boot --server-addr nb.valohai.dev",
+    "environment_variables": {},
     "runtime_config": {
         "autorestart": False,
         "no_output_timeout": 604800,
@@ -410,7 +349,7 @@ NOTEBOOK_EXECUTION_DATA: dict = {
     "executor_identity": "",
     "image": "python:3.13",
     "inputs": [],
-    "interpolated_command": "env PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_ROOT_USER_ACTION=ignore pip install --quiet --no-cache-dir https://dist.valohai.com/valohai-notebook-boot/release/valohai_notebook_boot-2024.1.22.3-py3-none-any.whl && vhnb-boot --server-addr nb.valohai.dev",
+    "interpolated_command": "vhnb-boot --server-addr nb.valohai.dev",
     "price": 0.0,
     "stop_expression": "",
     "emissions": None,
