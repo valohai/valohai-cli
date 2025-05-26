@@ -194,7 +194,7 @@ class RunAPIMock(requests_mock.Mocker):
         body_json = json.loads(request.body.decode("utf-8"))
         assert body_json["project"] == self.project_id
         context.status_code = 201
-        self.last_create_execution_payload = body_json
+        self.last_create_notebook_execution_payload = body_json
         return NOTEBOOK_EXECUTION_DATA.copy()
 
 
