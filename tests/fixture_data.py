@@ -19,6 +19,16 @@ PROJECT_DATA = {
     "urls": {
         "display": "https://app.valohai.com/p/nyan/nyan/",
     },
+    "environment_variables": {
+        "test1": {
+            "value": "val1",
+            "secret": False,
+        },
+        "ssshhh": {
+            "value": None,
+            "secret": True,
+        },
+    },
 }
 
 execution_id = str(uuid.uuid4())
