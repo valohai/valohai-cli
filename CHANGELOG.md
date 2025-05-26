@@ -1,5 +1,15 @@
 ### Changelog
 
+#### [v0.32.0](https://github.com/valohai/valohai-cli/compare/v0.31.0...v0.32.0)
+
+> 23 April 2025
+
+- Add support for starting a notebook execution [`#334`](https://github.com/valohai/valohai-cli/pull/334)
+- Add commands for handling environment variables [`#338`](https://github.com/valohai/valohai-cli/pull/338)
+- Add Python 3.13 to the test matrix [`#337`](https://github.com/valohai/valohai-cli/pull/337)
+- Upgrade CI to `setup-uv@v6` [`#336`](https://github.com/valohai/valohai-cli/pull/336)
+- Pin `click` to a version that doesn't break the tests [`#336`](https://github.com/valohai/valohai-cli/pull/336)
+
 #### [v0.31.0](https://github.com/valohai/valohai-cli/compare/v0.30.1...v0.31.0)
 
 > 15 April 2025
