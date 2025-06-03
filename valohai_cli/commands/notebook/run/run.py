@@ -5,6 +5,7 @@ from typing import Any, Sequence
 import click
 
 from valohai_cli.api import request
+from valohai_cli.consts import API_DEFAULT_ENVIRONMENT_SLUG
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
 from valohai_cli.utils import parse_environment_variable_strings
@@ -14,8 +15,8 @@ from valohai_cli.utils import parse_environment_variable_strings
 @click.option(
     "--environment",
     "-e",
-    help="Environment UUID or slug to run the execution in.",
-    required=True,
+    help="Environment UUID or slug to run the execution in (default = project default environment).",
+    required=False,
 )
 @click.option(
     "--image",
@@ -43,6 +44,9 @@ def run(
     """
     project = get_project(require=True)
     assert project
+
+    if not environment:
+        environment = API_DEFAULT_ENVIRONMENT_SLUG
 
     start_execution(
         environment,
