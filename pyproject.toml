@@ -74,8 +74,6 @@ ignore = [
     "E501",
     "B904",
     "B905",
-    "ANN101", # Missing type annotation for `self` in method
-    "ANN102", # Missing type annotation for `cls` in classmethod
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "RET504", # Unnecessary variable assignment before `return` statement
     "SIM105", # Use `contextlib.suppress(TypeError)` instead of try-except-pass
