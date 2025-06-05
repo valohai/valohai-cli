@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [v0.33.0](https://github.com/valohai/valohai-cli/compare/v0.32.0...v0.33.0)
+
+> 4 June 2025
+
+- Create a notebook execution: support environment variables [`#340`](https://github.com/valohai/valohai-cli/pull/340)
+- Create a notebook execution: use project's default environment if not specified [`#343`](https://github.com/valohai/valohai-cli/pull/343)
+- Remove obsolete Ruff rules from `pyproject.toml` [`#344`](https://github.com/valohai/valohai-cli/pull/344)
+
 #### [v0.32.0](https://github.com/valohai/valohai-cli/compare/v0.31.0...v0.32.0)
 
 > 23 April 2025
