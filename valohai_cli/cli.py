@@ -3,6 +3,7 @@ from typing import Optional
 
 import click
 
+from valohai_cli import __version__ as cli_version
 from valohai_cli.consts import default_app_host
 from valohai_cli.override import configure_project_override, configure_token_login
 from valohai_cli.plugin_cli import RecursiveHelpPluginCLI
@@ -66,6 +67,7 @@ TABLE_FORMAT_ENVVARS = ["VALOHAI_TABLE_FORMAT", "VALOHAI_OUTPUT_FORMAT"]
     help="(Advanced) When using --project, set the project root directory",
     show_envvar=True,
 )
+@click.version_option(version=cli_version, message="%(prog)s %(version)s")
 @click.pass_context
 def cli(
     ctx: click.Context,
