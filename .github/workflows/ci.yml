@@ -23,15 +23,12 @@ jobs:
           - "3.13"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "${{ matrix.python-version }}"
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+          python-version: "${{ matrix.python-version }}"
           cache-dependency-glob: "**/pyproject.toml"
-      - run: uv pip install --system -e .[test]
-      - run: make test
+      - run: uv run --extra=test py.test -vvv --cov .
         env:
           EMAIL: foo@example.com
           GIT_AUTHOR_NAME: Foo Bar
@@ -48,10 +45,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
+          enable-cache: true
           python-version: "3.12"
-      - uses: astral-sh/setup-uv@v5
       - run: uv build --wheel
       - name: Upload artifact
         uses: actions/upload-artifact@v4
