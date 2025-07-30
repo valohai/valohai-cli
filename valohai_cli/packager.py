@@ -5,9 +5,10 @@ import subprocess
 import tarfile
 import tempfile
 from collections import namedtuple
+from collections.abc import Iterable
 from enum import Enum
 from subprocess import check_output
-from typing import IO, Dict, Iterable, List, Tuple
+from typing import IO
 
 import click
 import gitignorant
@@ -88,7 +89,7 @@ def package_directory(
 
 def package_files_into(
     dest_fp: IO[bytes],
-    file_stats: Dict[str, PackageFileInfo],
+    file_stats: dict[str, PackageFileInfo],
     progress: bool = False,
 ) -> None:
     """
@@ -131,7 +132,7 @@ def package_files_into(
     dest_fp.flush()
 
 
-def _get_files_with_git(dir: str) -> Iterable[Tuple[str, str]]:
+def _get_files_with_git(dir: str) -> Iterable[tuple[str, str]]:
     paths_seen = set()
     commands = [
         "git ls-files --exclude-standard -ocz",
@@ -155,7 +156,7 @@ def _get_files_with_git(dir: str) -> Iterable[Tuple[str, str]]:
                 yield (file, path)
 
 
-def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
+def _get_files_walk(dir: str) -> Iterable[tuple[str, str]]:
     for dirpath, dirnames, filenames in os.walk(dir):
         dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith(".")]
         for filename in filenames:
@@ -167,7 +168,7 @@ def _get_files_walk(dir: str) -> Iterable[Tuple[str, str]]:
             yield (file_rel_path, file_abs_path)
 
 
-def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterable[Tuple[str, str]]]:
+def _get_files_inner(dir: str, allow_git: bool = True) -> tuple[GitUsage, Iterable[tuple[str, str]]]:
     # Inner, pre-vhignore-supporting generator function...
     gitignore_path = os.path.join(dir, ".gitignore")
 
@@ -198,7 +199,7 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> Tuple[GitUsage, Iterab
     return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
 
 
-def _get_files(dir: str, allow_git: bool = True) -> Tuple[GitUsage, VhIgnoreUsage, Iterable[Tuple[str, str]]]:
+def _get_files(dir: str, allow_git: bool = True) -> tuple[GitUsage, VhIgnoreUsage, Iterable[tuple[str, str]]]:
     git_usage, ftup_gen = _get_files_inner(dir, allow_git=allow_git)
     vhignore_path = os.path.join(dir, ".vhignore")
 
@@ -226,7 +227,7 @@ def get_files_for_package(
     dir: str,
     allow_git: bool = True,
     ignore_patterns: Iterable[str] = (),
-) -> Dict[str, PackageFileInfo]:
+) -> dict[str, PackageFileInfo]:
     """
     Get files to package for ad-hoc packaging from the file system.
 
@@ -276,7 +277,7 @@ def _get_packaging_info_message(count: int, git_usage: GitUsage, vhignore_usage:
     )
 
 
-def validate_package_size(file_stats: Dict[str, PackageFileInfo]) -> List[str]:
+def validate_package_size(file_stats: dict[str, PackageFileInfo]) -> list[str]:
     warnings = []
     total_uncompressed_size = 0
     for file, pfi in sorted(file_stats.items()):

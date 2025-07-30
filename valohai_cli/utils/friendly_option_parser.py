@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from click import NoSuchOption, OptionParser
 from click.parser import ParsingState
@@ -12,7 +12,7 @@ class FriendlyOptionParser(OptionParser):
     if the user has just misspelled an option name.
     """
 
-    def _match_long_opt(self, opt: str, explicit_value: Optional[str], state: ParsingState) -> None:
+    def _match_long_opt(self, opt: str, explicit_value: str | None, state: ParsingState) -> None:
         try:
             super()._match_long_opt(opt, explicit_value, state)
         except NoSuchOption as nse:

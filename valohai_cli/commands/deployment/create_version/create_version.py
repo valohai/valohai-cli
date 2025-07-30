@@ -1,4 +1,6 @@
-from typing import Any, List, Optional
+from __future__ import annotations
+
+from typing import Any
 
 import click
 
@@ -72,14 +74,14 @@ from valohai_cli.utils.matching import match_from_list_with_error
 def create_version(
     ctx: click.Context,
     *,
-    args: List[str],
+    args: list[str],
     adhoc: bool,
     git_packaging: bool = True,
-    commit: Optional[str],
+    commit: str | None,
     deployment: str,
-    environment_variables: List[str],
-    endpoints: List[str],
-    version_name: Optional[str],
+    environment_variables: list[str],
+    endpoints: list[str],
+    version_name: str | None,
     inherit_env_vars: bool,
 ) -> Any:
     """

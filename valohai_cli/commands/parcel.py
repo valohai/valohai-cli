@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import os
 import shutil
 import subprocess
 import sys
 import time
-from typing import Iterable, List, Optional
+from collections.abc import Iterable
 
 import click
 
@@ -71,8 +73,8 @@ def print_parcel_progress(text: str) -> None:
     help="Add unparcel script?",
 )
 def parcel(
-    destination: Optional[str],
-    commit: Optional[str],
+    destination: str | None,
+    commit: str | None,
     code: str,
     valohai_local_run: bool,
     docker_images: bool,
@@ -93,7 +95,7 @@ def parcel(
 
     ensure_makedirs(destination)
 
-    extra_docker_images: List[str] = []
+    extra_docker_images: list[str] = []
 
     if code in ("bundle", "archive", "tarball"):
         export_code(project, destination, mode=code)
@@ -163,7 +165,7 @@ def export_code(project: Project, destination: str, mode: str) -> None:
         raise NotImplementedError("...")
 
 
-def get_docker_image_size(image: str) -> Optional[int]:
+def get_docker_image_size(image: str) -> int | None:
     """
     Try to get the size of the given Docker image in bytes.
     :param image: The image name.
@@ -190,7 +192,7 @@ def get_docker_image_size(image: str) -> Optional[int]:
 def export_docker_images(
     project: Project,
     destination: str,
-    commit: Optional[str],
+    commit: str | None,
     extra_docker_images: Iterable[str] = (),
 ) -> None:
     commit = expand_commit_id(project.directory, commit=(commit or "HEAD"))

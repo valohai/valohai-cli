@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import contextlib
-from typing import Any, List, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any
 
 import click
 
@@ -16,14 +19,14 @@ class NewProjectInstead(Exception):
     pass
 
 
-def filter_projects(projects: Sequence[dict], spec: str) -> List[dict]:
+def filter_projects(projects: Sequence[dict], spec: str) -> list[dict]:
     spec = str(spec).lower()
     return [
         project for project in projects if project["id"].lower() == spec or project["name"].lower() == spec
     ]
 
 
-def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
+def choose_project(dir: str, spec: str | None = None) -> dict | None:
     """
     Choose a project, possibly interactively.
 
@@ -31,7 +34,7 @@ def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
     :param spec: An optional search string
     :return: project object or None
     """
-    projects: List[dict] = request("get", "/api/v0/projects/", params={"limit": "1000"}).json()["results"]
+    projects: list[dict] = request("get", "/api/v0/projects/", params={"limit": "1000"}).json()["results"]
     if not projects:
         if click.confirm("You don't have any projects. Create one instead?"):
             raise NewProjectInstead()
@@ -70,7 +73,7 @@ def choose_project(dir: str, spec: Optional[str] = None) -> Optional[dict]:
 @click.command()
 @click.argument("project", default=None, required=False)
 @yes_option
-def link(project: Optional[str], yes: bool) -> Any:
+def link(project: str | None, yes: bool) -> Any:
     """
     Link a directory with a Valohai project.
     """

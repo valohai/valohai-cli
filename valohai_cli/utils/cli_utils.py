@@ -1,13 +1,10 @@
+from __future__ import annotations
+
+from collections.abc import Iterable, Sequence
 from typing import (
     Any,
     Callable,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
     TypeVar,
-    Union,
 )
 
 import click
@@ -26,9 +23,9 @@ def _default_name_formatter(option: Any) -> str:
 def prompt_from_list(
     options: Sequence[dict],
     prompt: str,
-    nonlist_validator: Optional[Callable[[str], Optional[Any]]] = None,
+    nonlist_validator: Callable[[str], Any | None] | None = None,
     name_formatter: Callable[[dict], str] = _default_name_formatter,
-) -> Union[Any, dict]:
+) -> Any | dict:
     for i, option in enumerate(options, 1):
         number_prefix = click.style(f"[{i:3d}]", fg="cyan")
         description_suffix = (
@@ -51,11 +48,11 @@ def prompt_from_list(
 
 
 class HelpfulArgument(click.Argument):
-    def __init__(self, param_decls: List[str], help: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(self, param_decls: list[str], help: str | None = None, **kwargs: Any) -> None:
         self.help = help
         super().__init__(param_decls, **kwargs)
 
-    def get_help_record(self, ctx: click.Context) -> Optional[Tuple[str, str]]:  # noqa: ARG002
+    def get_help_record(self, ctx: click.Context) -> tuple[str, str] | None:  # noqa: ARG002
         if self.name and self.help:
             return (self.name, self.help)
         return None

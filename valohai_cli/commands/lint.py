@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 import click
 from valohai_yaml.lint import lint_file
@@ -31,7 +30,7 @@ def validate_file(filename: str) -> int:
 
 @click.command()
 @click.argument("filenames", nargs=-1, type=click.Path(file_okay=True, exists=True, dir_okay=False))
-def lint(filenames: List[str]) -> None:
+def lint(filenames: list[str]) -> None:
     """
     Lint (syntax-check) a valohai.yaml file.
 

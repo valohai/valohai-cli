@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import logging
-from typing import Optional
 
 import click
 
@@ -73,11 +74,11 @@ def cli(
     ctx: click.Context,
     debug: bool,
     output_format: str,
-    valohai_host: Optional[str],
-    valohai_token: Optional[str],
-    project_id: Optional[str],
-    project_mode: Optional[str],
-    project_root: Optional[str],
+    valohai_host: str | None,
+    valohai_token: str | None,
+    project_id: str | None,
+    project_mode: str | None,
+    project_root: str | None,
 ) -> None:
     if debug:
         logging.basicConfig(level=logging.DEBUG)

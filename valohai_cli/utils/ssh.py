@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import json
 import os
 import pathlib
 import shutil
 import subprocess
 import time
+from collections.abc import Generator, Iterable, Iterator
 from dataclasses import dataclass
 from itertools import count
-from typing import Generator, Iterable, Iterator, Optional, Tuple
 
 import click
 
@@ -43,7 +45,7 @@ def make_ssh_connection(address: str, port: int, private_key_path: str) -> None:
     subprocess.run(ssh_command)
 
 
-def find_ssh_details(events: Iterable) -> Optional[Tuple[str, int]]:
+def find_ssh_details(events: Iterable) -> tuple[str, int] | None:
     prefix = "::ssh::"
     for event in events:
         if event["message"].startswith(prefix):
@@ -97,7 +99,7 @@ def select_private_key_from_possible_directories() -> str:
     return str(selected_key["name"])
 
 
-def fetch_status_events(execution: dict, first_n: Optional[int] = None) -> Generator:
+def fetch_status_events(execution: dict, first_n: int | None = None) -> Generator:
     params = {}
     if first_n is not None:
         params["limit"] = first_n
@@ -105,7 +107,7 @@ def fetch_status_events(execution: dict, first_n: Optional[int] = None) -> Gener
     yield from events_response.get("status_events", [])
 
 
-def get_ssh_details_from_execution(execution: dict) -> Tuple[str, int]:
+def get_ssh_details_from_execution(execution: dict) -> tuple[str, int]:
     events_response = fetch_status_events(execution, first_n=100)
     ssh_details = find_ssh_details(events_response)
     if not ssh_details:
@@ -115,7 +117,7 @@ def get_ssh_details_from_execution(execution: dict) -> Tuple[str, int]:
 
 def get_ssh_details_with_retry(
     counter: int,
-) -> Tuple[str, int]:
+) -> tuple[str, int]:
     """
     Fetch SSH details for a given counter, retrying until the execution has started.
 

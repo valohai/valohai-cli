@@ -1,6 +1,5 @@
 import codecs
 import os
-from typing import List
 
 import click
 import requests
@@ -27,7 +26,7 @@ YAML_SKELLINGTON = """---
 """
 
 
-def get_image_suggestions() -> List[dict]:
+def get_image_suggestions() -> list[dict]:
     try:
         resp = requests.get("https://raw.githubusercontent.com/valohai/images/master/images.v2.yaml")
         resp.raise_for_status()

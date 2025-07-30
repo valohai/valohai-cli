@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import os
 import pkgutil
 from collections import defaultdict
+from collections.abc import Iterable
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any
 
 import click
 from click.core import Command, Context
@@ -24,8 +27,8 @@ class PluginCLI(click.MultiCommand):
 
     def __init__(self, **kwargs: Any) -> None:
         self._commands_module = kwargs.pop("commands_module")
-        self._command_modules: List[str] = []
-        self._command_to_canonical_map: Dict[str, str] = {}
+        self._command_modules: list[str] = []
+        self._command_to_canonical_map: dict[str, str] = {}
         self.aliases = dict(self.aliases, **kwargs.get("aliases", {}))  # instance level copy
         super().__init__(**kwargs)
 
@@ -36,14 +39,14 @@ class PluginCLI(click.MultiCommand):
         return self._commands_module  # type: ignore
 
     @property
-    def command_modules(self) -> List[str]:
+    def command_modules(self) -> list[str]:
         if not self._command_modules:
             mod_path = self.commands_module.__path__
             self._command_modules = sorted(c[1] for c in pkgutil.iter_modules(mod_path))
         return self._command_modules
 
     @property
-    def command_to_canonical_map(self) -> Dict[str, str]:
+    def command_to_canonical_map(self) -> dict[str, str]:
         if not self._command_to_canonical_map:
             command_map = {command: command for command in self.command_modules}
             for alias_from, alias_to in self.aliases.items():
@@ -52,14 +55,14 @@ class PluginCLI(click.MultiCommand):
             self._command_to_canonical_map = command_map
         return self._command_to_canonical_map
 
-    def list_commands(self, ctx: Context) -> List[str]:  # noqa: ARG002
+    def list_commands(self, ctx: Context) -> list[str]:  # noqa: ARG002
         return self.command_modules
 
-    def get_command(self, ctx: Context, name: str) -> Optional[Union[Command, "PluginCLI"]]:
+    def get_command(self, ctx: Context, name: str) -> Command | PluginCLI | None:
         # Dashes aren't valid in Python identifiers, so let's just replace them here.
         name = name.replace("-", "_")
 
-        command_map: Dict[str, str] = self.command_to_canonical_map
+        command_map: dict[str, str] = self.command_to_canonical_map
         if name in command_map:
             return self._get_command(command_map[name])
 
@@ -79,10 +82,10 @@ class PluginCLI(click.MultiCommand):
             ctx.fail(f'"{name}" matches {join_with_style(sorted(matches), bold=True)}; be more specific?')
         return None
 
-    def _try_suffix_match(self, ctx: Context, name: str) -> Optional[Command]:
+    def _try_suffix_match(self, ctx: Context, name: str) -> Command | None:
         # Try word suffix matching if possible.
         # That is, if the user attempts `vh link` but we know about `vh proj link`, do that.
-        command_map: Dict[str, Command] = {
+        command_map: dict[str, Command] = {
             " ".join(trail): cmd for (trail, cmd) in self._get_all_commands(ctx)
         }
         s_matches = [key for key in command_map if " " in key and key.endswith(f" {name}")]
@@ -98,8 +101,8 @@ class PluginCLI(click.MultiCommand):
     def resolve_command(
         self,
         ctx: Context,
-        args: List[str],
-    ) -> Tuple[Optional[str], Optional[Command], List[str]]:
+        args: list[str],
+    ) -> tuple[str | None, Command | None, list[str]]:
         cmd_name, cmd, rest_args = super().resolve_command(ctx, args)
         return (
             getattr(cmd, "name", cmd_name),  # Always use the canonical name of the command
@@ -113,15 +116,15 @@ class PluginCLI(click.MultiCommand):
         assert isinstance(obj, Command)
         return obj
 
-    def _get_all_commands(self, ctx: Context) -> Iterable[Tuple[Tuple[str, ...], Command]]:
+    def _get_all_commands(self, ctx: Context) -> Iterable[tuple[tuple[str, ...], Command]]:
         yield from walk_commands(ctx, self)
 
 
 def walk_commands(
     ctx: click.Context,
     multicommand: click.MultiCommand,
-    name_trail: Tuple[str, ...] = (),
-) -> Iterable[Tuple[Tuple[str, ...], Command]]:
+    name_trail: tuple[str, ...] = (),
+) -> Iterable[tuple[tuple[str, ...], Command]]:
     for subcommand in multicommand.list_commands(ctx):
         cmd = multicommand.get_command(ctx, subcommand)
         if not (cmd and cmd.name):

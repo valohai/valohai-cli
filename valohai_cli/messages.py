@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import random
 import sys
-from typing import List, Optional
 
 import click
 
@@ -53,9 +54,9 @@ if sys.platform != "win32":
 
 def _format_message(
     message: str,
-    emoji: Optional[List[str]] = None,
-    prefix: Optional[str] = None,
-    color: Optional[str] = None,
+    emoji: list[str] | None = None,
+    prefix: str | None = None,
+    color: str | None = None,
 ) -> str:
     selected_emoji = random.choice(emoji or [""])
     formatted_prefix = click.style(prefix, fg=color, bold=True) if prefix else ""
@@ -86,7 +87,7 @@ def progress(message: str, err: bool = True) -> None:
 DEFAULT_BANNER_STYLE = {"fg": "magenta", "bold": True}
 
 
-def banner(message: str, banner_char: str = "=", banner_style: Optional[dict] = None) -> None:
+def banner(message: str, banner_char: str = "=", banner_style: dict | None = None) -> None:
     if banner_style is None:
         banner_style = DEFAULT_BANNER_STYLE
 

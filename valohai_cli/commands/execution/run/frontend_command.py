@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import contextlib
-from typing import Any, List, Optional
+from typing import Any
 
 import click
 
@@ -181,31 +183,31 @@ def run(
     *,
     adhoc: bool,
     git_packaging: bool = True,
-    args: List[str],
-    commit: Optional[str],
-    yaml: Optional[str],
-    download_directory: Optional[str],
-    environment: Optional[str],
-    environment_variables: List[str],
-    environment_variable_groups: Optional[List[str]],
-    image: Optional[str],
-    step_name: Optional[str],
-    tags: List[str],
-    title: Optional[str],
+    args: list[str],
+    commit: str | None,
+    yaml: str | None,
+    download_directory: str | None,
+    environment: str | None,
+    environment_variables: list[str],
+    environment_variable_groups: list[str] | None,
+    image: str | None,
+    step_name: str | None,
+    tags: list[str],
+    title: str | None,
     validate_adhoc: bool,
     watch: bool,
     open_browser: bool,
     debug_port: int,
-    debug_key_file: Optional[str],
+    debug_key_file: str | None,
     autorestart: bool,
-    priority: Optional[int],
-    k8s_cpu_min: Optional[float],
-    k8s_memory_min: Optional[int],
-    k8s_cpu_max: Optional[float],
-    k8s_memory_max: Optional[int],
-    k8s_devices: List[str],
+    priority: int | None,
+    k8s_cpu_min: float | None,
+    k8s_memory_min: int | None,
+    k8s_cpu_max: float | None,
+    k8s_memory_max: int | None,
+    k8s_devices: list[str],
     k8s_device_none: bool,
-    k8s_preset: Optional[str],
+    k8s_preset: str | None,
     ssh: bool = False,
 ) -> Any:
     """
@@ -326,7 +328,7 @@ def run(
         return rc.invoke(child_ctx)
 
 
-def print_step_list(ctx: click.Context, commit: Optional[str]) -> None:
+def print_step_list(ctx: click.Context, commit: str | None) -> None:
     with contextlib.suppress(Exception):  # If we fail to extract the step list, it's not that big of a deal.
         config = get_project(require=True).get_config(commit_identifier=commit)
         if config.steps:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import glob
 import os
 import random
@@ -6,7 +8,8 @@ import string
 import time
 import unicodedata
 import webbrowser
-from typing import Any, Callable, Dict, Iterable, Iterator, Tuple, Type, TypeVar, Union
+from collections.abc import Iterable, Iterator
+from typing import Any, Callable, TypeVar
 
 import click
 
@@ -41,7 +44,7 @@ def get_random_string(length: int = 12, keyspace: str = (string.ascii_letters + 
     return "".join(random.choice(keyspace) for x in range(length))
 
 
-def force_text(v: Union[str, bytes], encoding: str = "UTF-8", errors: str = "strict") -> str:
+def force_text(v: str | bytes, encoding: str = "UTF-8", errors: str = "strict") -> str:
     if isinstance(v, str):
         return v
     elif isinstance(v, bytes):
@@ -49,7 +52,7 @@ def force_text(v: Union[str, bytes], encoding: str = "UTF-8", errors: str = "str
     return str(v)
 
 
-def force_bytes(v: Union[str, int], encoding: str = "UTF-8", errors: str = "strict") -> bytes:
+def force_bytes(v: str | int, encoding: str = "UTF-8", errors: str = "strict") -> bytes:
     if isinstance(v, bytes):
         return v
     return str(v).encode(encoding, errors)
@@ -59,7 +62,7 @@ def humanize_identifier(identifier: str) -> str:
     return re.sub("[-_]+", " ", force_text(identifier)).strip()
 
 
-extension_to_interpreter: Dict[str, str] = {
+extension_to_interpreter: dict[str, str] = {
     ".lua": "lua",
     ".py": "python",
     ".rb": "ruby",
@@ -67,7 +70,7 @@ extension_to_interpreter: Dict[str, str] = {
 }
 
 
-def find_scripts(directory: str) -> Iterator[Tuple[str, str]]:
+def find_scripts(directory: str) -> Iterator[tuple[str, str]]:
     """
     Yield pairs of (interpreter, filename) for scripts found in `directory`.
 
@@ -80,7 +83,7 @@ def find_scripts(directory: str) -> Iterator[Tuple[str, str]]:
             yield (interpreter, os.path.basename(filename))
 
 
-def open_browser(object: Dict[str, Any], url_name: str = "display") -> bool:
+def open_browser(object: dict[str, Any], url_name: str = "display") -> bool:
     if "urls" not in object:
         return False
     url = object["urls"][url_name]
@@ -89,7 +92,7 @@ def open_browser(object: Dict[str, Any], url_name: str = "display") -> bool:
     return True
 
 
-def subset_keys(dict: Dict[Any, Any], keys: Iterable[Any]) -> Dict[Any, Any]:
+def subset_keys(dict: dict[Any, Any], keys: Iterable[Any]) -> dict[Any, Any]:
     return {key: dict[key] for key in dict if key in keys}
 
 
@@ -139,7 +142,7 @@ def parse_environment_variable_strings(
     envvar_strings: Iterable[str],
     *,
     coerce: Callable[[str], Any] = str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Parse a list of environment variable strings into a dict.
     """
@@ -163,8 +166,8 @@ T = TypeVar("T")
 def call_with_retry(
     func: Callable[[], T],
     retries: int = 3,
-    delay_range: Tuple[int, int] = (1, 5),
-    retry_on_exception_classes: Tuple[Type[Exception], ...] = (Exception,),
+    delay_range: tuple[int, int] = (1, 5),
+    retry_on_exception_classes: tuple[type[Exception], ...] = (Exception,),
 ) -> T:
     for attempt in range(retries):
         try:

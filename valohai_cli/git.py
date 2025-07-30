@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import Sequence
+from collections.abc import Sequence
 
 from valohai_cli.exceptions import NoCommit, NoGitRepo
 

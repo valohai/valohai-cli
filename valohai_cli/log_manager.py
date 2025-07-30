@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import hashlib
-from typing import Optional, Set
 
 from valohai_cli.api import request
 from valohai_cli.utils import force_bytes
@@ -10,13 +11,13 @@ class LogManager:
         self.execution: dict = execution
         self.execution_url: str = execution["url"]
         self.events_url: str = f"{self.execution_url}events/"
-        self.seen_events: Set[str] = set()
+        self.seen_events: set[str] = set()
 
     def update_execution(self) -> dict:
         self.execution = request("get", self.execution_url).json()
         return self.execution
 
-    def fetch_events(self, limit: Optional[int] = None) -> dict:
+    def fetch_events(self, limit: int | None = None) -> dict:
         params = {}
         if limit is not None:
             params["limit"] = limit

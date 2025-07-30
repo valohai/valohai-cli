@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import sys
-from typing import Optional
 
 import click
 import requests
@@ -41,7 +42,7 @@ def update_check() -> None:
         click.echo("\nYou seem to be running the latest and greatest. Good on you!")
 
 
-def determine_upgrade_status(current_version: str, latest_version: str) -> Optional[str]:
+def determine_upgrade_status(current_version: str, latest_version: str) -> str | None:
     try:
         from distutils.version import LooseVersion
 

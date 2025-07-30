@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from __future__ import annotations
 
 import click
 from click import get_current_context
@@ -14,10 +14,10 @@ from valohai_cli.models.remote_project import RemoteProject
 
 
 def create_or_resolve_commit(
-    project: Union[RemoteProject, Project],
+    project: RemoteProject | Project,
     *,
-    commit: Optional[str],
-    yaml_path: Optional[str],
+    commit: str | None,
+    yaml_path: str | None,
     adhoc: bool,
     validate_adhoc_commit: bool = True,
     allow_git_packaging: bool = True,
@@ -42,7 +42,7 @@ def create_or_resolve_commit(
     return resolve_commit(commit, project)
 
 
-def get_git_commit(project: Project) -> Optional[str]:
+def get_git_commit(project: Project) -> str | None:
     try:
         return git.get_current_commit(project.directory)
     except NoGitRepo:
@@ -55,7 +55,7 @@ def get_git_commit(project: Project) -> Optional[str]:
         return None
 
 
-def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
+def resolve_commit(commit_identifier: str | None, project: Project) -> str:
     matching_commits = []
     if commit_identifier and commit_identifier.startswith("~"):
         # Assume ad-hoc commits are qualified already
@@ -87,7 +87,7 @@ def resolve_commit(commit_identifier: Optional[str], project: Project) -> str:
     return resolved_commit_identifier
 
 
-def fetch_latest_commits(commit_identifier: Optional[str]) -> List[dict]:
+def fetch_latest_commits(commit_identifier: str | None) -> list[dict]:
     ctx = get_current_context(silent=True)
     ctx.invoke(fetch)
     project = get_project(require=True)

@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import re
-from typing import Any, Iterable, List, Optional, Union
+from collections.abc import Iterable
+from typing import Any
 
 import click
 
@@ -11,7 +14,7 @@ def match_prefix(
     choices: Iterable[Any],
     value: str,
     return_unique: bool = True,
-) -> Union[List[Any], Any, None]:
+) -> list[Any] | Any | None:
     """
     Match `value` in `choices` by case-insensitive prefix matching.
 
@@ -37,7 +40,7 @@ def match_from_list_with_error(
     options: Iterable[str],
     input: str,
     noun: str = "object",
-    param_hint: Optional[str] = None,
+    param_hint: str | None = None,
 ) -> str:
     """
     Wrap `match_prefix` and raise a pretty CLI error if no match is found, or if multiple matches are found.

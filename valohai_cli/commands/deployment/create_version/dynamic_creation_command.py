@@ -1,4 +1,6 @@
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
+
+from typing import Any
 from uuid import UUID
 
 import click
@@ -29,12 +31,12 @@ class CreationCommand(click.Command):
     def __init__(
         self,
         project: Project,
-        deployment: Dict[str, Any],
-        endpoint_names: List[str],
+        deployment: dict[str, Any],
+        endpoint_names: list[str],
         commit: str,
         version_name: str,
         inherit_env_vars: bool = True,
-        environment_variables: Optional[Dict[str, str]] = None,
+        environment_variables: dict[str, str] | None = None,
     ) -> None:
         self.project = project
         self.deployment = deployment
@@ -94,7 +96,7 @@ class CreationCommand(click.Command):
             "enabled": True,
         }
 
-        endpoint_configurations: Dict[str, Any] = {}
+        endpoint_configurations: dict[str, Any] = {}
         endpoint_names_from_config = {e.name for e in self.config.endpoints.values()}
         for name in self.endpoint_names:
             if name not in endpoint_names_from_config:

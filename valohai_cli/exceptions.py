@@ -1,5 +1,8 @@
+from __future__ import annotations
+
+from collections.abc import Iterable
 from pprint import pformat
-from typing import Any, Iterable, Optional, Union
+from typing import Any
 
 import click
 from click import ClickException
@@ -10,11 +13,11 @@ class CLIException(ClickException):
     kind: str = "Error"
     color: str = "red"
 
-    def __init__(self, message: str, kind: Optional[str] = None) -> None:
+    def __init__(self, message: str, kind: str | None = None) -> None:
         super().__init__(message)
         self.kind = str(kind or self.kind)
 
-    def show(self, file: Optional[Any] = None) -> None:
+    def show(self, file: Any | None = None) -> None:
         formatted_message = self.format_message()
         if formatted_message and "\n" in formatted_message:
             # If there are newlines in the message, we'll format things a little differently.
@@ -47,7 +50,7 @@ class APIError(CLIException):
         self.request = response.request
 
     @property
-    def error_json(self) -> Union[None, dict, list]:
+    def error_json(self) -> dict | list | None:
         try:
             error_json = self.response.json()
             if isinstance(error_json, (dict, list)):
@@ -57,7 +60,7 @@ class APIError(CLIException):
         return None
 
     @property
-    def code(self) -> Optional[Any]:
+    def code(self) -> Any | None:
         """
         Attempt to retrieve a top-level error code from the response.
         """

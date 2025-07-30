@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 from valohai_cli.exceptions import APINotFoundError
 from valohai_cli.messages import error, info
@@ -19,18 +21,18 @@ class Settings:
     override_project = None
     api_user_agent_prefix = None
 
-    def __init__(self, persistence: Optional[Persistence] = None) -> None:
+    def __init__(self, persistence: Persistence | None = None) -> None:
         if not persistence:
             persistence = FilePersistence(get_filename=lambda: get_settings_file_name("config.json"))
 
         self.persistence: Persistence = persistence
-        self.overrides: Dict[str, Any] = {}
+        self.overrides: dict[str, Any] = {}
 
     def reset(self) -> None:
         self.override_project = None
         self.overrides.clear()
 
-    def _get(self, key: str, default: Any = None) -> Optional[Any]:
+    def _get(self, key: str, default: Any = None) -> Any | None:
         if key in self.overrides:
             return self.overrides[key]
         return self.persistence.get(key, default)
@@ -53,21 +55,21 @@ class Settings:
         return self.output_format == "human"
 
     @property
-    def user(self) -> Optional[dict]:
+    def user(self) -> dict | None:
         """
         The logged in user (dictionary or None).
         """
         return self._get("user")
 
     @property
-    def host(self) -> Optional[str]:
+    def host(self) -> str | None:
         """
         The host we're logged in to (string or None if not logged in).
         """
         return self._get("host")
 
     @property
-    def verify_ssl(self) -> Union[bool, str]:
+    def verify_ssl(self) -> bool | str:
         """
         Whether to verify SSL connections to the Valohai API, or a path to a CA bundle.
         """
@@ -77,7 +79,7 @@ class Settings:
         return str(value)
 
     @property
-    def token(self) -> Optional[str]:
+    def token(self) -> str | None:
         """
         The authentication token we have for the host we're logged in to.
         """
@@ -93,7 +95,7 @@ class Settings:
             return links
         return {}
 
-    def get_project(self, directory: str) -> Optional[Union["RemoteProject", "Project"]]:
+    def get_project(self, directory: str) -> RemoteProject | Project | None:
         """
         Get the Valohai project object for a directory context.
         The directory tree is walked upwards to find an actual linked directory.

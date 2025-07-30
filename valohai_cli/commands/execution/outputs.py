@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import os
 import time
 from fnmatch import fnmatch
-from typing import List, Optional
 
 import click
 import requests
@@ -26,7 +27,7 @@ GLOB_HELP = (
 )
 
 
-def get_execution_outputs(execution: dict) -> List[dict]:
+def get_execution_outputs(execution: dict) -> list[dict]:
     return list(
         request(
             method="get",
@@ -70,8 +71,8 @@ def get_execution_outputs(execution: dict) -> List[dict]:
 )
 def outputs(
     counter: str,
-    download_directory: Optional[str],
-    filter_download: Optional[str],
+    download_directory: str | None,
+    filter_download: str | None,
     force: bool,
     sync: bool,
 ) -> None:
@@ -106,8 +107,8 @@ def outputs(
 def watch(
     counter: str,
     force: bool,
-    filter_download: Optional[str],
-    download_directory: Optional[str],
+    filter_download: str | None,
+    download_directory: str | None,
 ) -> None:
     if download_directory:
         info(f"Downloading to: {download_directory}\nWaiting for new outputs...")
@@ -132,11 +133,11 @@ def watch(
 
 
 def filter_outputs(
-    outputs: List[dict],
+    outputs: list[dict],
     download_directory: str,
-    filter_download: Optional[str],
+    filter_download: str | None,
     force: bool,
-) -> List[dict]:
+) -> list[dict]:
     if filter_download:
         outputs = [output for output in outputs if fnmatch(output["name"], filter_download)]
     if not force:
@@ -149,7 +150,7 @@ def filter_outputs(
     return outputs
 
 
-def download_outputs(outputs: List[dict], output_path: str, show_success_message: bool = True) -> None:
+def download_outputs(outputs: list[dict], output_path: str, show_success_message: bool = True) -> None:
     if not outputs:
         info("No outputs to download.")
         return
@@ -157,11 +158,14 @@ def download_outputs(outputs: List[dict], output_path: str, show_success_message
     num_width = len(str(len(outputs)))  # How many digits required to print the number of outputs
     start_time = time.time()
     is_responding_with_content = False
-    with click.progressbar(
-        length=total_size,
-        show_pos=True,
-        item_show_func=str,
-    ) as prog, requests.Session() as dl_sess:
+    with (
+        click.progressbar(
+            length=total_size,
+            show_pos=True,
+            item_show_func=str,
+        ) as prog,
+        requests.Session() as dl_sess,
+    ):
         dl_sess.headers["User-Agent"] = f"{get_user_agent()} (downloader)"
         for i, output in enumerate(outputs, 1):
             name = output["name"]

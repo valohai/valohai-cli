@@ -1,4 +1,6 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+from __future__ import annotations
+
+from typing import Any
 
 import click
 
@@ -20,7 +22,7 @@ from valohai_cli.utils.cli_utils import HelpfulArgument
 @click.option("--all", default=None, is_flag=True, help="Stop all in-progress executions.")
 @click.command()
 def stop(
-    counters: Optional[Union[List[str], Tuple[str]]] = None,
+    counters: list[str] | tuple[str] | None = None,
     all: bool = False,
 ) -> None:
     """
@@ -53,8 +55,8 @@ def stop(
     success("Done.")
 
 
-def get_executions_for_stop(project: Project, counters: Optional[List[str]], *, all: bool) -> List[dict]:
-    params: Dict[str, Any] = {"project": project.id}
+def get_executions_for_stop(project: Project, counters: list[str] | None, *, all: bool) -> list[dict]:
+    params: dict[str, Any] = {"project": project.id}
     if counters == ["latest"]:
         return [project.get_execution_from_counter("latest")]
 
