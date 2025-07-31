@@ -1,6 +1,5 @@
 import os
 from subprocess import check_output
-from typing import Set
 
 import pytest
 from click import termui
@@ -40,7 +39,7 @@ def get_tar_files(tarball):
     return set(check_output(f"tar tf {tarball}", shell=True).decode("utf8").splitlines())
 
 
-def get_expected_filenames(original_set: Set[str], *, with_gitignore, with_vhignore) -> Set[str]:
+def get_expected_filenames(original_set: set[str], *, with_gitignore, with_vhignore) -> set[str]:
     new_set = original_set.copy()
     if with_vhignore:  # vhignore stops kahvikuppi
         new_set.discard("kahvikuppi")

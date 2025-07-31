@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import os
 import shutil
 import sys
-from typing import Optional
 
 import click
 
@@ -79,7 +80,7 @@ def init() -> None:
     click.secho("*" * width, fg="green", bold=True)
 
 
-def link_or_create_prompt(cwd: str) -> Optional[Project]:
+def link_or_create_prompt(cwd: str) -> Project | None:
     while True:
         response = (
             click.prompt(

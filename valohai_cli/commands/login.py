@@ -1,4 +1,5 @@
-from typing import Optional, Union
+from __future__ import annotations
+
 from urllib.parse import urljoin, urlparse
 
 import click
@@ -58,11 +59,11 @@ Use a login token instead:
 def login(
     username: str,
     password: str,
-    token: Optional[str],
-    host: Optional[str],
+    token: str | None,
+    host: str | None,
     yes: bool,
-    verify_ssl: Union[bool, str],
-    ca_file: Optional[str],
+    verify_ssl: bool | str,
+    ca_file: str | None,
 ) -> None:
     """Log in into Valohai."""
     if settings.user and settings.token:
@@ -117,7 +118,7 @@ def login(
         warn("SSL verification is off. This may leave you vulnerable to man-in-the-middle attacks.")
 
 
-def verify_token(*, host: str, token: str, verify_ssl: Union[bool, str] = True) -> dict:
+def verify_token(*, host: str, token: str, verify_ssl: bool | str = True) -> dict:
     click.echo(f"Verifying API token on {host}...")
     with APISession(host, token, verify_ssl=verify_ssl) as sess:
         return sess.get("/api/v0/users/me/").json()
@@ -126,9 +127,9 @@ def verify_token(*, host: str, token: str, verify_ssl: Union[bool, str] = True) 
 def do_user_pass_login(
     *,
     host: str,
-    username: Optional[str] = None,
-    password: Optional[str] = None,
-    verify_ssl: Union[bool, str] = True,
+    username: str | None = None,
+    password: str | None = None,
+    verify_ssl: bool | str = True,
 ) -> str:
     click.echo(f"\nIf you don't yet have an account, please create one at {host} first.\n")
     if not username:
@@ -161,8 +162,8 @@ def do_user_pass_login(
 def do_interactive_token_login(
     *,
     host: str,
-    verify_ssl: Union[bool, str] = True,
-    login_error_code: Optional[str] = None,
+    verify_ssl: bool | str = True,
+    login_error_code: str | None = None,
 ) -> str:
     banner(
         TOKEN_LOGIN_HELP.format(
@@ -181,7 +182,7 @@ def do_interactive_token_login(
         return token
 
 
-def validate_host(host: Optional[str]) -> str:
+def validate_host(host: str | None) -> str:
     default_host = (
         settings.overrides.get("host")  # from the top-level CLI (or envvar) ...
         or default_app_host  # ... or the global default

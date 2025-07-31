@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 import click
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
@@ -17,9 +19,9 @@ from valohai_cli.utils.hashing import get_fp_sha256
 def package_adhoc_commit(
     project: Project,
     validate: bool = True,
-    yaml_path: Optional[str] = None,
+    yaml_path: str | None = None,
     allow_git: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create an ad-hoc tarball and commit of the project directory.
 
@@ -68,9 +70,9 @@ def create_adhoc_commit_from_tarball(
     *,
     project: Project,
     tarball: str,
-    yaml_path: Optional[str] = None,
+    yaml_path: str | None = None,
     description: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Using a precreated ad-hoc tarball, create or retrieve an ad-hoc commit of it on the Valohai host.
 
@@ -94,7 +96,7 @@ def create_adhoc_commit_from_tarball(
     return commit_obj
 
 
-def _get_pre_existing_commit(tarball: str, project_id: str) -> Optional[dict]:
+def _get_pre_existing_commit(tarball: str, project_id: str) -> dict | None:
     try:
         # This is the same mechanism used by the server to
         # calculate the identifier for an ad-hoc tarball.
@@ -102,7 +104,7 @@ def _get_pre_existing_commit(tarball: str, project_id: str) -> Optional[dict]:
             commit_identifier = f"~{get_fp_sha256(tarball_fp)}"
 
         # See if we have a commit with that identifier
-        commit_obj: Dict[str, Any] = request(
+        commit_obj: dict[str, Any] = request(
             "get",
             f"/api/v0/commits/{commit_identifier}/",
             params={"project": project_id},

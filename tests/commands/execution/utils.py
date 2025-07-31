@@ -1,5 +1,5 @@
 import re
-from typing import Pattern
+from re import Pattern
 
 import requests_mock
 

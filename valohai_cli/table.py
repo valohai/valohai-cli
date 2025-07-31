@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import json
 import shutil
 import sys
-from typing import Any, Callable, Iterable, List, Optional, Sequence, Tuple, Type, Union
+from collections.abc import Iterable, Sequence
+from typing import Any, Callable
 
 import click
 
@@ -11,13 +14,13 @@ TABLE_FORMATS = ("human", "csv", "tsv", "scsv", "psv", "json")
 SV_SEPARATORS = {"csv": ",", "tsv": "\t", "scsv": ";", "psv": "|"}
 
 
-def n_str(s: Union[float, str, int]) -> str:
+def n_str(s: float | str | int) -> str:
     if s is None:
         return ""
     return str(s).replace("\n", " ")
 
 
-def _format(datum: Union[Tuple[str, Any], str], width: Optional[int], allow_rjust: bool = True) -> str:
+def _format(datum: tuple[str, Any] | str, width: int | None, allow_rjust: bool = True) -> str:
     if isinstance(datum, tuple):
         datum, datatype = datum
     else:
@@ -60,7 +63,7 @@ class HumanTableFormatter:
 
         self.vertical_format = sum(self.column_widths) >= self.terminal_width
 
-    def _generate_vertical(self) -> Iterable[Tuple[bool, str]]:
+    def _generate_vertical(self) -> Iterable[tuple[bool, str]]:
         header_width = max(len(header) for header in self.headers)
         for row in self.printable_data:
             for header, value in zip(self.headers, row):
@@ -93,14 +96,14 @@ class HumanTableFormatter:
             self._echo_horizontal()
 
 
-StringAndType = Tuple[str, Type]
+StringAndType = tuple[str, type]
 
 
 def pluck_printable_data(
     data: Sequence[dict],
     columns: Sequence[str],
     col_formatter: Callable[[Any], StringAndType],
-) -> Iterable[List[StringAndType]]:
+) -> Iterable[list[StringAndType]]:
     for datum in data:
         yield [col_formatter(col_val) for col_val in (datum.get(column) for column in columns)]
 
@@ -108,8 +111,8 @@ def pluck_printable_data(
 def print_table(
     data: Any,
     columns: Sequence[str] = (),
-    headers: Optional[Sequence[str]] = None,
-    format: Optional[str] = None,
+    headers: Sequence[str] | None = None,
+    format: str | None = None,
     **kwargs: Any,
 ) -> None:
     if isinstance(data, dict) and not columns:

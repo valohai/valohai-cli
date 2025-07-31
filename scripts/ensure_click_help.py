@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import argparse
 import ast
 import sys
-from typing import Any, List, Union
+from typing import Any
 
 
-def stringify_name(name: Union[None, ast.AST, ast.Name, str]) -> str:
+def stringify_name(name: ast.AST | ast.Name | str | None) -> str:
     if isinstance(name, ast.Attribute):
         return f"{stringify_name(name.value)}.{stringify_name(name.attr)}"
     if isinstance(name, ast.Name):
@@ -31,7 +33,7 @@ class EnsureClickHelpWalker(ast.NodeVisitor):
                     self.add_message(deco, "missing `help=`")
 
 
-def process_file(filename: str) -> List[str]:
+def process_file(filename: str) -> list[str]:
     with open(filename) as infp:
         tree = ast.parse(infp.read(), filename=filename)
 

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os
-from typing import List, Optional
 
 import click
 from valohai.internals.merge import python_to_yaml_merge_strategy
@@ -20,7 +21,7 @@ from valohai_cli.models.project import Project
     type=click.Path(file_okay=True, exists=True, dir_okay=False),
     required=True,
 )
-def step(filenames: List[str], yaml: Optional[str]) -> None:
+def step(filenames: list[str], yaml: str | None) -> None:
     """
     Update a step config(s) in valohai.yaml based on Python source file(s).
 
@@ -52,14 +53,14 @@ def step(filenames: List[str], yaml: Optional[str]) -> None:
             info(f"{yaml} already up-to-date.")
 
 
-def get_current_config(project: Project, yaml_file: Optional[str] = None) -> Optional[Config]:
+def get_current_config(project: Project, yaml_file: str | None = None) -> Config | None:
     try:
         return project.get_config(yaml_path=yaml_file)
     except FileNotFoundError:
         return None
 
 
-def get_updated_config(source_path: str, project: Project, yaml_file: Optional[str] = None) -> Config:
+def get_updated_config(source_path: str, project: Project, yaml_file: str | None = None) -> Config:
     """Opens the old valohai.yaml, parses source Python file and merges the resulting config to the old
 
     Call to valohai.prepare() will contain step name, parameters and inputs.
@@ -78,7 +79,7 @@ def get_updated_config(source_path: str, project: Project, yaml_file: Optional[s
     return new_config
 
 
-def update_yaml_from_source(source_path: str, project: Project, yaml_file: Optional[str]) -> bool:
+def update_yaml_from_source(source_path: str, project: Project, yaml_file: str | None) -> bool:
     """Updates valohai.yaml by parsing the source code file for a call to valohai.prepare()
 
     Call to valohai.prepare() will contain step name, parameters and inputs.
@@ -98,7 +99,7 @@ def update_yaml_from_source(source_path: str, project: Project, yaml_file: Optio
     return False
 
 
-def yaml_needs_update(source_path: str, project: Project, yaml_file: Optional[str]) -> bool:
+def yaml_needs_update(source_path: str, project: Project, yaml_file: str | None) -> bool:
     """Checks if valohai.yaml needs updating based on source Python code.
 
     Call to valohai.prepare() will contain step name, parameters and inputs.

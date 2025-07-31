@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import datetime
 import time
-from typing import Dict, List, Optional
 
 import click
 from click import get_current_context
@@ -16,7 +17,7 @@ from valohai_cli.utils.cli_utils import counter_argument
 
 
 class WatchTUI:
-    status_styles: Dict[str, dict] = {
+    status_styles: dict[str, dict] = {
         "started": {"fg": "blue", "bold": True},
         "crashed": {"fg": "white", "bg": "red"},
         "stopped": {"fg": "red"},
@@ -26,9 +27,9 @@ class WatchTUI:
     def __init__(self, execution: dict) -> None:
         self.execution = execution
         self.log_manager = LogManager(execution)
-        self.events: List[dict] = []
+        self.events: list[dict] = []
         self.n_events = 0
-        self.status_text: Optional[str] = None
+        self.status_text: str | None = None
 
     def refresh(self) -> None:
         try:

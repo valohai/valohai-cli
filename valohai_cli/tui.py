@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import math
 import shutil
 import time
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable
 
 import click
 
@@ -9,8 +11,8 @@ from valohai_cli.utils import force_text
 
 
 class LayoutElement:
-    style: Dict[str, Any] = {}
-    layout: "Layout"
+    style: dict[str, Any] = {}
+    layout: Layout
 
     def draw(self) -> None:
         raise NotImplementedError(f"{self.__class__} must implement draw()")
@@ -21,7 +23,7 @@ class Divider(LayoutElement):
     Full-width divider.
     """
 
-    def __init__(self, ch: str = "#", style: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, ch: str = "#", style: dict[str, Any] | None = None) -> None:
         """
         :param ch: The character (or characters) to fill the line with
         :param style: Click style dictionary
@@ -39,14 +41,14 @@ class Flex(LayoutElement):
     A columnar layout element.
     """
 
-    aligners: Dict[str, Callable[[str, int], str]] = {
+    aligners: dict[str, Callable[[str, int], str]] = {
         "left": lambda content, width: content.ljust(width),
         "right": lambda content, width: content.rjust(width),
         "center": lambda content, width: content.center(width),
     }
 
-    def __init__(self, style: Optional[Dict[str, Any]] = None) -> None:
-        self.cells: List[dict] = []
+    def __init__(self, style: dict[str, Any] | None = None) -> None:
+        self.cells: list[dict] = []
         self.style = style or {}
 
     def add(
@@ -54,9 +56,9 @@ class Flex(LayoutElement):
         content: str = "",
         *,
         flex: int = 1,
-        style: Optional[dict] = None,
+        style: dict | None = None,
         align: str = "left",
-    ) -> "Flex":
+    ) -> Flex:
         """
         Add a content column to the flex.
 
@@ -104,10 +106,10 @@ class Layout:
     """
 
     def __init__(self) -> None:
-        self.rows: List[LayoutElement] = []
+        self.rows: list[LayoutElement] = []
         self.width, self.height = shutil.get_terminal_size()
 
-    def add(self, element: LayoutElement) -> "Layout":
+    def add(self, element: LayoutElement) -> Layout:
         """
         Add a LayoutElement to the Layout.
 

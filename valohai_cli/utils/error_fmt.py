@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Union
 
 import click
 
@@ -10,7 +10,7 @@ class ErrorFormatter:
     generic_dict_keys = ["non_field_errors", "detail", "error"]
 
     def __init__(self) -> None:
-        self.buffer: List[str] = []
+        self.buffer: list[str] = []
         self.level: int = 0
 
     def write(self, prefix: str, line: str) -> None:

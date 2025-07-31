@@ -1,15 +1,17 @@
-from typing import Iterable, Set, Union
+from __future__ import annotations
+
+from collections.abc import Iterable
 
 
 class IntegerRange:
-    def __init__(self, includes: Set[Iterable[int]], excludes: Set[Iterable[int]]) -> None:
+    def __init__(self, includes: set[Iterable[int]], excludes: set[Iterable[int]]) -> None:
         self.includes = set(includes)
         self.excludes = set(excludes)
 
     @classmethod
-    def parse(cls, atoms: Iterable[Union[str, int]]) -> "IntegerRange":
-        includes: Set[Iterable[int]] = set()
-        excludes: Set[Iterable[int]] = set()
+    def parse(cls, atoms: Iterable[str | int]) -> IntegerRange:
+        includes: set[Iterable[int]] = set()
+        excludes: set[Iterable[int]] = set()
         for atom in atoms:
             if isinstance(atom, int):
                 includes.add((atom,))
@@ -32,7 +34,7 @@ class IntegerRange:
             raise ValueError(f"Not a valid range atom: {atom}")  # pragma: no cover
         return cls(includes=includes, excludes=excludes)
 
-    def as_set(self) -> Set[int]:
+    def as_set(self) -> set[int]:
         values = set()
         for inc in self.includes:
             values |= set(inc)

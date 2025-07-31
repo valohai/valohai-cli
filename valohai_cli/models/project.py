@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import io
 import os
-from typing import List, Optional, TextIO, Union
+from typing import TextIO
 
 import valohai_yaml
 from click import BadParameter
@@ -19,7 +21,7 @@ class Project:
         if not os.path.isdir(directory):
             raise ValueError(f"Invalid directory: {directory}")
         self.directory = directory
-        self._commit_list: Optional[List[dict]] = None
+        self._commit_list: list[dict] | None = None
 
     @property
     def id(self) -> str:
@@ -29,7 +31,7 @@ class Project:
     def name(self) -> str:
         return str(self.data["name"])
 
-    def get_config(self, commit_identifier: Optional[str] = None, yaml_path: Optional[str] = None) -> Config:
+    def get_config(self, commit_identifier: str | None = None, yaml_path: str | None = None) -> Config:
         """
         Get the `valohai_yaml.Config` object from the current working directory,
         or a given commit.
@@ -58,7 +60,7 @@ class Project:
         except valohai_yaml.ValidationErrors as ves:
             raise InvalidConfig(f"{filename} is invalid ({len(ves.errors)} errors); see `vh lint`")
 
-    def get_config_filename(self, yaml_path: Optional[str] = None) -> str:
+    def get_config_filename(self, yaml_path: str | None = None) -> str:
         used_yaml_path = yaml_path or self.get_yaml_path()
         return os.path.join(self.directory, used_yaml_path)
 
@@ -68,8 +70,8 @@ class Project:
 
     def get_execution_from_counter(
         self,
-        counter: Union[int, str],
-        params: Optional[dict] = None,
+        counter: int | str,
+        params: dict | None = None,
     ) -> dict:
         if isinstance(counter, str):
             counter = counter.lstrip("#")
@@ -90,12 +92,12 @@ class Project:
                 raise NoExecution(f"Execution #{counter} does not exist")
             raise
 
-    def load_commit_list(self) -> List[dict]:
+    def load_commit_list(self) -> list[dict]:
         """
         Get a list of non-adhoc commits, newest first.
         """
         if self._commit_list is None:
-            commits: List[dict] = list(
+            commits: list[dict] = list(
                 request(
                     method="get",
                     url="/api/v0/commits/",
@@ -110,7 +112,7 @@ class Project:
             self._commit_list = commits
         return self._commit_list
 
-    def resolve_commits(self, commit_identifier: Optional[str] = None) -> List[dict]:
+    def resolve_commits(self, commit_identifier: str | None = None) -> list[dict]:
         """
         Resolve a commit identifier to a list of matching commit dicts.
 
@@ -148,7 +150,7 @@ class Project:
         assert newest_commit["identifier"]
         return [newest_commit]
 
-    def load_full_commit(self, identifier: Optional[str] = None) -> dict:
+    def load_full_commit(self, identifier: str | None = None) -> dict:
         """
         Load the commit object including config data (as a dict) from the Valohai host for the given commit identifier.
 

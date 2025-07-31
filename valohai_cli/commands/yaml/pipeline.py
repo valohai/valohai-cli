@@ -1,4 +1,4 @@
-from typing import List, Optional
+from __future__ import annotations
 
 import click
 from valohai.internals.pipeline import get_pipeline_from_source
@@ -17,7 +17,7 @@ from valohai_cli.messages import error, info
     type=click.Path(file_okay=True, exists=True, dir_okay=False),
     required=True,
 )
-def pipeline(filenames: List[str], yaml: Optional[str]) -> None:
+def pipeline(filenames: list[str], yaml: str | None) -> None:
     """
     Update a pipeline config(s) in valohai.yaml based on Python source file(s).
     Python source file is expected to have def main(config: Config) -> Pipeline

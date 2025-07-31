@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence
+from collections.abc import Sequence
 
 import click
 
@@ -9,7 +9,7 @@ from valohai_cli.table import print_table
 from valohai_cli.utils import subset_keys
 
 
-def download_execution_data(project: Project, counters: Sequence[str]) -> Dict[str, dict]:
+def download_execution_data(project: Project, counters: Sequence[str]) -> dict[str, dict]:
     executions = {}
     with click.progressbar(
         IntegerRange.parse(counters).as_set(),
@@ -28,7 +28,7 @@ def download_execution_data(project: Project, counters: Sequence[str]) -> Dict[s
 
 @click.command()
 @click.argument("counters", required=True, nargs=-1)
-def summarize(counters: List[str]) -> None:
+def summarize(counters: list[str]) -> None:
     """
     Summarize execution metadata.
 

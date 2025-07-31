@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import re
-from typing import Any, Callable, Iterable, Optional, Pattern, Union
+from collections.abc import Iterable
+from re import Pattern
+from typing import Any, Callable, Union
 
 StringOrPattern = Union[str, Pattern]
 
 
-def _match_string(s: Optional[str], pattern: StringOrPattern) -> bool:
+def _match_string(s: str | None, pattern: StringOrPattern) -> bool:
     if s is None:
         return False
     if isinstance(pattern, re.Pattern):
@@ -15,10 +19,10 @@ def _match_string(s: Optional[str], pattern: StringOrPattern) -> bool:
 def match_error(
     response_data: dict,
     *,
-    code: Optional[StringOrPattern] = None,
-    message: Optional[StringOrPattern] = None,
-    matcher: Optional[Callable] = None,
-) -> Optional[dict]:
+    code: StringOrPattern | None = None,
+    message: StringOrPattern | None = None,
+    matcher: Callable | None = None,
+) -> dict | None:
     if code and not _match_string(response_data.get("code"), code):
         return None
     if message and not _match_string(response_data.get("message"), message):
@@ -31,15 +35,15 @@ def match_error(
 def find_error(
     response_data: Any,
     *,
-    code: Optional[StringOrPattern] = None,
-    message: Optional[StringOrPattern] = None,
-    matcher: Optional[Callable] = None,
-) -> Optional[Any]:
+    code: StringOrPattern | None = None,
+    message: StringOrPattern | None = None,
+    matcher: Callable | None = None,
+) -> Any | None:
     if response_data is None:
         # Error not found in response
         return False
 
-    iterable: Optional[Iterable[Any]] = None
+    iterable: Iterable[Any] | None = None
     if isinstance(response_data, str):
         return match_error(
             {"message": response_data, "code": None},

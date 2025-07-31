@@ -1,4 +1,6 @@
-from typing import Any, Callable, List, Optional
+from __future__ import annotations
+
+from typing import Any, Callable
 
 import click
 from click import prompt
@@ -21,7 +23,7 @@ def create_project(
     directory: str,
     name: str,
     description: str = "",
-    owner: Optional[str] = None,
+    owner: str | None = None,
     link: bool = True,
     yes: bool = False,
 ) -> None:
@@ -54,10 +56,10 @@ def create_project(
 def prompt_for_owner(
     *,
     command_prompt: str,
-    value_proc: Optional[Callable[[Any], Any]] = None,
-) -> Optional[str]:
+    value_proc: Callable[[Any], Any] | None = None,
+) -> str | None:
     try:
-        options: List[str] = request("get", "/api/v0/projects/ownership_options/").json()
+        options: list[str] = request("get", "/api/v0/projects/ownership_options/").json()
     except APINotFoundError:  # Endpoint not there, ah well!
         return None
     except APIError as ae:
@@ -82,7 +84,7 @@ def prompt_for_owner(
 
 
 class OwnerOptionsOption(click.Option):
-    def prompt_for_value(self, ctx: Context) -> Optional[str]:
+    def prompt_for_value(self, ctx: Context) -> str | None:
         return prompt_for_owner(
             command_prompt=self.prompt or "Owner",
             value_proc=lambda x: self.process_value(ctx, x),
@@ -119,7 +121,7 @@ class OwnerOptionsOption(click.Option):
     help="Link the directory to the newly created project? Default yes.",
 )
 @yes_option
-def create(name: str, description: str, link: bool, owner: Optional[str], yes: bool) -> None:
+def create(name: str, description: str, link: bool, owner: str | None, yes: bool) -> None:
     """Create a new project and optionally link it to the directory."""
     create_project(
         directory=get_project_directory(),

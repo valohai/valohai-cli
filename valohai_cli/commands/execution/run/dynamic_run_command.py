@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import collections
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from collections.abc import Sequence
+from typing import Any
 
 import click
 from click import get_current_context
@@ -22,7 +25,7 @@ from ..ssh import ssh
 from .excs import ExecutionCreationAPIError
 
 
-def generate_sanitized_options(name: str) -> Set[str]:
+def generate_sanitized_options(name: str) -> set[str]:
     sanitized_name = sanitize_option_name(name)
     return {
         choice
@@ -45,27 +48,27 @@ class RunCommand(click.Command):
         "flag": click.BOOL,
     }
 
-    environment_variable_groups: Optional[List[str]]
+    environment_variable_groups: list[str] | None
 
     def __init__(
         self,
         project: Project,
         step: Step,
         commit: str,
-        environment: Optional[str] = None,
-        image: Optional[str] = None,
-        title: Optional[str] = None,
+        environment: str | None = None,
+        image: str | None = None,
+        title: str | None = None,
         watch: bool = False,
         open_browser: bool = False,
-        download_directory: Optional[str] = None,
-        environment_variables: Optional[Dict[str, str]] = None,
-        environment_variable_groups: Optional[Sequence[str]] = None,
-        tags: Optional[Sequence[str]] = None,
-        runtime_config: Optional[dict] = None,
-        runtime_config_preset: Optional[str] = None,
+        download_directory: str | None = None,
+        environment_variables: dict[str, str] | None = None,
+        environment_variable_groups: Sequence[str] | None = None,
+        tags: Sequence[str] | None = None,
+        runtime_config: dict | None = None,
+        runtime_config_preset: str | None = None,
         ssh: bool = False,
-        priority: Optional[int] = None,
-        time_limit: Optional[str] = None,
+        priority: int | None = None,
+        time_limit: str | None = None,
     ) -> None:
         """
         Initialize the dynamic run command.
@@ -256,7 +259,7 @@ class RunCommand(click.Command):
             return {}
         return {attribute_name: value}
 
-    def _sift_kwargs(self, kwargs: Dict[str, str]) -> Tuple[dict, dict, dict]:
+    def _sift_kwargs(self, kwargs: dict[str, str]) -> tuple[dict, dict, dict]:
         # Sift kwargs into params, options, and inputs
         options = {}
         params = {}
@@ -271,7 +274,7 @@ class RunCommand(click.Command):
         self._process_parameters(params, parameter_file=options.get("parameter_file"))
         return options, params, inputs
 
-    def _process_parameters(self, parameters: Dict[str, Any], parameter_file: Optional[str]) -> None:  # noqa: C901
+    def _process_parameters(self, parameters: dict[str, Any], parameter_file: str | None) -> None:  # noqa: C901
         if parameter_file:
             parameter_file_data = read_data_file(parameter_file)
             if not isinstance(parameter_file_data, dict):

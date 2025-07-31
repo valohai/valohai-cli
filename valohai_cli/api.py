@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import platform
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 from urllib.parse import urljoin, urlparse
 
 import click
@@ -28,7 +30,7 @@ def get_user_agent() -> str:
 
 
 class TokenAuth(AuthBase):
-    def __init__(self, netloc: str, token: Optional[str]) -> None:
+    def __init__(self, netloc: str, token: str | None) -> None:
         super().__init__()
         self.netloc = netloc
         self.token = token
@@ -47,9 +49,9 @@ class APISession(requests.Session):
     def __init__(
         self,
         base_url: str,
-        token: Optional[str] = None,
+        token: str | None = None,
         *,
-        verify_ssl: Union[bool, str] = True,
+        verify_ssl: bool | str = True,
     ) -> None:
         """
         :param verify_ssl: Path to a CA bundle to use,
@@ -99,7 +101,7 @@ def _get_current_api_session() -> APISession:
     host, token = get_host_and_token()
     ctx = click.get_current_context(silent=True) or None
     cache_key: str = force_text(f"_api_session_{host}_{token}")
-    session: Optional[APISession] = getattr(ctx, cache_key, None) if ctx else None
+    session: APISession | None = getattr(ctx, cache_key, None) if ctx else None
     if not session:
         session = APISession(
             base_url=host,
@@ -111,7 +113,7 @@ def _get_current_api_session() -> APISession:
     return session
 
 
-def get_host_and_token() -> Tuple[str, str]:
+def get_host_and_token() -> tuple[str, str]:
     host = settings.host
     token = settings.token
     if not (host and token):

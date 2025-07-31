@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import contextlib
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import click
 from click import Context
@@ -75,15 +77,15 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 def run(
     ctx: Context,
     *,
-    name: Optional[str],
-    commit: Optional[str],
-    title: Optional[str],
+    name: str | None,
+    commit: str | None,
+    title: str | None,
     adhoc: bool,
     git_packaging: bool = True,
-    yaml: Optional[str],
-    tags: List[str],
-    environment: Optional[str],
-    args: List[str],
+    yaml: str | None,
+    tags: list[str],
+    environment: str | None,
+    args: list[str],
 ) -> None:
     """
     Start a pipeline run.
@@ -125,14 +127,14 @@ def run(
     )
 
 
-def process_args(args: List[str]) -> Dict[str, Union[str, list]]:
-    args_dict: Dict[str, Union[str, list]] = {}
+def process_args(args: list[str]) -> dict[str, str | list]:
+    args_dict: dict[str, str | list] = {}
     for i, arg in enumerate(args):
         if arg.startswith("--"):
             arg_name = arg.lstrip("-")
             if "+=" in arg_name:  # --param+=value
                 name, value = arg_name.split("+=", 1)
-                value_list: Union[list, str] = args_dict.get(name) or []
+                value_list: list | str = args_dict.get(name) or []
                 if not isinstance(value_list, list):
                     raise click.UsageError(f'[{name}] Cannot mix "+=" with other parameter assignments')
                 value_list.append(value)
@@ -155,7 +157,7 @@ def process_args(args: List[str]) -> Dict[str, Union[str, list]]:
     return args_dict
 
 
-def print_pipeline_list(ctx: Context, commit: Optional[str]) -> None:
+def print_pipeline_list(ctx: Context, commit: str | None) -> None:
     with contextlib.suppress(
         Exception,
     ):  # If we fail to extract the pipeline list, it's not that big of a deal.
@@ -178,12 +180,12 @@ def start_pipeline(
     pipeline: Pipeline,
     project_id: str,
     commit: str,
-    tags: List[str],
-    args: List[str],
-    title: Optional[str] = None,
-    override_environment: Optional[str] = None,
+    tags: list[str],
+    args: list[str],
+    title: str | None = None,
+    override_environment: str | None = None,
 ) -> None:
-    args_dict: Dict[str, Union[str, list]]
+    args_dict: dict[str, str | list]
     args_dict = process_args(args) if args else {}
 
     converter = PipelineConverter(config=config, commit_identifier=commit, parameter_arguments=args_dict)
@@ -202,7 +204,7 @@ def start_pipeline(
             )
         raise click.UsageError(f"Unknown pipeline parameters: {unused_args}")
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "project": project_id,
         "title": title or pipeline.name,
         "tags": tags,

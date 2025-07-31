@@ -1,4 +1,6 @@
-from typing import Literal, Optional, Union, overload
+from __future__ import annotations
+
+from typing import Literal, Union, overload
 
 import click
 
@@ -13,17 +15,17 @@ ProjectOrRemoteProject = Union[RemoteProject, Project]
 
 
 @overload
-def get_project(dir: Optional[str] = None, require: Literal[True] = True) -> ProjectOrRemoteProject: ...
+def get_project(dir: str | None = None, require: Literal[True] = True) -> ProjectOrRemoteProject: ...
 
 
 @overload
 def get_project(
-    dir: Optional[str] = None,
+    dir: str | None = None,
     require: Literal[False] = False,
-) -> Optional[ProjectOrRemoteProject]: ...
+) -> ProjectOrRemoteProject | None: ...
 
 
-def get_project(dir: Optional[str] = None, require: bool = False) -> Optional[ProjectOrRemoteProject]:
+def get_project(dir: str | None = None, require: bool = False) -> ProjectOrRemoteProject | None:
     """
     Get the Valohai project object for a directory context.
 

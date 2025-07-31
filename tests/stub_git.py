@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import os
 import tempfile
 from pathlib import Path
 from subprocess import check_call, check_output
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any
 
 from valohai_cli.utils import get_random_string
 
@@ -39,9 +41,9 @@ class StubGit:
 
     def write(
         self,
-        path: Union[Path, str],
+        path: Path | str,
         *,
-        content: Optional[str] = None,
+        content: str | None = None,
         add: bool = True,
     ):
         if content is None:
@@ -54,7 +56,7 @@ class StubGit:
         if add:
             self.add(relative_path)
 
-    def add(self, path: Union[Path, str]):
+    def add(self, path: Path | str):
         _, relative_path = self._pathify(path)
         check_call(f"git add {relative_path}", cwd=self.dir_str, shell=True)
 
@@ -64,12 +66,12 @@ class StubGit:
     def commit(self, message: str = "bugfix"):
         check_call(f'git commit -m "{message}"', cwd=self.dir_str, shell=True)
 
-    def log(self) -> List[str]:
+    def log(self) -> list[str]:
         # full git commit SHAs in reverse chronological order (the latest first)
         raw = check_output("git log --pretty=format:%H", cwd=self.dir_str, shell=True)
         return raw.decode("utf-8").split()
 
-    def _pathify(self, path: Union[Path, str]) -> Tuple[Path, Path]:
+    def _pathify(self, path: Path | str) -> tuple[Path, Path]:
         if isinstance(path, str):
             path = Path(path)
 

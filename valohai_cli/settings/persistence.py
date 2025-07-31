@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import codecs
 import contextlib
 import json
 import os
 from errno import ENOENT
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 
 class Persistence:
-    def __init__(self, data: Optional[dict] = None) -> None:
+    def __init__(self, data: dict | None = None) -> None:
         self._data = data
 
     @property
@@ -16,10 +18,10 @@ class Persistence:
             self._data = {}
         return self._data
 
-    def update(self, data: Optional[dict] = None, **kwargs: Any) -> None:
+    def update(self, data: dict | None = None, **kwargs: Any) -> None:
         self.data.update((data or {}), **kwargs)
 
-    def get(self, key: str, default: Optional[Any] = None) -> Optional[Any]:
+    def get(self, key: str, default: Any | None = None) -> Any | None:
         return self.data.get(key, default)
 
     def set(self, key: str, value: Any) -> None:
