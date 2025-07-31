@@ -9,11 +9,12 @@ This is the command-line client for the [Valohai][vh] machine learning IaaS plat
 
 ## Installation
 
-`valohai-cli` supports Python 3.8 and higher.
+`valohai-cli` supports Python 3.9 and higher.
 
 - If you still need to run on Python 3.5, version 0.13.0 was the last one to support it.
 - If you still need to run on Python 3.6, version 0.23.0 was the last one to support it.
 - If you still need to run on Python 3.7, version 0.25.0 was the last one to support it.
+- If you still need to run on Python 3.8, version 0.33.0 was the last one to support it.
 
 ### System-wide or user-wide installation with pipx
 

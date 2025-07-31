@@ -1,7 +1,8 @@
 # Development
 
 ## Setting up
-This project is written in Python 3.8+.
+
+This project is written in Python 3.9+.
 
 ```bash
 pip install -e .
@@ -12,6 +13,7 @@ vh login --host http://localhost:8000
 ```
 
 ## Testing
+
 PyTest is used for running tests with the above mentioned Python versions. Development deps are in `requirements-dev.txt`.
 
 ```bash
