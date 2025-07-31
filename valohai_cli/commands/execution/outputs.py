@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Iterable
 from fnmatch import fnmatch
 
 import click
@@ -27,19 +28,28 @@ GLOB_HELP = (
 )
 
 
-def get_execution_outputs(execution: dict) -> list[dict]:
-    return list(
-        request(
+def get_execution_outputs(execution: dict, page_size: int = 5000) -> Iterable[dict]:
+    offset = 0
+
+    while True:
+        params = {
+            "output_execution": execution["id"],
+            "limit": page_size,
+        }
+        if offset:
+            params["offset"] = offset
+        response = request(
             method="get",
             url="/api/v0/data/",
-            params={
-                "output_execution": execution["id"],
-                "limit": 9000,
-            },
-        )
-        .json()
-        .get("results", []),
-    )
+            params=params,
+        ).json()
+
+        results = response.get("results", [])
+        yield from results
+        if len(results) < page_size:
+            break
+
+        offset += page_size
 
 
 @click.command()
@@ -92,7 +102,7 @@ def outputs(
         counter=counter,
         params={"exclude": "outputs"},
     )
-    outputs = get_execution_outputs(execution)
+    outputs = list(get_execution_outputs(execution))
     if not outputs:
         warn("The execution has no outputs.")
         return
@@ -100,7 +110,14 @@ def outputs(
         output["datum_url"] = f"datum://{output['id']}"
     print_table(outputs, ("name", "datum_url", "size"))
     if download_directory:
-        outputs = filter_outputs(outputs, download_directory, filter_download, force)
+        outputs = list(
+            filter_outputs(
+                outputs,
+                download_directory=download_directory,
+                filter_download=filter_download,
+                force=force,
+            ),
+        )
         download_outputs(outputs, download_directory, show_success_message=True)
 
 
@@ -122,8 +139,14 @@ def watch(
         params={"exclude": "outputs"},
     )
     while True:
-        outputs = get_execution_outputs(execution)
-        outputs = filter_outputs(outputs, download_directory, filter_download, force)
+        outputs = list(
+            filter_outputs(
+                get_execution_outputs(execution),
+                download_directory=download_directory,
+                filter_download=filter_download,
+                force=force,
+            ),
+        )
         if outputs:
             download_outputs(outputs, download_directory, show_success_message=False)
         if execution["status"] in complete_execution_statuses:
@@ -133,21 +156,18 @@ def watch(
 
 
 def filter_outputs(
-    outputs: list[dict],
+    outputs: Iterable[dict],
+    *,
     download_directory: str,
     filter_download: str | None,
     force: bool,
-) -> list[dict]:
-    if filter_download:
-        outputs = [output for output in outputs if fnmatch(output["name"], filter_download)]
-    if not force:
-        # Do not download files that already exist
-        outputs = [
-            output
-            for output in outputs
-            if not os.path.isfile(os.path.join(download_directory, output["name"]))
-        ]
-    return outputs
+) -> Iterable[dict]:
+    for output in outputs:
+        if filter_download and not fnmatch(output["name"], filter_download):
+            continue
+        if not force and os.path.isfile(os.path.join(download_directory, output["name"])):
+            continue
+        yield output
 
 
 def download_outputs(outputs: list[dict], output_path: str, show_success_message: bool = True) -> None:
