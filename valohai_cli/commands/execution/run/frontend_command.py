@@ -116,8 +116,16 @@ EMPTY_DICT_PLACEHOLDER = object()
     default=None,
     help="The path to the configuration YAML (valohai.yaml) file to use.",
 )
-@click.option("--debug-port", type=int)
-@click.option("--debug-key-file", type=click.Path(file_okay=True, readable=True, writable=False))
+@click.option(
+    "--debug-port",
+    type=int,
+    help="Configure the port for remote debugging the execution via SSH after it starts.",
+)
+@click.option(
+    "--debug-key-file",
+    type=click.Path(file_okay=True, readable=True, writable=False),
+    help="Path to a public SSH key file for remote debugging the execution after it starts.",
+)
 @click.option(
     "--ssh",
     is_flag=True,
