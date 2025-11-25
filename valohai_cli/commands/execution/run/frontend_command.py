@@ -16,7 +16,7 @@ from .utils import match_step
 run_epilog = (
     "More detailed help (e.g. how to define parameters and inputs) is available when you have "
     "defined which step to run. For instance, if you have a step called Extract, "
-    'try running "vh exec run Extract --help".'
+    'try running "vh exec run Extract --help". (This is denoted by STEP-OPTIONS... in the usage.)'
 )
 
 
