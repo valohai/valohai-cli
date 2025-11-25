@@ -33,7 +33,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 )
 @click.option(
     "--title",
-    "-c",
+    "-t",
     default=None,
     help="The optional title of the pipeline run.",
 )
