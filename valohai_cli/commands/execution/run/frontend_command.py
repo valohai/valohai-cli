@@ -137,7 +137,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 )
 @click.option(
     "--k8s-cpu-min",
-    help="Kubernetes only. CPU resouce request",
+    help="Kubernetes only. CPU resource request",
     type=float,
 )
 @click.option(
@@ -147,7 +147,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 )
 @click.option(
     "--k8s-cpu-max",
-    help="Kubernetes only. CPU resouce request",
+    help="Kubernetes only. CPU resource request",
     type=float,
 )
 @click.option(
