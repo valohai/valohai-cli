@@ -40,7 +40,7 @@ EMPTY_DICT_PLACEHOLDER = object()
     "--environment",
     "-e",
     default=None,
-    help='The environment UUID or slug to use (see "vh env")',
+    help='The environment UUID or slug to use (see "vh environment list")',
 )
 @click.option(
     "--environment-variable-groups",
