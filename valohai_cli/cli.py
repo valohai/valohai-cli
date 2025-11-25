@@ -68,7 +68,7 @@ TABLE_FORMAT_ENVVARS = ["VALOHAI_TABLE_FORMAT", "VALOHAI_OUTPUT_FORMAT"]
     help="(Advanced) When using --project, set the project root directory",
     show_envvar=True,
 )
-@click.version_option(version=cli_version, message="%(prog)s %(version)s")
+@click.version_option(version=cli_version, message="%(prog)s %(version)s", default=None)
 @click.pass_context
 def cli(
     ctx: click.Context,
