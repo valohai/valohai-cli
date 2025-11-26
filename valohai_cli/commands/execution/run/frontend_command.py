@@ -16,7 +16,7 @@ from .utils import match_step
 run_epilog = (
     "More detailed help (e.g. how to define parameters and inputs) is available when you have "
     "defined which step to run. For instance, if you have a step called Extract, "
-    'try running "vh exec run Extract --help".'
+    'try running "vh exec run Extract --help". (This is denoted by STEP-OPTIONS... in the usage.)'
 )
 
 
@@ -40,7 +40,7 @@ EMPTY_DICT_PLACEHOLDER = object()
     "--environment",
     "-e",
     default=None,
-    help='The environment UUID or slug to use (see "vh env")',
+    help='The environment UUID or slug to use (see "vh environment list")',
 )
 @click.option(
     "--environment-variable-groups",
@@ -116,8 +116,16 @@ EMPTY_DICT_PLACEHOLDER = object()
     default=None,
     help="The path to the configuration YAML (valohai.yaml) file to use.",
 )
-@click.option("--debug-port", type=int)
-@click.option("--debug-key-file", type=click.Path(file_okay=True, readable=True, writable=False))
+@click.option(
+    "--debug-port",
+    type=int,
+    help="Configure the port for remote debugging the execution via SSH after it starts.",
+)
+@click.option(
+    "--debug-key-file",
+    type=click.Path(file_okay=True, readable=True, writable=False),
+    help="Path to a public SSH key file for remote debugging the execution after it starts.",
+)
 @click.option(
     "--ssh",
     is_flag=True,
@@ -137,7 +145,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 )
 @click.option(
     "--k8s-cpu-min",
-    help="Kubernetes only. CPU resouce request",
+    help="Kubernetes only. CPU resource request",
     type=float,
 )
 @click.option(
@@ -147,7 +155,7 @@ EMPTY_DICT_PLACEHOLDER = object()
 )
 @click.option(
     "--k8s-cpu-max",
-    help="Kubernetes only. CPU resouce request",
+    help="Kubernetes only. CPU resource request",
     type=float,
 )
 @click.option(

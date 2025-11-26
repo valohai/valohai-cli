@@ -19,7 +19,7 @@ from valohai_cli.utils.cli_utils import HelpfulArgument
     nargs=-1,
     cls=HelpfulArgument,
 )
-@click.option("--all", default=None, is_flag=True, help="Stop all in-progress executions.")
+@click.option("--all", is_flag=True, help="Stop all in-progress executions.")
 @click.command()
 def stop(
     counters: list[str] | tuple[str] | None = None,

@@ -14,10 +14,17 @@ from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
 from valohai_cli.utils.commits import create_or_resolve_commit
 
+run_epilog = (
+    "More detailed help (e.g. how to define parameters and inputs) is available when you have "
+    "defined which pipeline to run. For instance, if you have a pipeline called Science, "
+    'try running "vh exec run Science --help". (This is denoted by PIPELINE-OPTIONS... in the usage.)'
+)
+
 
 @click.command(
     context_settings={"ignore_unknown_options": True},
     add_help_option=False,
+    epilog=run_epilog,
 )
 @click.argument(
     "name",
@@ -33,7 +40,7 @@ from valohai_cli.utils.commits import create_or_resolve_commit
 )
 @click.option(
     "--title",
-    "-c",
+    "-t",
     default=None,
     help="The optional title of the pipeline run.",
 )
