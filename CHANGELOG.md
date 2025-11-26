@@ -1,5 +1,14 @@
 ### Changelog
 
+#### [v0.34.0](https://github.com/valohai/valohai-cli/compare/v0.33.0...v0.34.0)
+
+> 26 November 2025
+
+- Add --version option
+- Drop support for Python 3.8
+- Get output files with pagination [`#348`](https://github.com/valohai/valohai-cli/pull/348)
+- Improve documentation
+
 #### [v0.33.0](https://github.com/valohai/valohai-cli/compare/v0.32.0...v0.33.0)
 
 > 4 June 2025
