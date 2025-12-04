@@ -21,6 +21,7 @@ run_epilog = (
 
 
 EMPTY_DICT_PLACEHOLDER = object()
+EMPTY_LIST_PLACEHOLDER = object()
 
 
 @click.command(
@@ -40,7 +41,7 @@ EMPTY_DICT_PLACEHOLDER = object()
     "--environment",
     "-e",
     default=None,
-    help='The environment UUID or slug to use (see "vh environment list")',
+    help='The environment UUID or slug to use (see "vh environments")',
 )
 @click.option(
     "--environment-variable-groups",
@@ -179,6 +180,17 @@ EMPTY_DICT_PLACEHOLDER = object()
     default=None,
     help="Kubernetes only. Custom runtime config preset UUID",
 )
+@click.option(
+    "--k8s-cache-volume",
+    "k8s_cache_volumes",
+    multiple=True,
+    help="Kubernetes only. PVC name for cache volume. May be repeated.",
+)
+@click.option(
+    "--k8s-cache-volume-none",
+    is_flag=True,
+    help="Kubernetes only. Request no cache volumes, not even if there is a default",
+)
 @click.argument(
     "args",
     nargs=-1,
@@ -216,6 +228,8 @@ def run(
     k8s_devices: list[str],
     k8s_device_none: bool,
     k8s_preset: str | None,
+    k8s_cache_volumes: list[str],
+    k8s_cache_volume_none: bool,
     ssh: bool = False,
 ) -> Any:
     """
@@ -278,11 +292,12 @@ def run(
 
     time_limit = step.time_limit.total_seconds() if step.time_limit else None
 
-    if k8s_devices and k8s_device_none:
-        raise click.UsageError(
-            "--k8s-device=(...) and --k8s-device-none cannot be used together. "
-            "Using --k8s-device=(...) will discard all Kubernetes device default values on its own.",
-        )
+    validate_kubernetes_option_exclusivity(
+        k8s_devices=k8s_devices,
+        k8s_device_none=k8s_device_none,
+        k8s_cache_volumes=k8s_cache_volumes,
+        k8s_cache_volume_none=k8s_cache_volume_none,
+    )
 
     kubernetes_dict = recursive_compact_kubernetes_dict({
         "containers": {
@@ -295,20 +310,20 @@ def run(
                     "limits": {
                         "cpu": k8s_cpu_max or step.resources.cpu.max,
                         "memory": k8s_memory_max or step.resources.memory.max,
-                        "devices": (
-                            parse_environment_variable_strings(k8s_devices, coerce=int)
-                            if k8s_devices
-                            else EMPTY_DICT_PLACEHOLDER
-                            if k8s_device_none
-                            else EMPTY_DICT_PLACEHOLDER
-                            if isinstance(step.resources.devices.devices, dict)
-                            and step.resources.devices.devices == {}
-                            else step.resources.devices.devices
+                        "devices": resolve_k8s_devices(
+                            k8s_devices,
+                            k8s_device_none,
+                            step.resources.devices.devices,
                         ),
                     },
                 },
             },
         },
+        "cache_volumes": resolve_k8s_cache_volumes(
+            k8s_cache_volumes,
+            k8s_cache_volume_none,
+            step.cache_volumes,
+        ),
     })
     if kubernetes_dict:
         runtime_config["kubernetes"] = kubernetes_dict
@@ -345,13 +360,62 @@ def print_step_list(ctx: click.Context, commit: str | None) -> None:
                 click.echo(f"   * {step}", color=ctx.color)
 
 
+def validate_kubernetes_option_exclusivity(
+    *,
+    k8s_devices: list[str],
+    k8s_device_none: bool,
+    k8s_cache_volumes: list[str],
+    k8s_cache_volume_none: bool,
+) -> None:
+    if k8s_devices and k8s_device_none:
+        raise click.UsageError(
+            "--k8s-device=(...) and --k8s-device-none cannot be used together. "
+            "Using --k8s-device=(...) will discard all Kubernetes device default values on its own.",
+        )
+    if k8s_cache_volumes and k8s_cache_volume_none:
+        raise click.UsageError(
+            "--k8s-cache-volume=(...) and --k8s-cache-volume-none cannot be used together. "
+            "Using --k8s-cache-volume=(...) will discard all cache volume default values on its own.",
+        )
+
+
+def resolve_k8s_devices(
+    k8s_devices: list[str],
+    k8s_device_none: bool,
+    step_devices: dict | None,
+) -> dict | object:
+    if k8s_devices:
+        return parse_environment_variable_strings(k8s_devices, coerce=int)
+    if k8s_device_none:
+        return EMPTY_DICT_PLACEHOLDER
+    if step_devices == {}:
+        return EMPTY_DICT_PLACEHOLDER
+    return step_devices
+
+
+def resolve_k8s_cache_volumes(
+    k8s_cache_volumes: list[str],
+    k8s_cache_volume_none: bool,
+    step_cache_volumes: list[str] | None,
+) -> list[dict[str, str]] | object:
+    if k8s_cache_volumes:
+        return [{"pvc_name": pvc_name} for pvc_name in k8s_cache_volumes]
+    if k8s_cache_volume_none:
+        return EMPTY_LIST_PLACEHOLDER
+    if step_cache_volumes:
+        return [{"pvc_name": pvc_name} for pvc_name in step_cache_volumes]
+    return []
+
+
 def recursive_compact_kubernetes_dict(dct: dict) -> dict:
-    ret = {}
+    ret: dict = {}
     for key, value in dct.items():
         if isinstance(value, dict):
             value = recursive_compact_kubernetes_dict(value)
-        if key and value not in [None, {}]:
-            if value is EMPTY_DICT_PLACEHOLDER:
-                value = {}
+        if value is EMPTY_DICT_PLACEHOLDER:
+            ret[key] = {}
+        elif value is EMPTY_LIST_PLACEHOLDER:
+            ret[key] = []
+        elif key and value not in [None, {}, []]:
             ret[key] = value
     return ret

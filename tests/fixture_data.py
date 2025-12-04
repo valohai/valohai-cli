@@ -773,6 +773,18 @@ KUBE_RESOURCE_YAML = """
         path: model.h5
 """
 
+CACHE_VOLUME_YAML = """
+---
+
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+    cache-volumes:
+      - default-cache-pvc
+      - another-cache-pvc
+"""
+
 STATUS_EVENT_RESPONSE_DATA = {
     "total": 2,
     "status_events": [
