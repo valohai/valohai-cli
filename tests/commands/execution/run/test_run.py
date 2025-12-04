@@ -13,11 +13,6 @@ from valohai_cli.models.project import Project
 adhoc_mark = pytest.mark.parametrize("adhoc", (False, True), ids=("regular", "adhoc"))
 
 
-@pytest.fixture(params=["regular", "adhoc"], ids=("regular", "adhoc"))
-def run_test_setup(request, logged_in_and_linked, monkeypatch):
-    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == "adhoc"))
-
-
 @pytest.fixture()
 def patch_git(monkeypatch):
     def mock_resolve_commits(mock_self, *, commit_identifier):

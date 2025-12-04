@@ -5,11 +5,6 @@ from tests.fixture_data import KUBE_RESOURCE_YAML
 
 
 @pytest.fixture(params=["regular", "adhoc"], ids=("regular", "adhoc"))
-def run_test_setup(request, logged_in_and_linked, monkeypatch):
-    return RunTestSetup(monkeypatch=monkeypatch, adhoc=(request.param == "adhoc"))
-
-
-@pytest.fixture(params=["regular", "adhoc"], ids=("regular", "adhoc"))
 def run_test_setup_kube(request, logged_in_and_linked, monkeypatch):
     return RunTestSetup(
         monkeypatch=monkeypatch,
