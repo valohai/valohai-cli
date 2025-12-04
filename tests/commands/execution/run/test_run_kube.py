@@ -53,10 +53,10 @@ def test_kube_options_partial(run_test_setup: RunTestSetup):
     }
 
 
-def test_kube_options_from_step(run_test_setup_kube: RunTestSetup):
-    run_test_setup_kube.run()
+def test_kube_options_from_step(run_test_setup_resources: RunTestSetup):
+    run_test_setup_resources.run()
 
-    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    payload = run_test_setup_resources.run_api_mock.last_create_execution_payload
     assert payload
     assert payload["runtime_config"] == {
         "kubernetes": {
@@ -81,13 +81,13 @@ def test_kube_options_from_step(run_test_setup_kube: RunTestSetup):
     }
 
 
-def test_kube_step_overrides(run_test_setup_kube: RunTestSetup):
-    run_test_setup_kube.args.append("--k8s-cpu-min=1.5")
-    run_test_setup_kube.args.append("--k8s-cpu-max=3")
-    run_test_setup_kube.args.append("--k8s-device=amd.com/gpu=1")
-    run_test_setup_kube.run()
+def test_kube_step_overrides(run_test_setup_resources: RunTestSetup):
+    run_test_setup_resources.args.append("--k8s-cpu-min=1.5")
+    run_test_setup_resources.args.append("--k8s-cpu-max=3")
+    run_test_setup_resources.args.append("--k8s-device=amd.com/gpu=1")
+    run_test_setup_resources.run()
 
-    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    payload = run_test_setup_resources.run_api_mock.last_create_execution_payload
     assert payload
     assert payload["runtime_config"] == {
         "kubernetes": {
@@ -112,11 +112,11 @@ def test_kube_step_overrides(run_test_setup_kube: RunTestSetup):
     }
 
 
-def test_kube_step_override_device_empty(run_test_setup_kube: RunTestSetup):
-    run_test_setup_kube.args.append("--k8s-device-none")
-    run_test_setup_kube.run()
+def test_kube_step_override_device_empty(run_test_setup_resources: RunTestSetup):
+    run_test_setup_resources.args.append("--k8s-device-none")
+    run_test_setup_resources.run()
 
-    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    payload = run_test_setup_resources.run_api_mock.last_create_execution_payload
     assert payload
     assert payload["runtime_config"] == {
         "kubernetes": {
@@ -139,17 +139,17 @@ def test_kube_step_override_device_empty(run_test_setup_kube: RunTestSetup):
     }
 
 
-def test_kube_runtime_config_preset_argument(run_test_setup_kube: RunTestSetup):
+def test_kube_runtime_config_preset_argument(run_test_setup_resources: RunTestSetup):
     preset_uuid = "yes-this-is-my-preset-uuid"
-    run_test_setup_kube.args.append(f"--k8s-preset={preset_uuid}")
-    run_test_setup_kube.run()
+    run_test_setup_resources.args.append(f"--k8s-preset={preset_uuid}")
+    run_test_setup_resources.run()
 
-    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    payload = run_test_setup_resources.run_api_mock.last_create_execution_payload
     assert payload and payload["runtime_config_preset"] == preset_uuid
 
 
-def test_kube_no_runtime_config_preset_argument(run_test_setup_kube: RunTestSetup):
+def test_kube_no_runtime_config_preset_argument(run_test_setup_resources: RunTestSetup):
     """Only add the preset to payload when explicitly specified."""
-    run_test_setup_kube.run()
-    payload = run_test_setup_kube.run_api_mock.last_create_execution_payload
+    run_test_setup_resources.run()
+    payload = run_test_setup_resources.run_api_mock.last_create_execution_payload
     assert payload and "runtime_config_preset" not in payload
