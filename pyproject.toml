@@ -18,7 +18,7 @@ dependencies = [
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
     "valohai-utils>=0.5.0",
-    "valohai-yaml>=0.43.0",
+    "valohai-yaml>=0.51.0",
 ]
 
 [project.optional-dependencies]
