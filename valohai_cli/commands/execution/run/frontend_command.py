@@ -295,15 +295,10 @@ def run(
                     "limits": {
                         "cpu": k8s_cpu_max or step.resources.cpu.max,
                         "memory": k8s_memory_max or step.resources.memory.max,
-                        "devices": (
-                            parse_environment_variable_strings(k8s_devices, coerce=int)
-                            if k8s_devices
-                            else EMPTY_DICT_PLACEHOLDER
-                            if k8s_device_none
-                            else EMPTY_DICT_PLACEHOLDER
-                            if isinstance(step.resources.devices.devices, dict)
-                            and step.resources.devices.devices == {}
-                            else step.resources.devices.devices
+                        "devices": resolve_k8s_devices(
+                            k8s_devices,
+                            k8s_device_none,
+                            step.resources.devices.devices,
                         ),
                     },
                 },
@@ -343,6 +338,20 @@ def print_step_list(ctx: click.Context, commit: str | None) -> None:
             click.secho("\nThese steps are available in the selected commit:\n", color=ctx.color, bold=True)
             for step in sorted(config.steps):
                 click.echo(f"   * {step}", color=ctx.color)
+
+
+def resolve_k8s_devices(
+    k8s_devices: list[str],
+    k8s_device_none: bool,
+    step_devices: dict | None,
+) -> dict | object:
+    if k8s_devices:
+        return parse_environment_variable_strings(k8s_devices, coerce=int)
+    if k8s_device_none:
+        return EMPTY_DICT_PLACEHOLDER
+    if step_devices == {}:
+        return EMPTY_DICT_PLACEHOLDER
+    return step_devices
 
 
 def recursive_compact_kubernetes_dict(dct: dict) -> dict:
