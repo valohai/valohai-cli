@@ -137,30 +137,30 @@ def run(
 def process_args(args: list[str]) -> dict[str, str | list]:
     args_dict: dict[str, str | list] = {}
     for i, arg in enumerate(args):
-        if arg.startswith("--"):
-            arg_name = arg.lstrip("-")
-            if "+=" in arg_name:  # --param+=value
-                name, value = arg_name.split("+=", 1)
-                value_list: list | str = args_dict.get(name) or []
-                if not isinstance(value_list, list):
-                    raise click.UsageError(f'[{name}] Cannot mix "+=" with other parameter assignments')
-                value_list.append(value)
-                args_dict[name] = value_list
-            elif "=" in arg_name:  # --param=value
-                name, value = arg_name.split("=", 1)
-                if name in args_dict:
-                    raise click.UsageError(f"[{name}] Parameter assigned more than once")
-                args_dict[name] = value
-            else:  # --param value
-                if arg_name in args_dict:
-                    raise click.UsageError(f"[{arg_name}] Parameter assigned more than once")
-                next_arg_idx = i + 1
-                if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
-                    args_dict[arg_name] = args[next_arg_idx]
-                else:  # --param --param2 --param3 (flag)
-                    args_dict[arg_name] = (
-                        "true"  # doesn't support bool as we are using strings for pipeline parameters
-                    )
+        if not arg.startswith("--"):
+            continue
+        arg_name = arg.lstrip("-")
+        if "+=" in arg_name:  # --param+=value
+            name, value = arg_name.split("+=", 1)
+            value_list: list | str = args_dict.get(name) or []
+            if not isinstance(value_list, list):
+                raise click.UsageError(f'[{name}] Cannot mix "+=" with other parameter assignments')
+            value_list.append(value)
+            args_dict[name] = value_list
+        elif "=" in arg_name:  # --param=value
+            name, value = arg_name.split("=", 1)
+            if name in args_dict:
+                raise click.UsageError(f"[{name}] Parameter assigned more than once")
+            args_dict[name] = value
+        else:  # --param value
+            if arg_name in args_dict:
+                raise click.UsageError(f"[{arg_name}] Parameter assigned more than once")
+            next_arg_idx = i + 1
+            if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
+                args_dict[arg_name] = args[next_arg_idx]
+            else:  # --param --param2 --param3 (flag)
+                # All stringly typed
+                args_dict[arg_name] = "true"
     return args_dict
 
 
