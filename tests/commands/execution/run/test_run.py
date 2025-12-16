@@ -8,17 +8,8 @@ from tests.commands.run_test_utils import ALTERNATIVE_YAML, RunTestSetup
 from tests.fixture_data import CONFIG_YAML
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
-from valohai_cli.models.project import Project
 
 adhoc_mark = pytest.mark.parametrize("adhoc", (False, True), ids=("regular", "adhoc"))
-
-
-@pytest.fixture()
-def patch_git(monkeypatch):
-    def mock_resolve_commits(mock_self, *, commit_identifier):
-        return [{"identifier": commit_identifier}]
-
-    monkeypatch.setattr(Project, "resolve_commits", mock_resolve_commits)
 
 
 def test_run_requires_step(runner, logged_in_and_linked):
@@ -297,7 +288,7 @@ def test_priority(run_test_setup, val):
     assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
 
 
-@pytest.mark.parametrize("has_flag", (False, True))
+@pytest.mark.parametrize("has_flag", (False, True), ids=("no-flag", "with-flag"))
 def test_implicit_priority(run_test_setup, has_flag):
     if has_flag:
         run_test_setup.args.append("--priority")
