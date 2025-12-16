@@ -9,7 +9,7 @@ from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
 
 
-def test_pipeline_run_success(runner, logged_in_and_linked, using_default_run_api_mock):
+def test_pipeline_run_success(runner, logged_in_and_linked, using_default_run_api_mock, patch_git):
     add_valid_pipeline_yaml()
     args = ["training"]
     output = runner.invoke(run, args).output

@@ -1,12 +1,15 @@
+import secrets
+
 import pytest
 from click.testing import CliRunner
 
 from tests.commands.run_test_utils import RunAPIMock
 from tests.fixture_data import LOGGED_IN_DATA, PROJECT_DATA
 from tests.stub_git import StubGit
+from valohai_cli.models.project import Project
 from valohai_cli.settings import settings
 from valohai_cli.settings.persistence import Persistence
-from valohai_cli.utils import get_project_directory
+from valohai_cli.utils import commits, get_project_directory
 
 pytest.register_assert_rewrite("tests.commands.execution.run_test_utils")
 
@@ -66,3 +69,17 @@ def stub_git(tmp_path_factory) -> StubGit:
 def using_default_run_api_mock() -> RunAPIMock:  # type: ignore[misc]
     with RunAPIMock() as am:
         yield am
+
+
+@pytest.fixture()
+def patch_git(monkeypatch):
+    patched_commit_id = secrets.token_hex(32)
+
+    def mock_resolve_commits(mock_self, *, commit_identifier):
+        return [{"identifier": commit_identifier}]
+
+    def get_git_commit(project):
+        return patched_commit_id
+
+    monkeypatch.setattr(Project, "resolve_commits", mock_resolve_commits)
+    monkeypatch.setattr(commits, "get_git_commit", get_git_commit)

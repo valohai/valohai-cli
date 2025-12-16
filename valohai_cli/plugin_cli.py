@@ -17,7 +17,7 @@ from valohai_cli.utils.cli_utils import join_with_style
 from valohai_cli.utils.matching import match_prefix
 
 
-class PluginCLI(click.MultiCommand):
+class PluginCLI(click.Group):
     aliases = {
         "add": "create",
         "nb": "notebook",
@@ -122,16 +122,16 @@ class PluginCLI(click.MultiCommand):
 
 def walk_commands(
     ctx: click.Context,
-    multicommand: click.MultiCommand,
+    group: click.Group,
     name_trail: tuple[str, ...] = (),
 ) -> Iterable[tuple[tuple[str, ...], Command]]:
-    for subcommand in multicommand.list_commands(ctx):
-        cmd = multicommand.get_command(ctx, subcommand)
+    for subcommand in group.list_commands(ctx):
+        cmd = group.get_command(ctx, subcommand)
         if not (cmd and cmd.name):
             continue
         new_name_trail = name_trail + (cmd.name,)
         yield (new_name_trail, cmd)
-        if isinstance(cmd, click.MultiCommand):
+        if isinstance(cmd, click.Group):
             yield from walk_commands(ctx, cmd, new_name_trail)
 
 

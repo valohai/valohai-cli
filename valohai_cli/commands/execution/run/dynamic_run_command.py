@@ -19,7 +19,6 @@ from valohai_cli.messages import success, warn
 from valohai_cli.models.project import Project
 from valohai_cli.utils import humanize_identifier, sanitize_option_name
 from valohai_cli.utils.file_input import read_data_file
-from valohai_cli.utils.friendly_option_parser import FriendlyOptionParser
 
 from ..ssh import ssh
 from .excs import ExecutionCreationAPIError
@@ -306,11 +305,3 @@ class RunCommand(click.Command):
                     missing_required_parameters.add(name)
         if missing_required_parameters:
             raise CLIException(f"Required parameters missing: {missing_required_parameters}")
-
-    def make_parser(self, ctx: Context) -> FriendlyOptionParser:
-        parser: FriendlyOptionParser = super().make_parser(ctx)  # type: ignore[assignment]
-        # This is somewhat naughty, but allows us to easily hook into here.
-        # Besides, FriendlyOptionParser does inherit from OptionParser anyway,
-        # and just overrides that one piece of behavior...
-        parser.__class__ = FriendlyOptionParser
-        return parser
