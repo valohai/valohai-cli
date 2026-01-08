@@ -1,6 +1,6 @@
 import requests_mock
 
-from tests.fixture_data import EXECUTION_DETAIL_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA
 from valohai_cli.commands.execution.list import list
 
 

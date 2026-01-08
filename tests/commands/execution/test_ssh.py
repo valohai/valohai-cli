@@ -3,7 +3,7 @@ import subprocess
 import time
 
 from tests.commands.execution.utils import get_execution_data_mock, no_sleep
-from tests.fixture_data import EXECUTION_DETAIL_DATA, STATUS_EVENT_RESPONSE_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA, STATUS_EVENT_RESPONSE_DATA
 from valohai_cli.commands.execution.ssh import ssh
 
 

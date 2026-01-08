@@ -1,6 +1,6 @@
 import requests_mock
 
-from tests.fixture_data import DATUM_DATA
+from tests.fixtures.data import DATUM_DATA
 from valohai_cli.commands.data.list import list
 
 

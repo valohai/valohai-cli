@@ -4,7 +4,7 @@ import click.exceptions
 import pytest
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA
+from tests.fixtures.data import PROJECT_DATA
 from valohai_cli.models.project import Project
 from valohai_cli.utils.commits import resolve_commit
 

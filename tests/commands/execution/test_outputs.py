@@ -3,7 +3,7 @@ import os
 import pytest
 
 from tests.commands.execution.utils import get_execution_data_mock
-from tests.fixture_data import EXECUTION_DETAIL_DATA, OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA, OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA
 from valohai_cli.commands.execution.outputs import outputs
 
 

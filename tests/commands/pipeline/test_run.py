@@ -2,7 +2,8 @@ from click import BadParameter
 from pytest import raises
 
 from tests.commands.run_test_utils import RunAPIMock
-from tests.fixture_data import PIPELINE_WITH_TASK_EXAMPLE, PIPELINE_YAML, PROJECT_DATA
+from tests.fixtures.config import PIPELINE_WITH_TASK_EXAMPLE, PIPELINE_YAML
+from tests.fixtures.data import PROJECT_DATA
 from tests.utils import write_yaml_config
 from valohai_cli.commands.pipeline.run import run
 from valohai_cli.commands.pipeline.run.utils import match_pipeline

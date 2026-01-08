@@ -1,6 +1,6 @@
 import pytest
 
-from tests.fixture_data import NOTEBOOK_EXECUTION_DATA
+from tests.fixtures.data import NOTEBOOK_EXECUTION_DATA
 from valohai_cli.commands.notebook.run import run
 from valohai_cli.consts import API_DEFAULT_ENVIRONMENT_SLUG
 

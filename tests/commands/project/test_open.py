@@ -2,7 +2,7 @@ import webbrowser
 
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA
+from tests.fixtures.data import PROJECT_DATA
 from tests.utils import make_call_stub
 from valohai_cli.commands.project.open import open
 

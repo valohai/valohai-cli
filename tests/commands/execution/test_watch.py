@@ -1,7 +1,7 @@
 import time
 
 from tests.commands.execution.utils import get_execution_data_mock, no_sleep
-from tests.fixture_data import EXECUTION_DETAIL_DATA, PROJECT_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA, PROJECT_DATA
 from valohai_cli.commands.execution.watch import watch
 
 

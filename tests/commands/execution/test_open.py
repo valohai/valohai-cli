@@ -1,7 +1,7 @@
 import webbrowser
 
 from tests.commands.execution.utils import get_execution_data_mock
-from tests.fixture_data import EXECUTION_DETAIL_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA
 from tests.utils import make_call_stub
 from valohai_cli.commands.execution.open import open
 

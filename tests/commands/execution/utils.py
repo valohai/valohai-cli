@@ -3,7 +3,7 @@ from re import Pattern
 
 import requests_mock
 
-from tests.fixture_data import (
+from tests.fixtures.data import (
     EVENT_RESPONSE_DATA,
     EXECUTION_DETAIL_DATA,
     OUTPUT_DATUM_DATA,

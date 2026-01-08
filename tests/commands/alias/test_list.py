@@ -1,6 +1,6 @@
 import requests_mock
 
-from tests.fixture_data import DATUM_ALIAS_DATA
+from tests.fixtures.data import DATUM_ALIAS_DATA
 from valohai_cli.commands.alias.list import list
 
 
