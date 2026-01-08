@@ -5,7 +5,7 @@ import pytest
 import yaml
 
 from tests.commands.run_test_utils import ALTERNATIVE_YAML, RunTestSetup
-from tests.fixture_data import CONFIG_YAML
+from tests.fixtures.config import CONFIG_YAML
 from valohai_cli.commands.execution.run import run
 from valohai_cli.ctx import get_project
 from valohai_cli.models.project import Project

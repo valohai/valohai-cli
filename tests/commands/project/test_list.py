@@ -1,6 +1,6 @@
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA
+from tests.fixtures.data import PROJECT_DATA
 from valohai_cli.commands.project.list import list
 
 

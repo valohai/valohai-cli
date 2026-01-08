@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from tests.fixture_data import BROKEN_CONFIG_YAML, CONFIG_YAML, INVALID_CONFIG_YAML
+from tests.fixtures.config import BROKEN_CONFIG_YAML, CONFIG_YAML, INVALID_CONFIG_YAML
 from valohai_cli.commands.lint import lint
 from valohai_cli.utils import get_project_directory
 

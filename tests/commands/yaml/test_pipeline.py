@@ -3,12 +3,8 @@ import os
 import pytest
 
 from tests.commands.yaml.utils import build_args
-from tests.fixture_data import (
-    PYTHON_SOURCE,
-    PYTHON_SOURCE_DEFINING_PIPELINE,
-    YAML_WITH_EXTRACT_TRAIN_EVAL,
-    YAML_WITH_TRAIN_EVAL,
-)
+from tests.fixtures.code import PYTHON_SOURCE, PYTHON_SOURCE_DEFINING_PIPELINE
+from tests.fixtures.config import YAML_WITH_EXTRACT_TRAIN_EVAL, YAML_WITH_TRAIN_EVAL
 from valohai_cli.commands.yaml.pipeline import pipeline
 from valohai_cli.ctx import get_project
 

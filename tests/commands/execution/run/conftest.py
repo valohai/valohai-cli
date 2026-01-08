@@ -1,7 +1,7 @@
 import pytest
 
 from tests.commands.run_test_utils import RunTestSetup
-from tests.fixture_data import CACHE_VOLUME_YAML, KUBE_RESOURCE_YAML
+from tests.fixtures.config import CACHE_VOLUME_YAML, KUBE_RESOURCE_YAML
 
 
 @pytest.fixture(params=["regular", "adhoc"], ids=("regular", "adhoc"))

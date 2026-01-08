@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import pytest
 import requests_mock
 
-from tests.fixture_data import PROJECT_DATA
+from tests.fixtures.data import PROJECT_DATA
 from valohai_cli.commands.project.environment_variables.create import create
 from valohai_cli.commands.project.environment_variables.delete import delete
 from valohai_cli.commands.project.environment_variables.list import list

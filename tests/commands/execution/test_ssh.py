@@ -3,21 +3,21 @@ import subprocess
 import time
 
 from tests.commands.execution.utils import get_execution_data_mock, no_sleep
-from tests.fixture_data import EXECUTION_DATA, STATUS_EVENT_RESPONSE_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA, STATUS_EVENT_RESPONSE_DATA
 from valohai_cli.commands.execution.ssh import ssh
 
 
 def test_ssh_in_completed_execution(runner, logged_in_and_linked, monkeypatch):
     with get_execution_data_mock():
-        counter = EXECUTION_DATA["counter"]
+        counter = EXECUTION_DETAIL_DATA["counter"]
         result = runner.invoke(ssh, [str(counter)], catch_exceptions=False)
         assert f"Error: Execution #{counter} is complete. Cannot SSH into it.\n" in result.output
         assert result.exit_code == 1
 
 
 def test_ssh_in_queued_execution(runner, logged_in_and_linked, monkeypatch):
-    counter = EXECUTION_DATA["counter"]
-    monkeypatch.setitem(EXECUTION_DATA, "status", "queued")
+    counter = EXECUTION_DETAIL_DATA["counter"]
+    monkeypatch.setitem(EXECUTION_DETAIL_DATA, "status", "queued")
     monkeypatch.setattr(time, "sleep", no_sleep)
     with get_execution_data_mock():
         result = runner.invoke(ssh, [str(counter)], catch_exceptions=False)
@@ -26,12 +26,12 @@ def test_ssh_in_queued_execution(runner, logged_in_and_linked, monkeypatch):
 
 
 def test_ssh_with_no_ssh_details_present(runner, logged_in_and_linked, monkeypatch):
-    counter = EXECUTION_DATA["counter"]
-    monkeypatch.setitem(EXECUTION_DATA, "status", "started")
+    counter = EXECUTION_DETAIL_DATA["counter"]
+    monkeypatch.setitem(EXECUTION_DETAIL_DATA, "status", "started")
     monkeypatch.setattr(time, "sleep", lambda x: None)
     with get_execution_data_mock() as m:
         m.get(
-            f"https://app.valohai.com/api/v0/executions/{EXECUTION_DATA['id']}/status-events/",
+            f"https://app.valohai.com/api/v0/executions/{EXECUTION_DETAIL_DATA['id']}/status-events/",
             json={"status_events": []},
         )
         result = runner.invoke(ssh, [str(counter)], catch_exceptions=False)
@@ -46,8 +46,8 @@ def test_ssh_with_no_ssh_details_present(runner, logged_in_and_linked, monkeypat
 
 
 def test_ssh(runner, logged_in_and_linked, monkeypatch, tmp_path):
-    counter = EXECUTION_DATA["counter"]
-    monkeypatch.setitem(EXECUTION_DATA, "status", "started")
+    counter = EXECUTION_DETAIL_DATA["counter"]
+    monkeypatch.setitem(EXECUTION_DETAIL_DATA, "status", "started")
 
     def mock_prompt():
         return tmp_path
@@ -59,7 +59,7 @@ def test_ssh(runner, logged_in_and_linked, monkeypatch, tmp_path):
 
     with get_execution_data_mock() as m:
         m.get(
-            f"https://app.valohai.com/api/v0/executions/{EXECUTION_DATA['id']}/status-events/",
+            f"https://app.valohai.com/api/v0/executions/{EXECUTION_DETAIL_DATA['id']}/status-events/",
             json=STATUS_EVENT_RESPONSE_DATA,
         )
         result = runner.invoke(ssh, [str(counter)], catch_exceptions=False)

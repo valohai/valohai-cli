@@ -2,7 +2,7 @@ import pytest
 from click.testing import CliRunner
 
 from tests.commands.run_test_utils import RunAPIMock
-from tests.fixture_data import LOGGED_IN_DATA, PROJECT_DATA
+from tests.fixtures.data import LOGGED_IN_DATA, PROJECT_DATA
 from tests.stub_git import StubGit
 from valohai_cli.settings import settings
 from valohai_cli.settings.persistence import Persistence

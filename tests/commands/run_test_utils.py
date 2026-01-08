@@ -7,17 +7,16 @@ from functools import cached_property
 from typing import Any
 
 import requests_mock
+import yaml
 from click.testing import CliRunner
 
-from tests.fixture_data import (
-    CONFIG_DATA,
-    CONFIG_YAML,
+from tests.fixtures.config import CONFIG_YAML, PIPELINE_YAML, YAML_WITH_EXTRACT_TRAIN_EVAL
+from tests.fixtures.data import (
     DEPLOYMENT_VERSION_DATA,
-    EXECUTION_DATA,
+    EXECUTION_DETAIL_DATA,
     NOTEBOOK_EXECUTION_DATA,
     PIPELINE_DATA,
     PROJECT_DATA,
-    YAML_WITH_EXTRACT_TRAIN_EVAL,
 )
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
@@ -141,8 +140,12 @@ class RunAPIMock(requests_mock.Mocker):
             "identifier": self.commit_id,
             "commit_time": datetime.datetime.now().isoformat(),
             "url": f"/api/v0/commits/{self.commit_id}/",
-            "config": CONFIG_DATA,
+            "config": self.commit_config_data.copy(),
         }
+
+    @cached_property
+    def commit_config_data(self) -> dict[str, Any]:
+        return yaml.safe_load(PIPELINE_YAML)
 
     def handle_create_execution(self, request, context):
         body_json = json.loads(request.body.decode("utf-8"))
@@ -154,7 +157,7 @@ class RunAPIMock(requests_mock.Mocker):
             assert body_value == expected_value, f"body[{key}] = {body_value!r}, expected {expected_value!r}"
         context.status_code = 201
         self.last_create_execution_payload = body_json
-        return EXECUTION_DATA.copy()
+        return EXECUTION_DETAIL_DATA.copy()
 
     def handle_create_deployment_version(self, request, context):
         body_json = json.loads(request.body.decode("utf-8"))
@@ -238,5 +241,5 @@ class RunTestSetup:
             if verify_adhoc:
                 # Making sure that non-adhoc executions don't turn adhoc or vice versa.
                 assert ("Uploaded ad-hoc code" in output) == self.adhoc
-                assert f"#{EXECUTION_DATA['counter']}" in output
+                assert f"#{EXECUTION_DETAIL_DATA['counter']}" in output
         return output

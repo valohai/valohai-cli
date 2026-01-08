@@ -1,7 +1,7 @@
 import pytest
 import requests_mock
 
-from tests.fixture_data import EXECUTION_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA
 from valohai_cli.commands.execution.stop import stop
 
 
@@ -12,20 +12,20 @@ def test_stop_requires_arg(runner, logged_in_and_linked):
 
 @pytest.mark.parametrize("latest", (False, True))
 def test_stop(runner, logged_in_and_linked, latest):
-    counter = EXECUTION_DATA["counter"]
+    counter = EXECUTION_DETAIL_DATA["counter"]
 
     with requests_mock.mock() as m:
         m.get(
             "https://app.valohai.com/api/v0/executions/",
             json={
-                "results": [EXECUTION_DATA],
+                "results": [EXECUTION_DETAIL_DATA],
             },
         )
         m.get(
-            f'https://app.valohai.com/api/v0/executions/{EXECUTION_DATA["project"]["id"]}:latest/',
-            json=EXECUTION_DATA,
+            f'https://app.valohai.com/api/v0/executions/{EXECUTION_DETAIL_DATA["project"]["id"]}:latest/',
+            json=EXECUTION_DETAIL_DATA,
         )
-        m.post(EXECUTION_DATA["urls"]["stop"], json={"message": "OK"})
+        m.post(EXECUTION_DETAIL_DATA["urls"]["stop"], json={"message": "OK"})
 
         args = ["latest"] if latest else [str(counter)]
         output = runner.invoke(stop, args, catch_exceptions=False).output

@@ -1,12 +1,12 @@
 import requests_mock
 
-from tests.fixture_data import EXECUTION_DATA, PROJECT_DATA
+from tests.fixtures.data import EXECUTION_DETAIL_DATA, PROJECT_DATA
 from valohai_cli.commands.project.fetch import fetch
 
 
 def test_fetch(runner, logged_in_and_linked):
     with requests_mock.mock() as m:
-        commit_data = EXECUTION_DATA["commit"]
+        commit_data = EXECUTION_DETAIL_DATA["commit"]
         m.post(
             f"https://app.valohai.com/api/v0/projects/{PROJECT_DATA['id']}/fetch/",
             json={
