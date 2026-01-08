@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import contextlib
+import dataclasses
 from typing import Any
 
 import click
 from click import Context
-from valohai_yaml.objs import Config, Pipeline
-from valohai_yaml.pipelines.conversion import PipelineConverter
+from valohai_yaml.objs import Config, ExecutionNode, Pipeline, TaskNode
+from valohai_yaml.pipelines.conversion import ConvertedPipeline, PipelineConverter
+from valohai_yaml.utils import listify
 
 from valohai_cli.api import request
 from valohai_cli.commands.pipeline.run.utils import match_pipeline
@@ -134,34 +136,100 @@ def run(
     )
 
 
-def process_args(args: list[str]) -> dict[str, str | list]:
-    args_dict: dict[str, str | list] = {}
+@dataclasses.dataclass
+class ProcessedPipelineArguments:
+    pipeline_parameters: dict[str, str | list] = dataclasses.field(default_factory=dict)
+    node_parameters: dict[tuple[str, str], str | list] = dataclasses.field(default_factory=dict)
+
+
+def process_args(args: list[str]) -> ProcessedPipelineArguments:  # noqa: C901
+    ppa = ProcessedPipelineArguments()
+    actions = []
     for i, arg in enumerate(args):
-        if arg.startswith("--"):
-            arg_name = arg.lstrip("-")
-            if "+=" in arg_name:  # --param+=value
-                name, value = arg_name.split("+=", 1)
-                value_list: list | str = args_dict.get(name) or []
-                if not isinstance(value_list, list):
-                    raise click.UsageError(f'[{name}] Cannot mix "+=" with other parameter assignments')
-                value_list.append(value)
-                args_dict[name] = value_list
-            elif "=" in arg_name:  # --param=value
-                name, value = arg_name.split("=", 1)
-                if name in args_dict:
-                    raise click.UsageError(f"[{name}] Parameter assigned more than once")
-                args_dict[name] = value
-            else:  # --param value
-                if arg_name in args_dict:
-                    raise click.UsageError(f"[{arg_name}] Parameter assigned more than once")
-                next_arg_idx = i + 1
-                if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
-                    args_dict[arg_name] = args[next_arg_idx]
-                else:  # --param --param2 --param3 (flag)
-                    args_dict[arg_name] = (
-                        "true"  # doesn't support bool as we are using strings for pipeline parameters
-                    )
-    return args_dict
+        if not arg.startswith("--"):
+            continue
+        arg = arg.removeprefix("--")
+        if "+=" in arg:  # --param+=value
+            name, _, value = arg.partition("+=")
+            node, _, name = name.rpartition(".")
+            actions.append((node, name, "append", value))
+        elif "=" in arg:  # --param=value
+            name, _, value = arg.partition("=")
+            node, _, name = name.rpartition(".")
+            actions.append((node, name, "set", value))
+        else:  # --param value
+            node, _, name = arg.rpartition(".")
+            next_arg_idx = i + 1
+            if next_arg_idx < len(args) and not args[next_arg_idx].startswith("--"):
+                value = args[next_arg_idx]
+            else:  # --param --param2 --param3 (flag)
+                value = "true"  # Stringly typed
+            actions.append((node, name, "set", value))
+
+    for node, name, action, value in actions:
+        if node:  # Node parameter (or input)
+            key = (node, name)
+            target = ppa.node_parameters
+            display_name = f"{node}.{name}"
+        else:
+            key = name  # type: ignore[assignment]
+            target = ppa.pipeline_parameters  # type: ignore[assignment]
+            display_name = name
+
+        if action == "set":
+            if key in target:
+                raise click.UsageError(f"[{display_name}] Parameter assigned more than once")
+            target[key] = value
+        elif action == "append":
+            value_list: list | str = target.get(key) or []
+            if not isinstance(value_list, list):
+                raise click.UsageError(f'[{display_name}] Cannot mix "+=" with other parameter assignments')
+            value_list.append(value)
+            target[key] = value_list
+        else:  # pragma: no cover
+            raise ValueError("Should never happen...")
+
+    return ppa
+
+
+def assign_node_parameters(
+    *,
+    node_parameters: dict[tuple[str, str], str | list],
+    config: Config,
+    converted_pipeline: ConvertedPipeline,
+    pipeline_definition: Pipeline,
+) -> None:
+    node_definitions = pipeline_definition.node_map
+    converted_pipeline_node_map = {node["name"]: node for node in converted_pipeline["nodes"]}
+    for (node_name, param_name), value in node_parameters.items():
+        if (conv_node := converted_pipeline_node_map.get(node_name)) is None:
+            raise click.UsageError(
+                f"Node '{node_name}' not found in the pipeline (available nodes: {sorted(converted_pipeline_node_map)})",
+            )
+        if conv_node["name"] != node_name:
+            continue
+        node_defn = node_definitions[node_name]
+        if not isinstance(node_defn, (ExecutionNode, TaskNode)):
+            raise click.UsageError(f"Cannot set parameters for {node_defn.type} node '{node_name}'.")
+        step = config.get_step_by(name=node_defn.step)
+        if not step:
+            raise ValueError(f"Step '{node_defn.step}' referenced by node '{node_name}' not defined.")
+        display_name = f"{node_name}.{param_name}"
+        if param_name in step.parameters:
+            params = conv_node["template"].setdefault("parameters", {})
+            params[param_name] = value
+        elif param_name in step.inputs:
+            not_urls = [v for v in listify(value) if "://" not in str(v)]
+            if not_urls:
+                raise click.UsageError(f"{display_name}: must be valid URI(s) (invalid: {not_urls}).")
+            inputs = conv_node["template"].setdefault("inputs", {})
+            inputs[param_name] = value
+        else:
+            raise click.UsageError(
+                f"{display_name} does not refer to a parameter or input in step {step.name} (used by node {node_name}).\n"
+                f"Available parameters: {sorted(step.parameters)}.\n"
+                f"Available inputs: {sorted(step.inputs)}.",
+            )
 
 
 def print_pipeline_list(ctx: Context, commit: str | None) -> None:
@@ -192,10 +260,15 @@ def start_pipeline(
     title: str | None = None,
     override_environment: str | None = None,
 ) -> None:
-    args_dict: dict[str, str | list]
-    args_dict = process_args(args) if args else {}
+    if "--help" in args:
+        raise click.UsageError("Sorry, --help is not presently supported when a pipeline name is specified.")
+    ppa = process_args(args)
 
-    converter = PipelineConverter(config=config, commit_identifier=commit, parameter_arguments=args_dict)
+    converter = PipelineConverter(
+        config=config,
+        commit_identifier=commit,
+        parameter_arguments=ppa.pipeline_parameters,
+    )
     converted_pipeline = converter.convert_pipeline(pipeline)
 
     if override_environment:
@@ -203,7 +276,15 @@ def start_pipeline(
             if node.get("type") in ("execution", "task"):
                 node["template"]["environment"] = override_environment
 
-    unused_args = [k for k in args_dict if k not in converted_pipeline["parameters"]]
+    if ppa.node_parameters:
+        assign_node_parameters(
+            node_parameters=ppa.node_parameters,
+            config=config,
+            converted_pipeline=converted_pipeline,
+            pipeline_definition=pipeline,
+        )
+
+    unused_args = [k for k in ppa.pipeline_parameters if k not in converted_pipeline["parameters"]]
     if unused_args:
         if not converted_pipeline["parameters"]:
             raise click.UsageError(
