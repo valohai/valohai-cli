@@ -9,8 +9,18 @@ from click import BadParameter
 from valohai_yaml.objs.config import Config
 
 from valohai_cli.api import request
-from valohai_cli.exceptions import APIError, InvalidConfig, NoExecution
+from valohai_cli.exceptions import APIError, InvalidConfig, NoExecution, NoPipeline, NoSuchEntity, NoTask
 from valohai_cli.git import get_file_at_commit
+
+
+def resolve_counter(counter: int | str) -> str:
+    if isinstance(counter, str):
+        counter = counter.lstrip("=#!")
+        if not (counter.isdigit() or counter == "latest"):
+            raise BadParameter(
+                f'{counter} is not a valid counter value; it must be an integer or "latest"',
+            )
+    return str(counter)
 
 
 class Project:
@@ -68,29 +78,55 @@ class Project:
         # Make sure the older API versions that don't expose yaml_path don't completely break
         return self.data.get("yaml_path") or "valohai.yaml"
 
-    def get_execution_from_counter(
+    def _get_object_from_counter(
         self,
+        *,
+        url_part: str,
+        noun: str,
+        exc_type: type[NoSuchEntity],
         counter: int | str,
         params: dict | None = None,
     ) -> dict:
-        if isinstance(counter, str):
-            counter = counter.lstrip("#")
-            if not (counter.isdigit() or counter == "latest"):
-                raise BadParameter(
-                    f'{counter} is not a valid counter value; it must be an integer or "latest"',
-                )
+        counter = resolve_counter(counter)
         try:
             data = request(
                 method="get",
-                url=f"/api/v0/executions/{self.id}:{counter}/",
+                url=f"/api/v0/{url_part}/{self.id}:{counter}/",
                 params=(params or {}),
             ).json()
             assert isinstance(data, dict)
             return data
         except APIError as ae:
             if ae.response.status_code == 404:
-                raise NoExecution(f"Execution #{counter} does not exist")
+                raise exc_type(f"{noun}{counter} does not exist")
             raise
+
+    def get_execution_from_counter(self, counter: int | str, params: dict | None = None) -> dict:
+        return self._get_object_from_counter(
+            url_part="executions",
+            noun="Execution #",
+            exc_type=NoExecution,
+            counter=counter,
+            params=params,
+        )
+
+    def get_pipeline_from_counter(self, counter: int | str, params: dict | None = None) -> dict:
+        return self._get_object_from_counter(
+            url_part="pipelines",
+            noun="Pipeline =",
+            exc_type=NoPipeline,
+            counter=counter,
+            params=params,
+        )
+
+    def get_task_from_counter(self, counter: int | str, params: dict | None = None) -> dict:
+        return self._get_object_from_counter(
+            url_part="tasks",
+            noun="Task !",
+            exc_type=NoTask,
+            counter=counter,
+            params=params,
+        )
 
     def load_commit_list(self) -> list[dict]:
         """

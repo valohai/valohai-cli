@@ -108,6 +108,14 @@ class NoProject(NoSuchEntity):
     pass
 
 
+class NoPipeline(NoSuchEntity):
+    pass
+
+
+class NoTask(NoSuchEntity):
+    pass
+
+
 class InvalidConfig(CLIException):
     pass
 
