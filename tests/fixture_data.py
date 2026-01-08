@@ -110,7 +110,7 @@ DEPLOYMENT_VERSION_DATA = {
     },
 }
 
-EXECUTION_DATA = {
+EXECUTION_DETAIL_DATA = {
     "counter": random.randint(1, 100),
     "ctime": "2017-02-08T11:09:16.120102Z",
     "id": execution_id,
@@ -243,7 +243,7 @@ PIPELINE_DATA = {
             "type": "execution",
         },
         {
-            "execution": EXECUTION_DATA,
+            "execution": EXECUTION_DETAIL_DATA,
             "id": "01744e18-c8c1-a267-44a2-5e7f0a86bf38",
             "log": [
                 {

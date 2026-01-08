@@ -13,7 +13,7 @@ from tests.fixture_data import (
     CONFIG_DATA,
     CONFIG_YAML,
     DEPLOYMENT_VERSION_DATA,
-    EXECUTION_DATA,
+    EXECUTION_DETAIL_DATA,
     NOTEBOOK_EXECUTION_DATA,
     PIPELINE_DATA,
     PROJECT_DATA,
@@ -154,7 +154,7 @@ class RunAPIMock(requests_mock.Mocker):
             assert body_value == expected_value, f"body[{key}] = {body_value!r}, expected {expected_value!r}"
         context.status_code = 201
         self.last_create_execution_payload = body_json
-        return EXECUTION_DATA.copy()
+        return EXECUTION_DETAIL_DATA.copy()
 
     def handle_create_deployment_version(self, request, context):
         body_json = json.loads(request.body.decode("utf-8"))
@@ -238,5 +238,5 @@ class RunTestSetup:
             if verify_adhoc:
                 # Making sure that non-adhoc executions don't turn adhoc or vice versa.
                 assert ("Uploaded ad-hoc code" in output) == self.adhoc
-                assert f"#{EXECUTION_DATA['counter']}" in output
+                assert f"#{EXECUTION_DETAIL_DATA['counter']}" in output
         return output
