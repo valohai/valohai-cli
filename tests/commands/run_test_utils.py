@@ -106,7 +106,7 @@ class RunAPIMock(requests_mock.Mocker):
     def handle_project(self, request, context):
         return {
             "id": self.project_id,
-            "name": f"Project {self.project_id}",
+            "name": f"Project {self.project_id[:8]}",
             "yaml_path": "valohai.yaml",
         }
 

@@ -96,12 +96,24 @@ class NotLoggedIn(ConfigurationError):
     pass
 
 
-class NoProject(CLIException):
+class NoSuchEntity(CLIException):
     color = "yellow"
 
 
-class NoExecution(CLIException):
-    color = "yellow"
+class NoExecution(NoSuchEntity):
+    pass
+
+
+class NoProject(NoSuchEntity):
+    pass
+
+
+class NoPipeline(NoSuchEntity):
+    pass
+
+
+class NoTask(NoSuchEntity):
+    pass
 
 
 class InvalidConfig(CLIException):

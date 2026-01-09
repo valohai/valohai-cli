@@ -7,8 +7,21 @@ LOGGED_IN_DATA = {
     "token": "x",
 }
 
+alias_id = str(uuid.uuid4())
+commit_id = str(uuid.uuid4())
+datum_id = str(uuid.uuid4())
+deployment_id = str(uuid.uuid4())
+deployment_version_id = str(uuid.uuid4())
+environment_id = str(uuid.uuid4())
+execution_id = str(uuid.uuid4())
+notebook_execution_id = str(uuid.uuid4())
+pipeline_id = str(uuid.uuid4())
+project_id = str(uuid.uuid4())
+task_id = str(uuid.uuid4())
+
+
 PROJECT_DATA = {
-    "id": "000",
+    "id": project_id,
     "name": "nyan",
     "description": "nyan",
     "owner": 1,
@@ -28,14 +41,6 @@ PROJECT_DATA = {
         },
     },
 }
-
-execution_id = str(uuid.uuid4())
-datum_id = str(uuid.uuid4())
-alias_id = str(uuid.uuid4())
-commit_id = str(uuid.uuid4())
-project_id = str(uuid.uuid4())
-deployment_id = str(uuid.uuid4())
-deployment_version_id = str(uuid.uuid4())
 
 DATUM_DATA = {
     "id": datum_id,
@@ -107,7 +112,6 @@ DEPLOYMENT_VERSION_DATA = {
         "display": f"https://app.valohai.com/p/magda/tensorflow-example/deployment/{deployment_id}/#/version/{deployment_version_id}",
     },
 }
-
 EXECUTION_DETAIL_DATA = {
     "counter": random.randint(1, 100),
     "ctime": "2017-02-08T11:09:16.120102Z",
@@ -139,7 +143,7 @@ EXECUTION_DETAIL_DATA = {
         OUTPUT_DATUM_DATA,
     ],
     "environment": {
-        "id": "88888888-8888-8888-8888-888888888888",
+        "id": environment_id,
         "name": "local",
         "owner": None,
         "unfinished_job_count": 0,
@@ -157,7 +161,7 @@ PIPELINE_DATA = {
     "edges": [
         {
             "id": "01744e18-c8cf-4ed9-0a44-412f65b0f224",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "source_key": "*train-images*",
             "source_node": "01744e18-c8c1-a267-44a2-5e7f0a86bf38",
             "source_type": "output",
@@ -167,7 +171,7 @@ PIPELINE_DATA = {
         },
         {
             "id": "01744e18-c8e3-492d-135e-a1ef237c4a94",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "source_key": "*train-labels*",
             "source_node": "01744e18-c8c1-a267-44a2-5e7f0a86bf38",
             "source_type": "output",
@@ -177,7 +181,7 @@ PIPELINE_DATA = {
         },
         {
             "id": "01744e18-c8e6-e27d-442b-b820c8975a37",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "source_key": "*test-images*",
             "source_node": "01744e18-c8c1-a267-44a2-5e7f0a86bf38",
             "source_type": "output",
@@ -187,7 +191,7 @@ PIPELINE_DATA = {
         },
         {
             "id": "01744e18-c8e9-924a-7f89-d4033b0bd1a4",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "source_key": "*test-labels*",
             "source_node": "01744e18-c8c1-a267-44a2-5e7f0a86bf38",
             "source_type": "output",
@@ -197,7 +201,7 @@ PIPELINE_DATA = {
         },
         {
             "id": "01744e18-c8ec-d09c-4e5e-c749fbbf1e80",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "source_key": "model*",
             "source_node": "01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0",
             "source_type": "output",
@@ -206,7 +210,7 @@ PIPELINE_DATA = {
             "target_type": "input",
         },
     ],
-    "id": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+    "id": pipeline_id,
     "log": [
         {
             "ctime": "2020-09-02T09:14:41.375499Z",
@@ -227,7 +231,7 @@ PIPELINE_DATA = {
             "id": "01744e18-c8c7-a1d4-d0be-0cb3cbfa7ee0",
             "log": [],
             "name": "train",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "status": "created",
             "type": "execution",
         },
@@ -236,7 +240,7 @@ PIPELINE_DATA = {
             "id": "01744e18-c8c9-167b-c2b6-a9f06d0c1735",
             "log": [],
             "name": "evaluate",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "status": "created",
             "type": "execution",
         },
@@ -252,7 +256,7 @@ PIPELINE_DATA = {
                 },
             ],
             "name": "preprocess",
-            "pipeline": "01744e18-c8bf-e6cd-d329-5de7ed61bb52",
+            "pipeline": pipeline_id,
             "status": "started",
             "type": "execution",
         },
@@ -260,10 +264,79 @@ PIPELINE_DATA = {
     "project": PROJECT_DATA,
     "status": "started",
     "title": "Training Pipeline",
-    "url": "http://127.0.0.1:8000/api/v0/pipelines/01744e18-c8bf-e6cd-d329-5de7ed61bb52/",
+    "url": f"http://127.0.0.1:8000/api/v0/pipelines/{pipeline_id}/",
     "urls": {
-        "display": "http://127.0.0.1:8000/p/magda/tensorflow-example/pipeline/01744e18-c8bf-e6cd-d329-5de7ed61bb52/",
+        "display": f"http://127.0.0.1:8000/p/magda/tensorflow-example/pipeline/{pipeline_id}/",
     },
+}
+
+TASK_LIST_DATA = {
+    "configuration": {"execution_count": 50, "maximum_queued_executions": 50},
+    "counter": 2,
+    "creator_name": "admin",
+    "ctime": "2025-03-05T15:14:10.159699Z",
+    "deleted": False,
+    "id": task_id,
+    "is_pinned": False,
+    "mtime": "2025-03-05T15:14:10.159706Z",
+    "n_children": 50,
+    "n_comments": 0,
+    "n_executions": 50,
+    "project": project_id,
+    "status": "started",
+    "status_detail": None,
+    "status_summary": {
+        "count": 50,
+        "created_count": 0,
+        "queued_count": 47,
+        "started_count": 0,
+        "complete_count": 0,
+        "error_count": 3,
+        "stopping_count": 0,
+        "stopping_hard_count": 0,
+        "stopped_count": 0,
+    },
+    "tags": [],
+    "title": "Training Task",
+    "type": "distributed",
+    "url": f"http://127.0.0.1:8000/api/v0/tasks/{task_id}/",
+    "urls": {
+        "copy": f"http://127.0.0.1:8000/p/magda/tensorflow-example/tasks/create/?from={task_id}",
+        "display": f"http://127.0.0.1:8000/p/magda/tensorflow-example/task/{task_id}/",
+        "executions": f"http://127.0.0.1:8000/api/v0/executions/?task={task_id}",
+        "pipelines": f"http://127.0.0.1:8000/api/v0/pipelines/?task={task_id}",
+        "property_keys": f"http://127.0.0.1:8000/api/v0/tasks/{task_id}/property-keys/",
+        "stop": f"http://127.0.0.1:8000/api/v0/tasks/{task_id}/stop/",
+    },
+}
+
+ENVIRONMENT_NESTED_DATA = {
+    "allow_personal_usage": True,
+    "bill_usage": True,
+    "ctime": "2023-08-03T08:04:58.485822Z",
+    "description": "",
+    "enabled": True,
+    "gpu_spec": "",
+    "has_gpu": False,
+    "id": environment_id,
+    "is_scalable": False,
+    "mtime": "2023-08-03T08:04:58.485828Z",
+    "name": "The Default Environment",
+    "owner": None,
+    "per_hour_price_usd": "0.00000",
+    "per_user_queue_quota": 0,
+    "per_user_resource_quotas": None,
+    "provider": None,
+    "scale_down_grace_period": 15,
+    "scale_max": 100,
+    "scale_min": 0,
+    "slug": "default",
+    "spot": False,
+    "spot_max_price": 0.0,
+    "type": "vm",
+    "url": f"http://127.0.0.1:8000/api/v0/environments/{environment_id}",
+    "enable_smart_vm_selection": False,
+    "supports_priority": False,
 }
 
 NOTEBOOK_EXECUTION_DATA: dict = {
@@ -276,35 +349,8 @@ NOTEBOOK_EXECUTION_DATA: dict = {
     "deleted": False,
     "duration": None,
     "end_time": None,
-    "environment": {
-        "allow_personal_usage": True,
-        "bill_usage": True,
-        "ctime": "2023-08-03T08:04:58.485822Z",
-        "description": "",
-        "enabled": True,
-        "gpu_spec": "",
-        "has_gpu": False,
-        "id": "0189ba6d-b1f5-4b64-1a08-9ff09f447033",
-        "is_scalable": False,
-        "mtime": "2023-08-03T08:04:58.485828Z",
-        "name": "The Default Environment",
-        "owner": None,
-        "per_hour_price_usd": "0.00000",
-        "per_user_queue_quota": 0,
-        "per_user_resource_quotas": None,
-        "provider": None,
-        "scale_down_grace_period": 15,
-        "scale_max": 100,
-        "scale_min": 0,
-        "slug": "default",
-        "spot": False,
-        "spot_max_price": 0.0,
-        "type": "vm",
-        "url": "http://127.0.0.1:8000/api/v0/environments/0189ba6d-b1f5-4b64-1a08-9ff09f447033/",
-        "enable_smart_vm_selection": False,
-        "supports_priority": False,
-    },
-    "id": "0196f2c4-a3aa-05c6-802a-209b7b8802d8",
+    "environment": ENVIRONMENT_NESTED_DATA,
+    "id": notebook_execution_id,
     "is_pinned": False,
     "mtime": "2025-05-21T12:14:55.495446Z",
     "n_alerts": 0,
@@ -314,7 +360,7 @@ NOTEBOOK_EXECUTION_DATA: dict = {
     "pipeline": None,
     "pipeline_counter": None,
     "project": {
-        "id": "01942b47-f0d8-0021-c074-87370badadee",
+        "id": project_id,
         "name": "great-notebook-success",
         "description": "",
         "owner": {
@@ -323,7 +369,7 @@ NOTEBOOK_EXECUTION_DATA: dict = {
         },
         "ctime": "2025-01-03T08:28:42.593000Z",
         "mtime": "2025-01-03T08:28:42.593021Z",
-        "url": "http://127.0.0.1:8000/api/v0/projects/01942b47-f0d8-0021-c074-87370badadee/",
+        "url": f"http://127.0.0.1:8000/api/v0/projects/{project_id}/",
         "urls": {
             "display": "http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/",
             "display_repository": "http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/settings/repository/",
@@ -340,12 +386,12 @@ NOTEBOOK_EXECUTION_DATA: dict = {
     "task_counter": None,
     "title": "",
     "urls": {
-        "copy": "http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/executions/create/?from=0196f2c4-a3aa-05c6-802a-209b7b8802d8",
-        "copy_to_task": "http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/tasks/create/?from=0196f2c4-a3aa-05c6-802a-209b7b8802d8",
-        "display": "http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/execution/0196f2c4-a3aa-05c6-802a-209b7b8802d8/",
-        "stop": "http://127.0.0.1:8000/api/v0/executions/0196f2c4-a3aa-05c6-802a-209b7b8802d8/stop/",
+        "copy": f"http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/executions/create/?from={notebook_execution_id}",
+        "copy_to_task": f"http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/tasks/create/?from={notebook_execution_id}",
+        "display": f"http://127.0.0.1:8000/p/data-science-inc/great-notebook-success/execution/{notebook_execution_id}/",
+        "stop": f"http://127.0.0.1:8000/api/v0/executions/{notebook_execution_id}/stop/",
     },
-    "url": "http://127.0.0.1:8000/api/v0/executions/0196f2c4-a3aa-05c6-802a-209b7b8802d8/",
+    "url": f"http://127.0.0.1:8000/api/v0/executions/{notebook_execution_id}/",
     "pipeline_tags": [],
     "priority": 0,
     "command": "vhnb-boot --server-addr nb.valohai.dev",
