@@ -178,7 +178,7 @@ EMPTY_LIST_PLACEHOLDER = object()
 @click.option(
     "--k8s-preset",
     default=None,
-    help="Kubernetes only. Custom runtime config preset UUID",
+    help="Kubernetes only. Custom runtime config preset UUID or slug. (Requires also --environment)",
 )
 @click.option(
     "--k8s-cache-volume",
