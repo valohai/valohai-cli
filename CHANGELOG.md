@@ -1,5 +1,19 @@
 ### Changelog
 
+#### [v0.35.0](https://github.com/valohai/valohai-cli/compare/v0.34.0...v0.35.0)
+
+> 22 January 2026
+
+- Add cache volume support via `--k8s-cache-volume` parameter [`#361`](https://github.com/valohai/valohai-cli/pull/361)
+- Add `vh pipe convert-to-api` command [`#368`](https://github.com/valohai/valohai-cli/pull/368)
+- Add task and pipeline list and stop commands [`#367`](https://github.com/valohai/valohai-cli/pull/367)
+- Add support for setting node inputs when starting pipelines [`#365`](https://github.com/valohai/valohai-cli/pull/365)
+
+Internal and documentation improvements
+
+- Tests: split fixtures [`#366`](https://github.com/valohai/valohai-cli/pull/366)
+- Improve runtime config preset option description [`#370`](https://github.com/valohai/valohai-cli/pull/370)
+
 #### [v0.34.0](https://github.com/valohai/valohai-cli/compare/v0.33.0...v0.34.0)
 
 > 26 November 2025
