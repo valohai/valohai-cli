@@ -36,6 +36,8 @@ def test_auth(runner, mode):
             result = runner.invoke(
                 login,
                 [
+                    "-h",
+                    "https://app.valohai.com",
                     "-u",
                     m.username,
                     "-p",
