@@ -282,8 +282,13 @@ def test_no_git_adhoc_packaging(logged_in_and_linked, monkeypatch, allow_git_pac
 
 
 @pytest.mark.parametrize("val", (0, 7, 42))
-def test_priority(run_test_setup, val):
-    run_test_setup.args.append(f"--priority={val}")
+@pytest.mark.parametrize("style", ("eq", "ws"))
+def test_priority(run_test_setup, val, style):
+    if style == "eq":
+        run_test_setup.args.append(f"--priority={val}")
+    else:
+        run_test_setup.args.insert(1, str(val))
+        run_test_setup.args.insert(1, "--priority")
     run_test_setup.run()
     assert run_test_setup.run_api_mock.last_create_execution_payload["priority"] == val
 
