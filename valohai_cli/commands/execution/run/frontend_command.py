@@ -24,7 +24,29 @@ EMPTY_DICT_PLACEHOLDER = object()
 EMPTY_LIST_PLACEHOLDER = object()
 
 
+class PriorityHackCommand(click.Command):
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+        # Hack to allow --priority without value to work as --priority=1
+        # on various versions of Click; see https://github.com/pallets/click/issues/3084
+        # and other attached issues...
+        try:
+            priority_arg_index = args.index("--priority")
+        except ValueError:
+            pass
+        else:
+            # If it's the last argument, we can just replace it with --priority=1.
+            if priority_arg_index == len(args) - 1:
+                args[priority_arg_index] = "--priority=1"
+            else:
+                # If it's not the last argument, we need to check that the next argument is not a value for --priority.
+                next_arg = args[priority_arg_index + 1]
+                if next_arg.startswith("-"):
+                    args[priority_arg_index] = "--priority=1"
+        return super().parse_args(ctx, args)
+
+
 @click.command(
+    cls=PriorityHackCommand,
     context_settings={"ignore_unknown_options": True},
     add_help_option=False,
     epilog=run_epilog,
@@ -139,10 +161,10 @@ EMPTY_LIST_PLACEHOLDER = object()
 @click.option(
     "--priority",
     type=int,
-    default=None,
-    is_flag=False,
-    flag_value=1,
-    help="Priority for the job; higher values mean higher priority.",
+    help=(
+        "Priority for the job; higher values mean higher priority. "
+        "May also be passed as just `--priority`, implying priority 1."
+    ),
 )
 @click.option(
     "--k8s-cpu-min",

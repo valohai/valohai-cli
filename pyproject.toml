@@ -8,12 +8,12 @@ dynamic = ["version"]
 description = "Command line client for Valohai"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     { name = "Valohai", email = "hait@valohai.com" },
 ]
 dependencies = [
-    "click>=8.0,<8.2",  # 8.2 produces extra warnings about Git directory that break expected output in tests
+    "click>=8.2,<9",
     "gitignorant>=0.4.0",
     "requests-toolbelt>=0.7.1",
     "requests>=2.0.0",
