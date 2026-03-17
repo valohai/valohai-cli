@@ -1,9 +1,11 @@
+import re
+
 from click import BadParameter
 from pytest import raises
 
 from tests.commands.run_test_utils import RunAPIMock
 from tests.fixtures.config import PIPELINE_WITH_TASK_EXAMPLE, PIPELINE_YAML
-from tests.fixtures.data import PROJECT_DATA
+from tests.fixtures.data import PIPELINE_DATA, PROJECT_DATA
 from tests.utils import write_yaml_config
 from valohai_cli.commands.pipeline.run import run
 from valohai_cli.commands.pipeline.run.run import process_args
@@ -261,3 +263,39 @@ def test_process_args_parsing():
 
     result = process_args(["--node.flag"])
     assert result.node_parameters == {("node", "flag"): "true"}
+
+
+def test_pipeline_reuse(runner, logged_in_and_linked):
+    add_valid_pipeline_yaml()
+    args = ["--adhoc", "Training Pipeline", "--reuse=latest:preprocess"]
+    with RunAPIMock(num_pipeline_parameters=1) as mock_api:
+        # Register a GET handler for fetching the source pipeline by counter
+        mock_api.get(
+            re.compile(r"https://app\.valohai\.com/api/v0/pipelines/.+:latest/"),
+            json=PIPELINE_DATA,
+        )
+        output = runner.invoke(run, args).output
+        assert "Success" in output
+        assert "Reusing nodes: =latest: preprocess" in output
+
+        nodes = mock_api.last_create_pipeline_payload["nodes"]
+        preprocess_node = next(n for n in nodes if n["name"] == "preprocess")
+        assert preprocess_node["type"] == "mimic"
+        assert preprocess_node["source"] == "01744e18-c8c1-a267-44a2-5e7f0a86bf38"
+
+        # Other nodes should remain execution type
+        for node in nodes:
+            if node["name"] != "preprocess":
+                assert node["type"] == "execution"
+
+
+def test_pipeline_reuse_no_match(runner, logged_in_and_linked):
+    add_valid_pipeline_yaml()
+    args = ["--adhoc", "Training Pipeline", "--reuse=latest:nonexistent"]
+    with RunAPIMock(num_pipeline_parameters=1) as mock_api:
+        mock_api.get(
+            re.compile(r"https://app\.valohai\.com/api/v0/pipelines/.+:latest/"),
+            json=PIPELINE_DATA,
+        )
+        output = runner.invoke(run, args).output
+        assert "no nodes matched" in output
