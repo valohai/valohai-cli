@@ -11,9 +11,11 @@ from valohai_yaml.pipelines.conversion import ConvertedPipeline, PipelineConvert
 from valohai_yaml.utils import listify
 
 from valohai_cli.api import request
+from valohai_cli.commands.pipeline.run.reuse import apply_reuse_to_pipeline
 from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
+from valohai_cli.models.project import Project
 from valohai_cli.utils.commits import create_or_resolve_commit
 
 run_epilog = (
@@ -76,6 +78,18 @@ run_epilog = (
     default=None,
     help='Override environment UUID or slug',
 )
+@click.option(
+    "--reuse",
+    "reuse_specs",
+    multiple=True,
+    metavar="COUNTER:GLOB[,GLOB,...]",
+    help=(
+        "Reuse nodes from an existing pipeline run. "
+        "COUNTER is a pipeline counter (integer or 'latest'). "
+        "GLOBs are comma-separated node name patterns to reuse. "
+        "May be repeated. Example: --reuse=latest:pretrain,mangle"
+    ),
+)
 @click.argument(
     "args",
     nargs=-1,
@@ -94,6 +108,7 @@ def run(
     yaml: str | None,
     tags: list[str],
     environment: str | None,
+    reuse_specs: list[str],
     args: list[str],
 ) -> None:
     """
@@ -127,12 +142,13 @@ def run(
     start_pipeline(
         config=config,
         pipeline=pipeline,
-        project_id=project.id,
+        project=project,
         commit=commit,
         tags=tags,
         title=title,
         args=args,
         override_environment=environment,
+        reuse_specs=list(reuse_specs),
     )
 
 
@@ -208,9 +224,13 @@ def assign_node_parameters(
             )
         if conv_node["name"] != node_name:
             continue
+        node_type = conv_node.get("type")
+        # `--reuse` could have turned this node into a mimic
+        if node_type not in (ExecutionNode.type, TaskNode.type):
+            if node_type == "mimic":
+                node_type = "reused"
+            raise click.UsageError(f"Cannot set parameters for {node_type} node '{node_name}'.")
         node_defn = node_definitions[node_name]
-        if not isinstance(node_defn, (ExecutionNode, TaskNode)):
-            raise click.UsageError(f"Cannot set parameters for {node_defn.type} node '{node_name}'.")
         step = config.get_step_by(name=node_defn.step)
         if not step:
             raise ValueError(f"Step '{node_defn.step}' referenced by node '{node_name}' not defined.")
@@ -253,12 +273,13 @@ def start_pipeline(
     *,
     config: Config,
     pipeline: Pipeline,
-    project_id: str,
+    project: Project,
     commit: str,
     tags: list[str],
     args: list[str],
     title: str | None = None,
     override_environment: str | None = None,
+    reuse_specs: list[str] | None = None,
 ) -> None:
     if "--help" in args:
         raise click.UsageError("Sorry, --help is not presently supported when a pipeline name is specified.")
@@ -270,6 +291,13 @@ def start_pipeline(
         parameter_arguments=ppa.pipeline_parameters,
     )
     converted_pipeline = converter.convert_pipeline(pipeline)
+
+    if reuse_specs:
+        apply_reuse_to_pipeline(
+            converted_nodes=converted_pipeline["nodes"],
+            reuse_specs=reuse_specs,
+            project=project,
+        )
 
     if override_environment:
         for node in converted_pipeline["nodes"]:
@@ -293,7 +321,7 @@ def start_pipeline(
         raise click.UsageError(f"Unknown pipeline parameters: {unused_args}")
 
     payload: dict[str, Any] = {
-        "project": project_id,
+        "project": project.id,
         "title": title or pipeline.name,
         "tags": tags,
         **converted_pipeline,
