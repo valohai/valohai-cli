@@ -310,6 +310,23 @@ TASK_LIST_DATA = {
     },
 }
 
+TASK_DETAIL_DATA = {
+    "id": task_id,
+    "counter": 5,
+    "ctime": "2025-03-05T15:14:10.159699Z",
+    "mtime": "2025-03-05T15:14:10.159706Z",
+    "project": project_id,
+    "status": "created",
+    "title": "hyperparameter-sweep",
+    "type": "grid_search",
+    "urls": {
+        "copy": f"http://127.0.0.1:8000/p/magda/tensorflow-example/tasks/create/?from={task_id}",
+        "display": f"http://127.0.0.1:8000/p/magda/tensorflow-example/task/{task_id}/",
+        "executions": f"http://127.0.0.1:8000/api/v0/executions/?task={task_id}",
+        "stop": f"http://127.0.0.1:8000/api/v0/tasks/{task_id}/stop/",
+    },
+}
+
 ENVIRONMENT_NESTED_DATA = {
     "allow_personal_usage": True,
     "bill_usage": True,
