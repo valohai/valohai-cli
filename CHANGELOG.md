@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [v0.36.0](https://github.com/valohai/valohai-cli/compare/v0.35.0...v0.36.0)
+
+> 30 March 2026
+
+- Require Python 3.10+ [`#364`](https://github.com/valohai/valohai-cli/pull/364)
+- Add --reuse option to `vh pipe run` [`#373`](https://github.com/valohai/valohai-cli/pull/373)
+- Add commands to interact with model catalog [`#371`](https://github.com/valohai/valohai-cli/pull/371)
+
 #### [v0.35.0](https://github.com/valohai/valohai-cli/compare/v0.34.0...v0.35.0)
 
 > 22 January 2026
