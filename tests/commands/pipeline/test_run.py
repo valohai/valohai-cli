@@ -126,6 +126,55 @@ def test_pipeline_environment_override(runner, logged_in_and_linked):
                 assert node["template"]["environment"] == "tiny"
 
 
+def test_pipeline_priority(runner, logged_in_and_linked):
+    write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
+    args = ["--adhoc", "--priority=5", "dynamic-task"]
+    with RunAPIMock(
+        PROJECT_DATA["id"],
+        expected_edge_count=3,
+        expected_node_count=4,
+        num_pipeline_parameters=0,
+    ) as mock_api:
+        output = runner.invoke(run, args).output
+        assert "Success" in output
+        for node in mock_api.last_create_pipeline_payload["nodes"]:
+            if node["type"] in ("execution", "task"):
+                assert node["template"]["priority"] == 5
+            else:
+                assert "priority" not in node["template"]
+
+
+def test_pipeline_implicit_priority(runner, logged_in_and_linked):
+    write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
+    args = ["--adhoc", "dynamic-task", "--priority"]
+    with RunAPIMock(
+        PROJECT_DATA["id"],
+        expected_edge_count=3,
+        expected_node_count=4,
+        num_pipeline_parameters=0,
+    ) as mock_api:
+        output = runner.invoke(run, args).output
+        assert "Success" in output
+        for node in mock_api.last_create_pipeline_payload["nodes"]:
+            if node["type"] in ("execution", "task"):
+                assert node["template"]["priority"] == 1
+
+
+def test_pipeline_no_priority(runner, logged_in_and_linked):
+    write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
+    args = ["--adhoc", "dynamic-task"]
+    with RunAPIMock(
+        PROJECT_DATA["id"],
+        expected_edge_count=3,
+        expected_node_count=4,
+        num_pipeline_parameters=0,
+    ) as mock_api:
+        output = runner.invoke(run, args).output
+        assert "Success" in output
+        for node in mock_api.last_create_pipeline_payload["nodes"]:
+            assert "priority" not in node["template"]
+
+
 def test_pipeline_node_parameter_override(runner, logged_in_and_linked):
     add_valid_pipeline_yaml()
     args = [

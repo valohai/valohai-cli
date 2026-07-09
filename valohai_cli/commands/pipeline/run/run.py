@@ -16,6 +16,7 @@ from valohai_cli.commands.pipeline.run.utils import match_pipeline
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success
 from valohai_cli.models.project import Project
+from valohai_cli.utils.cli_utils import PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 
 run_epilog = (
@@ -26,6 +27,7 @@ run_epilog = (
 
 
 @click.command(
+    cls=PriorityHackCommand,
     context_settings={"ignore_unknown_options": True},
     add_help_option=False,
     epilog=run_epilog,
@@ -90,6 +92,7 @@ run_epilog = (
         "May be repeated. Example: --reuse=latest:pretrain,mangle"
     ),
 )
+@priority_option
 @click.argument(
     "args",
     nargs=-1,
@@ -109,6 +112,7 @@ def run(
     tags: list[str],
     environment: str | None,
     reuse_specs: list[str],
+    priority: int | None,
     args: list[str],
 ) -> None:
     """
@@ -149,6 +153,7 @@ def run(
         args=args,
         override_environment=environment,
         reuse_specs=list(reuse_specs),
+        priority=priority,
     )
 
 
@@ -252,6 +257,24 @@ def assign_node_parameters(
             )
 
 
+def apply_node_overrides(
+    nodes: list[dict[str, Any]],
+    *,
+    override_environment: str | None = None,
+    priority: int | None = None,
+) -> None:
+    """Apply CLI-level overrides onto every execution/task node's template."""
+    if not override_environment and priority is None:
+        return
+    for node in nodes:
+        if node.get("type") not in ("execution", "task"):
+            continue
+        if override_environment:
+            node["template"]["environment"] = override_environment
+        if priority is not None:
+            node["template"]["priority"] = priority
+
+
 def print_pipeline_list(ctx: Context, commit: str | None) -> None:
     with contextlib.suppress(
         Exception,
@@ -280,6 +303,7 @@ def start_pipeline(
     title: str | None = None,
     override_environment: str | None = None,
     reuse_specs: list[str] | None = None,
+    priority: int | None = None,
 ) -> None:
     if "--help" in args:
         raise click.UsageError("Sorry, --help is not presently supported when a pipeline name is specified.")
@@ -299,10 +323,11 @@ def start_pipeline(
             project=project,
         )
 
-    if override_environment:
-        for node in converted_pipeline["nodes"]:
-            if node.get("type") in ("execution", "task"):
-                node["template"]["environment"] = override_environment
+    apply_node_overrides(
+        converted_pipeline["nodes"],
+        override_environment=override_environment,
+        priority=priority,
+    )
 
     if ppa.node_parameters:
         assign_node_parameters(

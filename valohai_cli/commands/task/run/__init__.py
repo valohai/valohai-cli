@@ -8,6 +8,7 @@ from valohai_yaml.objs.config import Config
 
 from valohai_cli.ctx import get_project
 from valohai_cli.utils import parse_environment_variable_strings
+from valohai_cli.utils.cli_utils import PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 from valohai_cli.utils.matching import match_from_list_with_error
 
@@ -19,6 +20,7 @@ run_epilog = (
 
 
 @click.command(
+    cls=PriorityHackCommand,
     context_settings={"ignore_unknown_options": True},
     add_help_option=False,
     epilog=run_epilog,
@@ -92,6 +94,7 @@ run_epilog = (
     default=None,
     help="What to do when a child execution errors.",
 )
+@priority_option
 @click.argument(
     "args",
     nargs=-1,
@@ -114,6 +117,7 @@ def run(
     environment_variables: list[str],
     max_queued: int | None,
     on_child_error: str | None,
+    priority: int | None,
     args: list[str],
 ) -> Any:
     """
@@ -165,6 +169,7 @@ def run(
         tags=tags,
         max_queued=max_queued,
         on_child_error=on_child_error,
+        priority=priority,
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)

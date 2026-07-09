@@ -96,6 +96,7 @@ class TaskRunCommand(RunCommand):
         tags: Sequence[str] | None = None,
         max_queued: int | None = None,
         on_child_error: str | None = None,
+        priority: int | None = None,
     ) -> None:
         self.task = task
         self.max_queued = max_queued
@@ -109,6 +110,7 @@ class TaskRunCommand(RunCommand):
             title=title,
             environment_variables=environment_variables,
             tags=tags,
+            priority=priority,
         )
         # Override the command name to use the task name
         self.name = sanitize_option_name(task.name.lower())
@@ -159,7 +161,7 @@ class TaskRunCommand(RunCommand):
         if task.reuse_children:
             payload["allow_reuse"] = True
 
-        for field in ("environment", "image", "title", "environment_variables", "tags"):
+        for field in ("environment", "image", "title", "environment_variables", "tags", "priority"):
             payload.update(self._optional_item(field))
 
         return payload

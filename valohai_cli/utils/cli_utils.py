@@ -66,3 +66,37 @@ def counter_argument(fn: FuncT) -> FuncT:
 
 def join_with_style(items: Iterable[Any], separator: str = ", ", **style_kwargs: Any) -> str:
     return separator.join(click.style(str(item), **style_kwargs) for item in items)
+
+
+class PriorityHackCommand(click.Command):
+    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
+        # Hack to allow --priority without value to work as --priority=1
+        # on various versions of Click; see https://github.com/pallets/click/issues/3084
+        # and other attached issues...
+        try:
+            priority_arg_index = args.index("--priority")
+        except ValueError:
+            pass
+        else:
+            # If it's the last argument, we can just replace it with --priority=1.
+            if priority_arg_index == len(args) - 1:
+                args[priority_arg_index] = "--priority=1"
+            else:
+                # If it's not the last argument, we need to check that the next argument is not a value for --priority.
+                next_arg = args[priority_arg_index + 1]
+                if next_arg.startswith("-"):
+                    args[priority_arg_index] = "--priority=1"
+        return super().parse_args(ctx, args)
+
+
+def priority_option(fn: FuncT) -> FuncT:
+    """Add a `--priority` option that also accepts a bare `--priority` (implying priority 1)."""
+    option = click.option(
+        "--priority",
+        type=int,
+        help=(
+            "Priority for the job; higher values mean higher priority. "
+            "May also be passed as just `--priority`, implying priority 1."
+        ),
+    )
+    return option(fn)

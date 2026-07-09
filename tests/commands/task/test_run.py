@@ -84,6 +84,26 @@ def test_task_run_with_overrides(task_run_setup):
     assert payload["environment"] == "some-env-id"
 
 
+@pytest.mark.parametrize(
+    ("args", "expected_priority"),
+    [
+        (["--priority=7"], 7),
+        (["--priority"], 1),
+        ([], None),
+    ],
+    ids=("explicit", "implicit", "none"),
+)
+def test_task_run_priority(task_run_setup, args, expected_priority):
+    with task_run_setup:
+        CliRunner().invoke(run, ["hyperparameter-sweep", *args], catch_exceptions=False)
+
+    payload = task_run_setup.last_create_task_payload
+    if expected_priority is None:
+        assert "priority" not in payload
+    else:
+        assert payload["priority"] == expected_priority
+
+
 def test_task_run_with_input_override(task_run_setup):
     """Test that step inputs can be overridden from CLI."""
     with task_run_setup:
