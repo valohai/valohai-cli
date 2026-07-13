@@ -17,6 +17,7 @@ from tests.fixtures.data import (
     NOTEBOOK_EXECUTION_DATA,
     PIPELINE_DATA,
     PROJECT_DATA,
+    TASK_DETAIL_DATA,
 )
 from valohai_cli import git
 from valohai_cli.commands.execution.run import run
@@ -48,6 +49,7 @@ class RunAPIMock(requests_mock.Mocker):
         self.expected_edge_count = expected_edge_count
         self.last_create_execution_payload = None
         self.last_create_pipeline_payload = None
+        self.last_create_task_payload = None
         self.project_id = project_id
         self.commit_id = commit_id
         self.deployment_id = deployment_id
@@ -93,6 +95,10 @@ class RunAPIMock(requests_mock.Mocker):
         self.post(
             "https://app.valohai.com/api/v0/pipelines/",
             json=self.handle_create_pipeline,
+        )
+        self.post(
+            "https://app.valohai.com/api/v0/tasks/",
+            json=self.handle_create_task,
         )
         self.post(
             "https://app.valohai.com/api/v0/notebook-executions/",
@@ -192,6 +198,14 @@ class RunAPIMock(requests_mock.Mocker):
             "ctime": "2017-03-09T14:56:53.875721Z",
             "commit_time": "2017-03-09T14:56:53.875475Z",
         }
+
+    def handle_create_task(self, request, context):
+        body_json = json.loads(request.body.decode("utf-8"))
+        assert body_json["project"] == self.project_id
+        assert body_json["commit"] == self.commit_id
+        context.status_code = 201
+        self.last_create_task_payload = body_json
+        return TASK_DETAIL_DATA.copy()
 
     def handle_create_notebook_execution(self, request, context):
         body_json = json.loads(request.body.decode("utf-8"))

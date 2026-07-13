@@ -264,6 +264,41 @@ INVALID_CONFIG_YAML = """
       - 38
 
 """
+TASK_YAML = (
+    CONFIG_YAML
+    + """
+- task:
+    step: Train model
+    name: hyperparameter-sweep
+    type: grid-search
+    maximum-queued-executions: 3
+    on-child-error: stop-all-and-error
+    parameters:
+      - name: learning_rate
+        style: logspace
+        rules:
+          min: -5
+          max: -1
+          count: 5
+      - name: max_steps
+        style: multiple
+        rules:
+          items: [100, 200, 300]
+- task:
+    step: Train model
+    name: random-sweep
+    type: random-search
+    execution-count: 20
+    maximum-queued-executions: 5
+    parameters:
+      - name: learning_rate
+        style: random
+        rules:
+          min: 0.0001
+          max: 0.1
+          count: 20
+"""
+)
 BROKEN_CONFIG_YAML = """'"""
 KUBE_RESOURCE_YAML = """
 ---
