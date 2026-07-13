@@ -8,6 +8,7 @@ import click
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
+from valohai_cli.utils.cli_utils import PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 
 from .dynamic_run_command import RunCommand
@@ -22,27 +23,6 @@ run_epilog = (
 
 EMPTY_DICT_PLACEHOLDER = object()
 EMPTY_LIST_PLACEHOLDER = object()
-
-
-class PriorityHackCommand(click.Command):
-    def parse_args(self, ctx: click.Context, args: list[str]) -> list[str]:
-        # Hack to allow --priority without value to work as --priority=1
-        # on various versions of Click; see https://github.com/pallets/click/issues/3084
-        # and other attached issues...
-        try:
-            priority_arg_index = args.index("--priority")
-        except ValueError:
-            pass
-        else:
-            # If it's the last argument, we can just replace it with --priority=1.
-            if priority_arg_index == len(args) - 1:
-                args[priority_arg_index] = "--priority=1"
-            else:
-                # If it's not the last argument, we need to check that the next argument is not a value for --priority.
-                next_arg = args[priority_arg_index + 1]
-                if next_arg.startswith("-"):
-                    args[priority_arg_index] = "--priority=1"
-        return super().parse_args(ctx, args)
 
 
 @click.command(
@@ -158,14 +138,7 @@ class PriorityHackCommand(click.Command):
     "--autorestart/--no-autorestart",
     help="Enable Automatic Restart on Spot Instance Interruption",
 )
-@click.option(
-    "--priority",
-    type=int,
-    help=(
-        "Priority for the job; higher values mean higher priority. "
-        "May also be passed as just `--priority`, implying priority 1."
-    ),
-)
+@priority_option
 @click.option(
     "--k8s-cpu-min",
     help="Kubernetes only. CPU resource request",
