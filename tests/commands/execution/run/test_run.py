@@ -93,6 +93,46 @@ def test_run_time_limit_cli(run_test_setup, cli_value, expected_seconds):
     assert run_test_setup.run_api_mock.last_create_execution_payload["time_limit"] == expected_seconds
 
 
+GROUP_A = "018f0000-0000-0000-0000-00000000000a"
+GROUP_B = "018f0000-0000-0000-0000-00000000000b"
+
+
+def _write_step_with_groups(groups):
+    step_config = """
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+"""
+    if groups:
+        step_config += "    environment-variable-groups:\n"
+        step_config += "".join(f"      - {group}\n" for group in groups)
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(step_config)
+
+
+def test_run_env_var_groups_from_yaml(run_test_setup):
+    """Environment variable groups defined in YAML must be passed to the API (#352)."""
+    _write_step_with_groups([GROUP_A, GROUP_B])
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["environment_variable_groups"] == [
+        GROUP_A,
+        GROUP_B,
+    ]
+
+
+def test_run_env_var_groups_yaml_and_cli_merge(run_test_setup):
+    """CLI-passed groups are merged with (added to) the YAML-defined groups, deduplicated."""
+    _write_step_with_groups([GROUP_A])
+    run_test_setup.args.append(f"--environment-variable-groups={GROUP_A}")
+    run_test_setup.args.append(f"--environment-variable-groups={GROUP_B}")
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["environment_variable_groups"] == [
+        GROUP_A,
+        GROUP_B,
+    ]
+
+
 def test_run_time_limit_cli_overrides_yaml(run_test_setup):
     """The --time-limit CLI option overrides the step's YAML time-limit."""
     step_config = """
