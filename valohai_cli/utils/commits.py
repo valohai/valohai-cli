@@ -21,6 +21,7 @@ def create_or_resolve_commit(
     adhoc: bool,
     validate_adhoc_commit: bool = True,
     allow_git_packaging: bool = True,
+    include_untracked: bool = True,
 ) -> str:
     if adhoc:
         if project.is_remote:
@@ -33,6 +34,7 @@ def create_or_resolve_commit(
                 validate=validate_adhoc_commit,
                 yaml_path=yaml_path,
                 allow_git=allow_git_packaging,
+                include_untracked=include_untracked,
             )["identifier"],
         )
     elif yaml_path:

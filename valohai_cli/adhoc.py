@@ -21,6 +21,7 @@ def package_adhoc_commit(
     validate: bool = True,
     yaml_path: str | None = None,
     allow_git: bool = True,
+    include_untracked: bool = True,
 ) -> dict[str, Any]:
     """
     Create an ad-hoc tarball and commit of the project directory.
@@ -51,6 +52,7 @@ def package_adhoc_commit(
             validate=validate,
             yaml_path=yaml_path,
             allow_git=allow_git,
+            include_untracked=include_untracked,
         )
         return create_adhoc_commit_from_tarball(
             project=project,

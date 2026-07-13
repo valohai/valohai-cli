@@ -8,7 +8,7 @@ import click
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
 from valohai_cli.utils import parse_environment_variable_strings
-from valohai_cli.utils.cli_utils import PriorityHackCommand, priority_option
+from valohai_cli.utils.cli_utils import TIME_LIMIT, PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 
 from .dynamic_run_command import RunCommand
@@ -110,6 +110,12 @@ EMPTY_LIST_PLACEHOLDER = object()
     help="When creating ad-hoc tasks, whether to allow using Git for packaging directory contents.",
 )
 @click.option(
+    "--include-untracked/--no-include-untracked",
+    default=True,
+    is_flag=True,
+    help="When packaging with Git, whether to include untracked (but not ignored) files.",
+)
+@click.option(
     "--validate-adhoc/--no-validate-adhoc",
     help="Enable or disable validation of adhoc packaged code, on by default",
     default=True,
@@ -137,6 +143,14 @@ EMPTY_LIST_PLACEHOLDER = object()
 @click.option(
     "--autorestart/--no-autorestart",
     help="Enable Automatic Restart on Spot Instance Interruption",
+)
+@click.option(
+    "--time-limit",
+    "time_limit",
+    default=None,
+    type=TIME_LIMIT,
+    help="Wall-clock time limit for the execution, e.g. 3600 (seconds) or 1h30m. "
+    "Overrides the time limit defined for the step in valohai.yaml.",
 )
 @priority_option
 @click.option(
@@ -198,6 +212,7 @@ def run(
     *,
     adhoc: bool,
     git_packaging: bool = True,
+    include_untracked: bool = True,
     args: list[str],
     commit: str | None,
     yaml: str | None,
@@ -215,6 +230,7 @@ def run(
     debug_port: int,
     debug_key_file: str | None,
     autorestart: bool,
+    time_limit: int | None,
     priority: int | None,
     k8s_cpu_min: float | None,
     k8s_memory_min: int | None,
@@ -259,6 +275,7 @@ def run(
         commit=commit,
         adhoc=adhoc,
         allow_git_packaging=git_packaging,
+        include_untracked=include_untracked,
         validate_adhoc_commit=validate_adhoc,
         yaml_path=yaml,
     )
@@ -285,7 +302,8 @@ def run(
     if autorestart:
         runtime_config["autorestart"] = autorestart
 
-    time_limit = step.time_limit.total_seconds() if step.time_limit else None
+    if time_limit is None and step.time_limit:  # Fall back to the step's YAML time limit
+        time_limit = int(step.time_limit.total_seconds())
 
     validate_kubernetes_option_exclusivity(
         k8s_devices=k8s_devices,

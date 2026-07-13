@@ -67,7 +67,7 @@ class RunCommand(click.Command):
         runtime_config_preset: str | None = None,
         ssh: bool = False,
         priority: int | None = None,
-        time_limit: str | None = None,
+        time_limit: int | None = None,
     ) -> None:
         """
         Initialize the dynamic run command.
@@ -97,10 +97,14 @@ class RunCommand(click.Command):
         self.download_directory = download_directory
         self.title = title
         self.environment_variables = dict(environment_variables or {})
-        if environment_variable_groups:
-            self.environment_variable_groups = [str(g) for g in environment_variable_groups]
-        else:
-            self.environment_variable_groups = None
+        # Merge the groups defined for the step in the YAML with any passed on the command line
+        # (deduplicating while preserving order); CLI-passed groups are considered additive.
+        merged_groups: list[str] = []
+        for group in [*step.environment_variable_groups, *(environment_variable_groups or [])]:
+            group = str(group)
+            if group and group not in merged_groups:
+                merged_groups.append(group)
+        self.environment_variable_groups = merged_groups or None
         self.tags = list(tags or [])
         self.runtime_config = dict(runtime_config or {})
         self.runtime_config_preset = runtime_config_preset

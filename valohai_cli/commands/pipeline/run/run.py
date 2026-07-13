@@ -64,6 +64,12 @@ run_epilog = (
     help="When creating ad-hoc pipelines, whether to allow using Git for packaging directory contents.",
 )
 @click.option(
+    "--include-untracked/--no-include-untracked",
+    default=True,
+    is_flag=True,
+    help="When packaging with Git, whether to include untracked (but not ignored) files.",
+)
+@click.option(
     "--yaml",
     default=None,
     help="The path to the configuration YAML file (valohai.yaml) file to use.",
@@ -108,6 +114,7 @@ def run(
     title: str | None,
     adhoc: bool,
     git_packaging: bool = True,
+    include_untracked: bool = True,
     yaml: str | None,
     tags: list[str],
     environment: str | None,
@@ -137,6 +144,7 @@ def run(
         adhoc=adhoc,
         yaml_path=yaml,
         allow_git_packaging=git_packaging,
+        include_untracked=include_untracked,
     )
     config = project.get_config(commit_identifier=commit if project.is_remote else None, yaml_path=yaml)
 
@@ -351,6 +359,10 @@ def start_pipeline(
         "tags": tags,
         **converted_pipeline,
     }
+    # `PipelineConverter` does not carry over the pipeline-level `reuse-executions` flag,
+    # so pass it through explicitly (only when enabled) so it isn't lost. (#331)
+    if pipeline.reuse_executions:
+        payload["reuse_executions"] = True
     resp = request(
         method="post",
         url="/api/v0/pipelines/",

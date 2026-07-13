@@ -71,6 +71,12 @@ run_epilog = (
     help="When creating ad-hoc tasks, whether to allow using Git for packaging directory contents.",
 )
 @click.option(
+    "--include-untracked/--no-include-untracked",
+    default=True,
+    is_flag=True,
+    help="When packaging with Git, whether to include untracked (but not ignored) files.",
+)
+@click.option(
     "--yaml",
     default=None,
     help="The path to the configuration YAML (valohai.yaml) file to use.",
@@ -113,6 +119,7 @@ def run(
     tags: list[str],
     adhoc: bool,
     git_packaging: bool,
+    include_untracked: bool = True,
     yaml: str | None,
     environment_variables: list[str],
     max_queued: int | None,
@@ -152,6 +159,7 @@ def run(
         commit=commit,
         adhoc=adhoc,
         allow_git_packaging=git_packaging,
+        include_untracked=include_untracked,
         yaml_path=yaml,
     )
 

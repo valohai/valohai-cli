@@ -61,8 +61,9 @@ def package_directory(
     progress: bool = False,
     validate: bool = True,
     allow_git: bool = True,
+    include_untracked: bool = True,
 ) -> str:
-    file_stats = get_files_for_package(directory, allow_git=allow_git)
+    file_stats = get_files_for_package(directory, allow_git=allow_git, include_untracked=include_untracked)
 
     if validate and yaml_path not in file_stats:
         raise ConfigurationError(f"configuration file {yaml_path} missing from {directory}")
@@ -132,10 +133,12 @@ def package_files_into(
     dest_fp.flush()
 
 
-def _get_files_with_git(dir: str) -> Iterable[tuple[str, str]]:
+def _get_files_with_git(dir: str, include_untracked: bool = True) -> Iterable[tuple[str, str]]:
     paths_seen = set()
+    # `-c` lists cached (tracked) files; `-o` additionally lists untracked "other" files.
+    others_flag = "o" if include_untracked else ""
     commands = [
-        "git ls-files --exclude-standard -ocz",
+        f"git ls-files --exclude-standard -{others_flag}cz",
     ]
 
     # Check whether a gitmodules file exists; if so, also do a `--recurse-submodules` pass
@@ -168,7 +171,11 @@ def _get_files_walk(dir: str) -> Iterable[tuple[str, str]]:
             yield (file_rel_path, file_abs_path)
 
 
-def _get_files_inner(dir: str, allow_git: bool = True) -> tuple[GitUsage, Iterable[tuple[str, str]]]:
+def _get_files_inner(
+    dir: str,
+    allow_git: bool = True,
+    include_untracked: bool = True,
+) -> tuple[GitUsage, Iterable[tuple[str, str]]]:
     # Inner, pre-vhignore-supporting generator function...
     gitignore_path = os.path.join(dir, ".gitignore")
 
@@ -176,7 +183,8 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> tuple[GitUsage, Iterab
         if os.path.exists(os.path.join(dir, ".git")):
             # We have .git, so we can try to use Git to figure out a file list of nonignored files
             try:
-                return (GitUsage.GIT_LS_FILES, _get_files_with_git(dir))  # return the generator
+                # return the generator
+                return (GitUsage.GIT_LS_FILES, _get_files_with_git(dir, include_untracked=include_untracked))
             except subprocess.CalledProcessError as cpe:
                 warn(
                     f".git exists, but we could not use git ls-files (error {cpe.returncode}), falling back to non-git",
@@ -199,8 +207,12 @@ def _get_files_inner(dir: str, allow_git: bool = True) -> tuple[GitUsage, Iterab
     return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
 
 
-def _get_files(dir: str, allow_git: bool = True) -> tuple[GitUsage, VhIgnoreUsage, Iterable[tuple[str, str]]]:
-    git_usage, ftup_gen = _get_files_inner(dir, allow_git=allow_git)
+def _get_files(
+    dir: str,
+    allow_git: bool = True,
+    include_untracked: bool = True,
+) -> tuple[GitUsage, VhIgnoreUsage, Iterable[tuple[str, str]]]:
+    git_usage, ftup_gen = _get_files_inner(dir, allow_git=allow_git, include_untracked=include_untracked)
     vhignore_path = os.path.join(dir, ".vhignore")
 
     if os.path.isfile(vhignore_path):
@@ -227,6 +239,7 @@ def get_files_for_package(
     dir: str,
     allow_git: bool = True,
     ignore_patterns: Iterable[str] = (),
+    include_untracked: bool = True,
 ) -> dict[str, PackageFileInfo]:
     """
     Get files to package for ad-hoc packaging from the file system.
@@ -234,10 +247,15 @@ def get_files_for_package(
     :param dir: The source directory. Probably a working copy root or similar.
     :param allow_git: Whether to allow usage of `git ls-files`, if available, for packaging.
     :param ignore_patterns: List of ignored patterns.
+    :param include_untracked: Whether to include untracked (but not ignored) files when packaging with Git.
     :return:
     """
     files_and_paths = []
-    git_usage, vhignore_usage, ftup_generator = _get_files(dir, allow_git=allow_git)
+    git_usage, vhignore_usage, ftup_generator = _get_files(
+        dir,
+        allow_git=allow_git,
+        include_untracked=include_untracked,
+    )
 
     for ftup in ftup_generator:
         if ignore_patterns and not is_valid_path(ftup[1], ignore_patterns):
