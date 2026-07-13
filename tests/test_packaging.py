@@ -70,6 +70,25 @@ def test_package_git(tmpdir, with_commit, with_vhignore):
     )
 
 
+@pytest.mark.parametrize("include_untracked", (False, True))
+def test_package_git_untracked(tmpdir, include_untracked):
+    stub_git = StubGit(tmpdir)
+    stub_git.init()
+    # `valohai.yaml` is committed; `kahvikuppi` is left untracked (and not ignored).
+    stub_git.write("valohai.yaml", content="this file is required")
+    stub_git.commit()
+    tmpdir.join("kahvikuppi").write_text("mmmm, coffee", "utf8")
+    tarball = pkg.package_directory(
+        directory=stub_git.dir_str,
+        yaml_path="valohai.yaml",
+        include_untracked=include_untracked,
+    )
+    expected = {"valohai.yaml"}
+    if include_untracked:
+        expected.add("kahvikuppi")
+    assert get_tar_files(tarball) == expected
+
+
 @pytest.mark.parametrize("with_gitignore", (False, True))
 @pytest.mark.parametrize("with_vhignore", (False, True))
 def test_package_no_git(tmpdir, with_gitignore, with_vhignore):

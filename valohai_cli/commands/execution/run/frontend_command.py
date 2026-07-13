@@ -110,6 +110,12 @@ EMPTY_LIST_PLACEHOLDER = object()
     help="When creating ad-hoc tasks, whether to allow using Git for packaging directory contents.",
 )
 @click.option(
+    "--include-untracked/--no-include-untracked",
+    default=True,
+    is_flag=True,
+    help="When packaging with Git, whether to include untracked (but not ignored) files.",
+)
+@click.option(
     "--validate-adhoc/--no-validate-adhoc",
     help="Enable or disable validation of adhoc packaged code, on by default",
     default=True,
@@ -198,6 +204,7 @@ def run(
     *,
     adhoc: bool,
     git_packaging: bool = True,
+    include_untracked: bool = True,
     args: list[str],
     commit: str | None,
     yaml: str | None,
@@ -259,6 +266,7 @@ def run(
         commit=commit,
         adhoc=adhoc,
         allow_git_packaging=git_packaging,
+        include_untracked=include_untracked,
         validate_adhoc_commit=validate_adhoc,
         yaml_path=yaml,
     )
