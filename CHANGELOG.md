@@ -1,5 +1,16 @@
 ### Changelog
 
+#### [v0.37.0](https://github.com/valohai/valohai-cli/compare/v0.36.0...v0.37.0)
+
+> 13 July 2026
+
+- Bugfix: Apply environment-variable-groups from YAML, not just CLI [`#352`](https://github.com/valohai/valohai-cli/pull/352)
+- Bugfix: Support reuse_executions for pipelines from CLI [`#379`](https://github.com/valohai/valohai-cli/pull/379)
+- New: Add --(no-)include-untracked for ad-hoc packaging [`#379`](https://github.com/valohai/valohai-cli/pull/379)
+- New: Add --priority support to `vh task run` and `vh pipe run` [`#378`](https://github.com/valohai/valohai-cli/pull/378)
+- New: Add --time-limit option to `vh exec run` [`#379`](https://github.com/valohai/valohai-cli/pull/379)
+- New: Add `vh task run` command for starting tasks from YAML blueprints [`#375`](https://github.com/valohai/valohai-cli/pull/375)
+
 #### [v0.36.0](https://github.com/valohai/valohai-cli/compare/v0.35.0...v0.36.0)
 
 > 30 March 2026
