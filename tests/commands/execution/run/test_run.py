@@ -82,6 +82,33 @@ def test_run_time_limit(run_test_setup, time_limit):
         assert "time_limit" not in run_test_setup.run_api_mock.last_create_execution_payload
 
 
+@pytest.mark.parametrize(
+    "cli_value, expected_seconds",
+    [("3600", 3600), ("1h30m", 5400), ("45s", 45)],
+)
+def test_run_time_limit_cli(run_test_setup, cli_value, expected_seconds):
+    """The --time-limit CLI option accepts both bare seconds and duration strings."""
+    run_test_setup.args.append(f"--time-limit={cli_value}")
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["time_limit"] == expected_seconds
+
+
+def test_run_time_limit_cli_overrides_yaml(run_test_setup):
+    """The --time-limit CLI option overrides the step's YAML time-limit."""
+    step_config = """
+- step:
+    name: Train model
+    image: busybox
+    command: "false"
+    time-limit: 121
+"""
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(step_config)
+    run_test_setup.args.append("--time-limit=1h")
+    run_test_setup.run()
+    assert run_test_setup.run_api_mock.last_create_execution_payload["time_limit"] == 3600
+
+
 def test_run_with_yaml_path(run_test_setup):
     run_test_setup.args.remove("train")
     # Use a step which is only present in the evaluation YAML

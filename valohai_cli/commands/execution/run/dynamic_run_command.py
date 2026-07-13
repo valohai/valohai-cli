@@ -67,7 +67,7 @@ class RunCommand(click.Command):
         runtime_config_preset: str | None = None,
         ssh: bool = False,
         priority: int | None = None,
-        time_limit: str | None = None,
+        time_limit: int | None = None,
     ) -> None:
         """
         Initialize the dynamic run command.

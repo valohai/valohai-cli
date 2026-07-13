@@ -8,6 +8,7 @@ from typing import (
 )
 
 import click
+from valohai_yaml.utils.duration import parse_duration
 
 from valohai_cli.help_texts import EXECUTION_COUNTER_HELP
 
@@ -87,6 +88,37 @@ class PriorityHackCommand(click.Command):
                 if next_arg.startswith("-") and not next_arg.lstrip("+-").isdigit():
                     args[priority_arg_index] = "--priority=1"
         return super().parse_args(ctx, args)
+
+
+class TimeLimitParamType(click.ParamType):
+    """
+    Click parameter type for a time limit, converted to a whole number of seconds.
+
+    Accepts either a bare number of seconds (e.g. `3600`) or a duration string
+    with unit suffixes (e.g. `1h30m`, `90m`, `45s`), the same format supported
+    by the `time-limit` field in `valohai.yaml`.
+    """
+
+    name = "time_limit"
+
+    def convert(self, value: Any, param: click.Parameter | None, ctx: click.Context | None) -> int | None:
+        if value is None or isinstance(value, int):
+            return value
+        value = value.strip()
+        if not value:
+            return None
+        if value.isdigit():  # Bare number of seconds
+            return int(value)
+        try:
+            duration = parse_duration(value)
+        except (ValueError, IndexError) as exc:
+            self.fail(f"{value!r} is not a valid time limit ({exc}).", param, ctx)
+        if duration is None:
+            return None
+        return int(duration.total_seconds())
+
+
+TIME_LIMIT = TimeLimitParamType()
 
 
 def priority_option(fn: FuncT) -> FuncT:
