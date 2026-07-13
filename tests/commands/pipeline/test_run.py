@@ -109,6 +109,28 @@ def test_pipeline_parameters_overriding(runner, logged_in_and_linked):
         }
 
 
+def test_pipeline_reuse_executions(runner, logged_in_and_linked):
+    """A pipeline's `reuse-executions` YAML flag must be sent in the create payload (#331)."""
+    yaml = PIPELINE_YAML.replace(
+        "    name: Training Pipeline\n",
+        "    name: Training Pipeline\n    reuse-executions: true\n",
+    )
+    write_yaml_config(yaml)
+    with RunAPIMock() as mock_api:
+        output = runner.invoke(run, ["--adhoc", "training"]).output
+        assert "Success" in output
+        assert mock_api.last_create_pipeline_payload["reuse_executions"] is True
+
+
+def test_pipeline_reuse_executions_default_absent(runner, logged_in_and_linked):
+    """Without the flag, `reuse_executions` is not sent (preserving the API default)."""
+    add_valid_pipeline_yaml()
+    with RunAPIMock() as mock_api:
+        output = runner.invoke(run, ["--adhoc", "training"]).output
+        assert "Success" in output
+        assert "reuse_executions" not in mock_api.last_create_pipeline_payload
+
+
 def test_pipeline_environment_override(runner, logged_in_and_linked):
     write_yaml_config(PIPELINE_WITH_TASK_EXAMPLE)
     args = ["--adhoc", "--environment=tiny", "dynamic-task"]

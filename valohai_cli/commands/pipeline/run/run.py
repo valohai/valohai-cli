@@ -359,6 +359,10 @@ def start_pipeline(
         "tags": tags,
         **converted_pipeline,
     }
+    # `PipelineConverter` does not carry over the pipeline-level `reuse-executions` flag,
+    # so pass it through explicitly (only when enabled) so it isn't lost. (#331)
+    if pipeline.reuse_executions:
+        payload["reuse_executions"] = True
     resp = request(
         method="post",
         url="/api/v0/pipelines/",
