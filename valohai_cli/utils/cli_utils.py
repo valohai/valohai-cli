@@ -84,7 +84,7 @@ class PriorityHackCommand(click.Command):
             else:
                 # If it's not the last argument, we need to check that the next argument is not a value for --priority.
                 next_arg = args[priority_arg_index + 1]
-                if next_arg.startswith("-"):
+                if next_arg.startswith("-") and not next_arg.lstrip("+-").isdigit():
                     args[priority_arg_index] = "--priority=1"
         return super().parse_args(ctx, args)
 
