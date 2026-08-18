@@ -50,7 +50,7 @@ EMPTY_LIST_PLACEHOLDER = object()
     "environment_variable_groups",
     multiple=True,
     default=None,
-    help="Add environment variable group UUIDs.",
+    help="Add environment variable group UUIDs or names.",
 )
 @click.option(
     "--image",
