@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import shutil
 import sys
-from collections.abc import Iterable, Sequence
-from typing import Any, Callable
+from collections.abc import Callable, Iterable, Sequence
+from typing import Any
 
 import click
 

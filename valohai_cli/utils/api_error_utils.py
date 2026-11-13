@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from re import Pattern
-from typing import Any, Callable, Union
+from typing import Any
 
-StringOrPattern = Union[str, Pattern]
+StringOrPattern = str | Pattern
 
 
 def _match_string(s: str | None, pattern: StringOrPattern) -> bool:

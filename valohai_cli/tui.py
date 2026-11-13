@@ -3,7 +3,8 @@ from __future__ import annotations
 import math
 import shutil
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import click
 

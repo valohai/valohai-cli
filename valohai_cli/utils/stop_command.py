@@ -5,7 +5,8 @@ Generic stop command implementation for executions, pipelines, and tasks.
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import click
 
