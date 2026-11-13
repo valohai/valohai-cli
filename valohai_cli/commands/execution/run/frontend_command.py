@@ -7,7 +7,8 @@ import click
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
-from valohai_cli.utils import parse_environment_variable_strings
+from valohai_cli.models.project import Project
+from valohai_cli.utils import get_project_directory, parse_environment_variable_strings
 from valohai_cli.utils.cli_utils import TIME_LIMIT, PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 
@@ -252,6 +253,8 @@ def run(
         print_step_list(ctx, commit)
         ctx.exit()
         return
+    show_step_help(ctx, step_name, commit, yaml, args)
+
     project = get_project(require=True)
     project.refresh_details()
 
@@ -362,6 +365,39 @@ def run(
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)
+
+
+def show_step_help(
+    ctx: click.Context,
+    step_name: str,
+    commit: str | None,
+    yaml: str | None,
+    args: list[str],
+) -> None:
+    if "--help" not in args:
+        return
+    project = get_project(require=False)
+    unlinked = project is None
+    if project is None:
+        project = Project(data={}, directory=get_project_directory())
+        info(f"No project is linked; using {yaml or 'valohai.yaml'} for step help.")
+    else:
+        project.refresh_details()
+
+    if not commit and project.is_remote:
+        commit = project.resolve_commits()[0]["identifier"]
+        info(f"Using remote project {project.name}'s newest commit {commit}")
+
+    config = project.get_config(commit_identifier=commit, yaml_path=yaml)
+    step = config.steps[match_step(config, step_name)]
+    help_command = RunCommand(project=project, step=step, commit=commit or "")
+    try:
+        with help_command.make_context(help_command.name, list(args), parent=ctx):
+            pass
+    except click.exceptions.Exit:
+        if unlinked:
+            info("Link a project with `vh project link` to run executions.")
+        raise
 
 
 def print_step_list(ctx: click.Context, commit: str | None) -> None:

@@ -310,6 +310,93 @@ def test_command_help(runner, logged_in_and_linked, patch_git, using_default_run
     assert "Input Options" in output
 
 
+@pytest.mark.parametrize("yaml_path", (None, "custom.yaml"))
+def test_command_help_unlinked(runner, logged_in, yaml_path):
+    filename = yaml_path or "valohai.yaml"
+    with open(os.path.join(os.environ["VALOHAI_PROJECT_DIR"], filename), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+    args = ["train", "--help"]
+    if yaml_path:
+        args.insert(0, f"--yaml={yaml_path}")
+
+    result = runner.invoke(run, args, catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert "Input Options" in result.output
+    assert filename in result.output
+    assert result.output.index("vh project link") > result.output.index("Parameter Options")
+
+
+@pytest.mark.parametrize("extra_args", ([], ["--adhoc"]))
+def test_command_help_without_resolving_commit(
+    runner,
+    logged_in_and_linked,
+    using_default_run_api_mock,
+    extra_args,
+):
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    result = runner.invoke(run, [*extra_args, "train", "--help"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert "Input Options" in result.output
+    assert "Use latest commit?" not in result.output
+    assert "fetch new commits" not in result.output
+    assert "Uploaded ad-hoc code" not in result.output
+
+
+def test_command_help_unknown_commit(runner, logged_in_and_linked, using_default_run_api_mock, monkeypatch):
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+    monkeypatch.setattr("valohai_cli.utils.commits.get_git_commit", lambda project: "unknown")
+
+    result = runner.invoke(run, ["train", "--help"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert "fetch new commits" not in result.output
+    assert not any("/commits/" in request.path for request in using_default_run_api_mock.request_history)
+
+
+def test_command_help_at_commit(runner, logged_in_and_linked, using_default_run_api_mock, monkeypatch):
+    def get_file_at_commit(directory, commit, yaml_path):
+        assert commit == "abc123"
+        assert yaml_path == "valohai.yaml"
+        return CONFIG_YAML.encode()
+
+    monkeypatch.setattr("valohai_cli.models.project.get_file_at_commit", get_file_at_commit)
+    result = runner.invoke(run, ["--commit=abc123", "train", "--help"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert not any("/commits/" in request.path for request in using_default_run_api_mock.request_history)
+
+
+def test_run_unlinked_still_requires_project(runner, logged_in):
+    result = runner.invoke(run, ["train"], catch_exceptions=False)
+    assert result.exit_code != 0
+    assert "No project is linked" in result.output
+
+
+def test_command_help_linked_custom_yaml(
+    runner,
+    logged_in_and_linked,
+    using_default_run_api_mock,
+    monkeypatch,
+):
+    monkeypatch.setitem(get_project().data, "yaml_path", "custom.yaml")
+    using_default_run_api_mock.get(
+        f"https://app.valohai.com/api/v0/projects/{using_default_run_api_mock.project_id}/",
+        json={"yaml_path": "custom.yaml"},
+    )
+    with open(get_project().get_config_filename("custom.yaml"), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    result = runner.invoke(run, ["train", "--help"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert "vh project link" not in result.output
+
+
 def test_remote(run_test_setup, tmpdir):
     key = tmpdir.join("key.pub")
     key.write_text("ssh blarp blep", "utf-8")
