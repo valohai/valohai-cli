@@ -310,6 +310,28 @@ def test_command_help(runner, logged_in_and_linked, patch_git, using_default_run
     assert "Input Options" in output
 
 
+def test_adhoc_command_help_does_not_resolve_commit(
+    runner,
+    logged_in_and_linked,
+    monkeypatch,
+    using_default_run_api_mock,
+):
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    def fail_commit_resolution(*args, **kwargs):
+        pytest.fail("Step-specific ad-hoc help should not resolve or upload a commit")
+
+    monkeypatch.setattr(
+        "valohai_cli.commands.execution.run.frontend_command.create_or_resolve_commit",
+        fail_commit_resolution,
+    )
+
+    output = runner.invoke(run, ["train", "--adhoc", "--help"], catch_exceptions=False).output
+    assert "Parameter Options" in output
+    assert "Input Options" in output
+
+
 def test_remote(run_test_setup, tmpdir):
     key = tmpdir.join("key.pub")
     key.write_text("ssh blarp blep", "utf-8")

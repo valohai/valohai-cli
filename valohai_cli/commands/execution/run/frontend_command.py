@@ -270,15 +270,16 @@ def run(
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
-    commit = create_or_resolve_commit(
-        project,
-        commit=commit,
-        adhoc=adhoc,
-        allow_git_packaging=git_packaging,
-        include_untracked=include_untracked,
-        validate_adhoc_commit=validate_adhoc,
-        yaml_path=yaml,
-    )
+    if not (adhoc and "--help" in args):
+        commit = create_or_resolve_commit(
+            project,
+            commit=commit,
+            adhoc=adhoc,
+            allow_git_packaging=git_packaging,
+            include_untracked=include_untracked,
+            validate_adhoc_commit=validate_adhoc,
+            yaml_path=yaml,
+        )
 
     runtime_config = {}  # type: dict[str, Any]
 
