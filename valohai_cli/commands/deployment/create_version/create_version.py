@@ -107,7 +107,7 @@ def create_version(
     deployments = request("get", "/api/v0/deployments/", params={"project": project.id}).json()["results"]
     deployment_names = [d["name"] for d in deployments]
     matched_deployment_name = match_from_list_with_error(deployment_names, deployment, "deployment")
-    matched_deployment = [d for d in deployments if d["name"] == matched_deployment_name][0]
+    matched_deployment = next(d for d in deployments if d["name"] == matched_deployment_name)
 
     if not version_name:
         suggested_version_name: str = request(

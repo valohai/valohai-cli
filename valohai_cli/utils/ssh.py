@@ -42,7 +42,7 @@ def make_ssh_connection(address: str, port: int, private_key_path: str) -> None:
         "-t",
         "/bin/bash",
     ]
-    subprocess.run(ssh_command)
+    subprocess.run(ssh_command, check=False)
 
 
 def find_ssh_details(events: Iterable) -> tuple[str, int] | None:

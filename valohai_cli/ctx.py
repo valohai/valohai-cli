@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal, Union, overload
+from typing import Literal, overload
 
 import click
 
@@ -11,7 +11,7 @@ from valohai_cli.models.remote_project import RemoteProject
 from valohai_cli.settings import settings
 from valohai_cli.utils import get_project_directory
 
-ProjectOrRemoteProject = Union[RemoteProject, Project]
+ProjectOrRemoteProject = RemoteProject | Project
 
 
 @overload

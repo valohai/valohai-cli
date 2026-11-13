@@ -4,8 +4,9 @@ import codecs
 import contextlib
 import json
 import os
+from collections.abc import Callable
 from errno import ENOENT
-from typing import Any, Callable
+from typing import Any
 
 
 class Persistence:

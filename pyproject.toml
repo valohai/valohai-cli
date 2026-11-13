@@ -62,7 +62,6 @@ norecursedirs = [".git", ".tox"]
 markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 
 [tool.ruff]
-target-version = "py39"
 line-length = 110
 preview = true
 
@@ -75,8 +74,17 @@ ignore = [
     "B904",
     "B905",
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
-    "RET504", # Unnecessary variable assignment before `return` statement
     "SIM105", # Use `contextlib.suppress(TypeError)` instead of try-except-pass
+    "FURB101", # `open` and `read` should be replaced by `Path(...).read_text()`
+    "FURB103", # `open` and `write` should be replaced by `Path(...).write_text()`
+    "PERF203", # `try`-`except` within a loop incurs performance overhead (not since 3.11)
+    "PLW0717", # Too many statements in `try` clause
+    "PLW1514", # `open` in text mode without explicit `encoding` argument (TODO: fix separately)
+    "PLW2901", # `for` loop variable overwritten by assignment target
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF067", # `__init__` module should only contain docstrings and re-exports
+    "RUF105", # `noqa` comment used instead of `ruff: ignore`
+    "RUF201", # Rule code used instead of name in config
 ]
 select = [
     "ARG",
@@ -86,41 +94,25 @@ select = [
     "COM812",  # trailing comma
     "E", # pycodestyle
     "F", # pyflakes
+    "FURB", # refurb
     "I", # isort
+    "ISC", # implicit string concatenation
+    "LOG", # logging
+    "PERF", # perflint
+    "PIE", # flake8-pie
+    "PLE", # pylint errors
+    "PLW", # pylint warnings
+    "RUF", # ruff-specific
     "SIM", # simplify
+    "T10", # debugger
     "UP", # pyupgrade
     "W", # pycodestyle
-    # A bunch of NURSERY-level (as of Ruff 287) stylistic codes we need to explicitly enable
-    "E111",
-    "E112",
-    "E113",
-    "E114",
-    "E115",
-    "E116",
-    "E117",
-    "E201",
-    "E202",
-    "E203",
-    "E211",
-    "E221",
-    "E222",
-    "E223",
-    "E224",
-    "E225",
-    "E226",
-    "E227",
-    "E228",
-    "E231",
-    "E251",
-    "E252",
-    "E261",
-    "E262",
-    "E266",
-    "E271",
-    "E272",
-    "E273",
-    "E274",
-    "E275",
+    "YTT", # sys.version misuse
 ]
+
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ARG", "ANN"]
+"tests/*" = [
+    "ARG",
+    "ANN",
+    "RUF069", # Float equality; tests compare exact values round-tripped through JSON
+]

@@ -173,7 +173,8 @@ def get_docker_image_size(image: str) -> int | None:
     """
     try:
         size = (
-            subprocess.check_output(
+            subprocess
+            .check_output(
                 ["docker", "images", "--format={{.Size}}", image],
             )
             .strip()

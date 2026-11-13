@@ -27,7 +27,7 @@ class EnsureClickHelpWalker(ast.NodeVisitor):
     def process_decorator(self, deco: ast.AST) -> None:
         if isinstance(deco, ast.Call):
             deco_name = stringify_name(deco.func)
-            if deco_name in ("click.option",):
+            if deco_name == "click.option":
                 kwargs = {stringify_name(kw.arg): kw.value for kw in deco.keywords}
                 if "help" not in kwargs:
                     self.add_message(deco, "missing `help=`")

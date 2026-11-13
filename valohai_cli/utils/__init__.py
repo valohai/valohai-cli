@@ -8,8 +8,8 @@ import string
 import time
 import unicodedata
 import webbrowser
-from collections.abc import Iterable, Iterator
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable, Iterable, Iterator
+from typing import Any, TypeVar
 
 import click
 
@@ -59,7 +59,7 @@ def force_bytes(v: str | int, encoding: str = "UTF-8", errors: str = "strict") -
 
 
 def humanize_identifier(identifier: str) -> str:
-    return re.sub("[-_]+", " ", force_text(identifier)).strip()
+    return re.sub(r"[-_]+", " ", force_text(identifier)).strip()
 
 
 extension_to_interpreter: dict[str, str] = {

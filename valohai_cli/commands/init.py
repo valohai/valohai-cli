@@ -83,7 +83,8 @@ def init() -> None:
 def link_or_create_prompt(cwd: str) -> Project | None:
     while True:
         response = (
-            click.prompt(
+            click
+            .prompt(
                 "Do you want to link this directory to a pre-existing project, or create a new one? [l/c]\n"
                 "If you'd prefer to do neither at this point, respond [n].",
             )

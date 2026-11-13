@@ -129,7 +129,7 @@ def walk_commands(
         cmd = group.get_command(ctx, subcommand)
         if not (cmd and cmd.name):
             continue
-        new_name_trail = name_trail + (cmd.name,)
+        new_name_trail = (*name_trail, cmd.name)
         yield (new_name_trail, cmd)
         if isinstance(cmd, click.Group):
             yield from walk_commands(ctx, cmd, new_name_trail)

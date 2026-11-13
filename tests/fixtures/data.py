@@ -435,7 +435,7 @@ OUTPUT_DATUM_RESPONSE_DATA = {
 }
 
 OUTPUT_DATUM_DOWNLOAD_RESPONSE_DATA = {
-    "url": f"https://example.com/{str(uuid.uuid4())}",
+    "url": f"https://example.com/{uuid.uuid4()}",
 }
 
 EVENT_RESPONSE_DATA = {

@@ -1,10 +1,8 @@
-from logging import info, warning
-
 import click
 
 from valohai_cli.api import request
 from valohai_cli.ctx import get_project
-from valohai_cli.messages import success
+from valohai_cli.messages import info, success, warn
 
 
 @click.command()
@@ -24,4 +22,4 @@ def fetch() -> None:
         info("No new commits.")
     errors = data.get("errors", ())
     for error in errors:
-        warning(error)
+        warn(error)

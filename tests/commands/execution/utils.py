@@ -34,7 +34,7 @@ def get_execution_data_mock():
     execution_by_counter_url = f"{API_PREFIX}executions/{project_id}:{execution_counter}/"
     m.get(url=get_startswith_re(execution_by_counter_url), json=EXECUTION_DETAIL_DATA)
     m.delete(execution_by_counter_url, json={"ok": True})
-    m.post(re.compile("^https://app.valohai.com/api/v0/data/(.+?)/purge/$"), json={"ok": True})
+    m.post(re.compile(r"^https://app.valohai.com/api/v0/data/(.+?)/purge/$"), json={"ok": True})
     return m
 
 

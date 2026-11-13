@@ -1,8 +1,6 @@
-from typing import Union
-
 import click
 
-Formattable = Union[dict, list, str]
+Formattable = dict | list | str
 
 
 class ErrorFormatter:

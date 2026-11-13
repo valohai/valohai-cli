@@ -140,7 +140,7 @@ class RunCommand(click.Command):
             if rv is not None:
                 opts_by_group[getattr(param, "help_group", None)].append(rv)
 
-        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: (pair[0] or "")):
+        for group_name, opts in sorted(opts_by_group.items(), key=lambda pair: pair[0] or ""):
             with formatter.section(group_name or "Options"):
                 formatter.write_dl(opts)
 
