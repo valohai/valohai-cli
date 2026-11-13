@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - uses: akx/pre-commit-uv-action@19e2cbdb93404ff82f52044f07306443bc0bff7a # v0.1.0
+      - uses: j178/prek-action@44924fe9ef4a6f88253c4b6b1bf11c689d3ce53d # v3.1.0
   Build:
     runs-on: ubuntu-24.04
     steps:

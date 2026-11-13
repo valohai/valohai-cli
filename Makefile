@@ -14,12 +14,12 @@ dev:
 ifndef UV
 	pip install -U pip
 endif
-	$(PIP_INSTALL) pre-commit -e .[test]
-	pre-commit install
+	$(PIP_INSTALL) prek -e .[test]
+	prek install
 
 .PHONY: lint
 lint:
-	pre-commit run --all-files
+	prek run --all-files
 
 .PHONY: test
 test:
