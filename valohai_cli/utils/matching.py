@@ -29,7 +29,7 @@ def match_prefix(
     """
     if return_unique and value in choices:
         return value
-    value_re = re.compile(f"^{re.escape(value)}", re.I)
+    value_re = re.compile(f"^{re.escape(value)}", re.IGNORECASE)
     choices = [choice for choice in choices if value_re.match(force_text(choice))]
     if return_unique:
         return choices[0] if len(choices) == 1 else None

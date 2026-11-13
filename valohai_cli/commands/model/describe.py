@@ -88,6 +88,6 @@ def _generate_metadata_section(detail: dict) -> Iterator[str]:
     yield f"- **Access mode:** {detail.get('access_mode', 'N/A')}"
     yield f"- **Created:** {detail.get('ctime', 'N/A')}"
     yield f"- **Modified:** {detail.get('mtime', 'N/A')}"
-    if detail.get("archived", False):
+    if detail.get("archived"):
         yield "- **Archived:** yes"
     yield ""

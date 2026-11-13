@@ -9,7 +9,7 @@ from valohai_cli.api import request
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import success, warn
 
-VALID_ENVVAR_NAME_RE = re.compile(r"^[a-z0-9_-]+$", re.I)
+VALID_ENVVAR_NAME_RE = re.compile(r"^[a-z0-9_-]+$", re.IGNORECASE)
 
 
 def parse_env_variable(s: str) -> tuple[str, str]:

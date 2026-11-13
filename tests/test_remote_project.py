@@ -12,7 +12,7 @@ test_token = "x" * 12
 
 @pytest.fixture()
 def remote_project_setup(request, monkeypatch, tmpdir):
-    request.addfinalizer(lambda: settings.reset())
+    request.addfinalizer(settings.reset)
     monkeypatch.chdir(tmpdir)
     with RunAPIMock() as m:
         configure_token_login(None, test_token)

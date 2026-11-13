@@ -75,6 +75,16 @@ ignore = [
     "B905",
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "SIM105", # Use `contextlib.suppress(TypeError)` instead of try-except-pass
+    "FURB101", # `open` and `read` should be replaced by `Path(...).read_text()`
+    "FURB103", # `open` and `write` should be replaced by `Path(...).write_text()`
+    "PERF203", # `try`-`except` within a loop incurs performance overhead (not since 3.11)
+    "PLW0717", # Too many statements in `try` clause
+    "PLW1514", # `open` in text mode without explicit `encoding` argument (TODO: fix separately)
+    "PLW2901", # `for` loop variable overwritten by assignment target
+    "RUF012", # Mutable class attributes should be annotated with `typing.ClassVar`
+    "RUF067", # `__init__` module should only contain docstrings and re-exports
+    "RUF105", # `noqa` comment used instead of `ruff: ignore`
+    "RUF201", # Rule code used instead of name in config
 ]
 select = [
     "ARG",
@@ -84,11 +94,25 @@ select = [
     "COM812",  # trailing comma
     "E", # pycodestyle
     "F", # pyflakes
+    "FURB", # refurb
     "I", # isort
+    "ISC", # implicit string concatenation
+    "LOG", # logging
+    "PERF", # perflint
+    "PIE", # flake8-pie
+    "PLE", # pylint errors
+    "PLW", # pylint warnings
+    "RUF", # ruff-specific
     "SIM", # simplify
+    "T10", # debugger
     "UP", # pyupgrade
     "W", # pycodestyle
+    "YTT", # sys.version misuse
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["ARG", "ANN"]
+"tests/*" = [
+    "ARG",
+    "ANN",
+    "RUF069", # Float equality; tests compare exact values round-tripped through JSON
+]

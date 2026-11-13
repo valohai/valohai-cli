@@ -90,7 +90,7 @@ def outputs(
     List and download execution outputs.
     """
     if download_directory:
-        download_directory = download_directory.replace("{counter}", str(counter))
+        download_directory = download_directory.replace("{counter}", str(counter))  # noqa: RUF027
 
     if sync:
         watch(counter, force, filter_download, download_directory)
