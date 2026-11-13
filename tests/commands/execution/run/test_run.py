@@ -332,6 +332,19 @@ def test_adhoc_command_help_does_not_resolve_commit(
     assert "Input Options" in output
 
 
+def test_adhoc_help_as_input_value_does_not_execute_without_commit(
+    runner,
+    logged_in_and_linked,
+    using_default_run_api_mock,
+):
+    with open(get_project().get_config_filename(), "w") as yaml_fp:
+        yaml_fp.write(CONFIG_YAML)
+
+    result = runner.invoke(run, ["train", "--adhoc", "--in1", "--help"], catch_exceptions=False)
+    assert result.exit_code != 0
+    assert "without a resolved commit" in result.output
+
+
 def test_remote(run_test_setup, tmpdir):
     key = tmpdir.join("key.pub")
     key.write_text("ssh blarp blep", "utf-8")
