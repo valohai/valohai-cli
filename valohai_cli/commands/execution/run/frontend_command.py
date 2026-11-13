@@ -7,6 +7,7 @@ import click
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
+from valohai_cli.models.project import Project
 from valohai_cli.utils import parse_environment_variable_strings
 from valohai_cli.utils.cli_utils import TIME_LIMIT, PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
@@ -258,10 +259,7 @@ def run(
     if sum([watch, download_directory is not None, ssh]) > 1:
         raise click.UsageError("Only one of --watch, --sync or --ssh can be set.")
 
-    if not commit and project.is_remote:
-        # For remote projects, we need to resolve early.
-        commit = project.resolve_commits()[0]["identifier"]
-        info(f"Using remote project {project.name}'s newest commit {commit}")
+    commit = resolve_remote_commit(project, commit)
 
     # We need to pass commit=None when adhoc=True to `get_config`, but
     # the further steps do need the real commit identifier from remote,
@@ -270,15 +268,18 @@ def run(
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
 
-    commit = create_or_resolve_commit(
-        project,
-        commit=commit,
-        adhoc=adhoc,
-        allow_git_packaging=git_packaging,
-        include_untracked=include_untracked,
-        validate_adhoc_commit=validate_adhoc,
-        yaml_path=yaml,
-    )
+    if adhoc and "--help" in args:
+        commit = None
+    else:
+        commit = create_or_resolve_commit(
+            project,
+            commit=commit,
+            adhoc=adhoc,
+            allow_git_packaging=git_packaging,
+            include_untracked=include_untracked,
+            validate_adhoc_commit=validate_adhoc,
+            yaml_path=yaml,
+        )
 
     runtime_config = {}  # type: dict[str, Any]
 
@@ -362,6 +363,14 @@ def run(
     )
     with rc.make_context(rc.name, list(args), parent=ctx) as child_ctx:
         return rc.invoke(child_ctx)
+
+
+def resolve_remote_commit(project: Project, commit: str | None) -> str | None:
+    if not commit and project.is_remote:
+        # For remote projects, we need to resolve early.
+        commit = project.resolve_commits()[0]["identifier"]
+        info(f"Using remote project {project.name}'s newest commit {commit}")
+    return commit
 
 
 def print_step_list(ctx: click.Context, commit: str | None) -> None:

@@ -53,7 +53,7 @@ class RunCommand(click.Command):
         self,
         project: Project,
         step: Step,
-        commit: str,
+        commit: str | None,
         environment: str | None = None,
         image: str | None = None,
         title: str | None = None,
@@ -234,6 +234,8 @@ class RunCommand(click.Command):
             ctx.invoke(watch, counter=resp["counter"])
 
     def _build_payload(self, **kwargs: Any) -> dict:
+        if self.commit is None:
+            raise CLIException("Cannot create an execution without a resolved commit")
         _options, parameters, inputs = self._sift_kwargs(kwargs)
 
         payload = {
