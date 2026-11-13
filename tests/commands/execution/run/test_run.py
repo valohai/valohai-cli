@@ -328,7 +328,12 @@ def test_command_help_unlinked(runner, logged_in, yaml_path):
 
 
 @pytest.mark.parametrize("extra_args", ([], ["--adhoc"]))
-def test_command_help_without_resolving_commit(runner, logged_in_and_linked, using_default_run_api_mock, extra_args):
+def test_command_help_without_resolving_commit(
+    runner,
+    logged_in_and_linked,
+    using_default_run_api_mock,
+    extra_args,
+):
     with open(get_project().get_config_filename(), "w") as yaml_fp:
         yaml_fp.write(CONFIG_YAML)
 
@@ -372,7 +377,12 @@ def test_run_unlinked_still_requires_project(runner, logged_in):
     assert "No project is linked" in result.output
 
 
-def test_command_help_linked_custom_yaml(runner, logged_in_and_linked, using_default_run_api_mock, monkeypatch):
+def test_command_help_linked_custom_yaml(
+    runner,
+    logged_in_and_linked,
+    using_default_run_api_mock,
+    monkeypatch,
+):
     monkeypatch.setitem(get_project().data, "yaml_path", "custom.yaml")
     using_default_run_api_mock.get(
         f"https://app.valohai.com/api/v0/projects/{using_default_run_api_mock.project_id}/",
