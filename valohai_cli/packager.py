@@ -119,7 +119,7 @@ def package_files_into(
             progress_bar = click.progressbar(
                 files,
                 show_pos=True,
-                item_show_func=lambda i: (f"Packaging: {i}" if i else ""),
+                item_show_func=lambda i: f"Packaging: {i}" if i else "",
                 width=0,
             )
             if not progress:
