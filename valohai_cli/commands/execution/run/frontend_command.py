@@ -7,7 +7,8 @@ import click
 
 from valohai_cli.ctx import get_project
 from valohai_cli.messages import info
-from valohai_cli.utils import parse_environment_variable_strings
+from valohai_cli.models.project import Project
+from valohai_cli.utils import get_project_directory, parse_environment_variable_strings
 from valohai_cli.utils.cli_utils import TIME_LIMIT, PriorityHackCommand, priority_option
 from valohai_cli.utils.commits import create_or_resolve_commit
 
@@ -252,10 +253,16 @@ def run(
         print_step_list(ctx, commit)
         ctx.exit()
         return
-    project = get_project(require=True)
-    project.refresh_details()
+    is_help = "--help" in args
+    project = get_project(require=False) if is_help else get_project(require=True)
+    unlinked = project is None
+    if project is None:
+        project = Project(data={}, directory=get_project_directory())
+        info(f"No project is linked; using {yaml or 'valohai.yaml'} for step help.")
+    else:
+        project.refresh_details()
 
-    if sum([watch, download_directory is not None, ssh]) > 1:
+    if not is_help and sum([watch, download_directory is not None, ssh]) > 1:
         raise click.UsageError("Only one of --watch, --sync or --ssh can be set.")
 
     if not commit and project.is_remote:
@@ -269,6 +276,21 @@ def run(
     config = project.get_config(commit_identifier=commit, yaml_path=yaml)
     matched_step = match_step(config, step_name)
     step = config.steps[matched_step]
+
+    if is_help:
+        help_command = RunCommand(project=project, step=step, commit=commit or "")
+        try:
+            with help_command.make_context(help_command.name, list(args), parent=ctx):
+                pass
+        except click.exceptions.Exit:
+            if unlinked:
+                info("Link a project with `vh project link` to run executions.")
+            raise
+        if unlinked:
+            get_project(require=True)
+
+    if is_help and sum([watch, download_directory is not None, ssh]) > 1:
+        raise click.UsageError("Only one of --watch, --sync or --ssh can be set.")
 
     commit = create_or_resolve_commit(
         project,

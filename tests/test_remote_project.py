@@ -27,6 +27,13 @@ def test_execution_remote_project(remote_project_setup, runner):
     assert "Using remote project" in run_output
 
 
+def test_execution_remote_project_help(remote_project_setup, runner):
+    result = runner.invoke(exec_run, ["Train model", "--help"], catch_exceptions=False)
+    assert result.exit_code == 0
+    assert "Parameter Options" in result.output
+    assert "fetch new commits" not in result.output
+
+
 def test_execution_remote_project_adhoc(remote_project_setup, runner):
     # Ad-hocs don't work with remote projects
     run_output = runner.invoke(exec_run, ["Train model", "--adhoc"], catch_exceptions=False).output
