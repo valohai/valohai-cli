@@ -78,7 +78,7 @@ run_epilog = (
     "--tag",
     "tags",
     multiple=True,
-    help="Tag the pipeline. May be repeated.",
+    help="Tag the pipeline, in addition to any tags in the YAML pipeline. May be repeated.",
 )
 @click.option(
     "--environment",
@@ -356,9 +356,12 @@ def start_pipeline(
     payload: dict[str, Any] = {
         "project": project.id,
         "title": title or pipeline.name,
-        "tags": tags,
         **converted_pipeline,
     }
+
+    # converted pipelines may carry the YAML pipeline's tags, and `--tag` should add to them
+    payload["tags"] = list(dict.fromkeys([*payload.get("tags", []), *tags]))
+
     # `PipelineConverter` does not carry over the pipeline-level `reuse-executions` flag,
     # so pass it through explicitly (only when enabled) so it isn't lost. (#331)
     if pipeline.reuse_executions:
