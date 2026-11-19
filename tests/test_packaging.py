@@ -162,3 +162,33 @@ def test_vhignore_entire_directory(tmp_path):
     (tmp_path / "valohai.yaml").write_text("")
     tarball = pkg.package_directory(directory=str(tmp_path), yaml_path="valohai.yaml")
     assert get_tar_files(tarball) == {"hello.py", "valohai.yaml"}
+
+
+def test_include_hidden_dirs_walk(tmp_path):
+    for path in (
+        ".ipynb_checkpoints/a-checkpoint.ipynb",
+        ".ipynb_checkpoints/ignored-checkpoint.ipynb",
+        "sub/.ipynb_checkpoints/b-checkpoint.ipynb",
+        ".other/.ipynb_checkpoints/c-checkpoint.ipynb",
+    ):
+        (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / path).write_text("")
+    (tmp_path / ".vhignore").write_text("ignored-*\n")
+    files = pkg.get_files_for_package(str(tmp_path), include_hidden_dirs={".ipynb_checkpoints"})
+    assert set(files) == {
+        ".ipynb_checkpoints/a-checkpoint.ipynb",
+        "sub/.ipynb_checkpoints/b-checkpoint.ipynb",
+    }
+
+
+@pytest.mark.parametrize("with_gitignore", (False, True))
+def test_include_hidden_dirs_git(tmp_path, with_gitignore):
+    stub_git = StubGit(tmp_path)
+    stub_git.init()
+    (tmp_path / ".ipynb_checkpoints").mkdir()
+    (tmp_path / ".ipynb_checkpoints" / "a-checkpoint.ipynb").write_text("")
+    if with_gitignore:
+        (tmp_path / ".gitignore").write_text(".ipynb_checkpoints/\n")
+    files = pkg.get_files_for_package(stub_git.dir_str, include_hidden_dirs={".ipynb_checkpoints"})
+    # `git ls-files -z` output ends with a NUL, which yields an empty name; that's not ours to test here.
+    assert set(files) - {""} == (set() if with_gitignore else {".ipynb_checkpoints/a-checkpoint.ipynb"})
