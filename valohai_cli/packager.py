@@ -156,6 +156,8 @@ def _get_files_with_git(
 
     for command in commands:
         for line in check_output(command, cwd=dir, shell=True).split(b"\0"):
+            if not line:  # `-z` output ends with a NUL, which would yield an empty name
+                continue
             if line.startswith(b".") and not line.startswith(kept_hidden_prefixes):
                 continue
             file = line.decode("utf-8")

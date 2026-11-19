@@ -190,5 +190,4 @@ def test_include_hidden_dirs_git(tmp_path, with_gitignore):
     if with_gitignore:
         (tmp_path / ".gitignore").write_text(".ipynb_checkpoints/\n")
     files = pkg.get_files_for_package(stub_git.dir_str, include_hidden_dirs={".ipynb_checkpoints"})
-    # `git ls-files -z` output ends with a NUL, which yields an empty name; that's not ours to test here.
-    assert set(files) - {""} == (set() if with_gitignore else {".ipynb_checkpoints/a-checkpoint.ipynb"})
+    assert set(files) == (set() if with_gitignore else {".ipynb_checkpoints/a-checkpoint.ipynb"})
