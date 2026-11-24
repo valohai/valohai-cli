@@ -5,7 +5,7 @@ import subprocess
 import tarfile
 import tempfile
 from collections import namedtuple
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable
 from enum import Enum
 from subprocess import check_output
 from typing import IO
@@ -133,8 +133,14 @@ def package_files_into(
     dest_fp.flush()
 
 
-def _get_files_with_git(dir: str, include_untracked: bool = True) -> Iterable[tuple[str, str]]:
+def _get_files_with_git(
+    dir: str,
+    include_untracked: bool = True,
+    *,
+    include_hidden_dirs: Collection[str] = (),
+) -> Iterable[tuple[str, str]]:
     paths_seen = set()
+    kept_hidden_prefixes = tuple(f"{dirname}/".encode() for dirname in include_hidden_dirs)
     # `-c` lists cached (tracked) files; `-o` additionally lists untracked "other" files.
     others_flag = "o" if include_untracked else ""
     commands = [
@@ -150,7 +156,9 @@ def _get_files_with_git(dir: str, include_untracked: bool = True) -> Iterable[tu
 
     for command in commands:
         for line in check_output(command, cwd=dir, shell=True).split(b"\0"):
-            if line.startswith(b"."):
+            if not line:  # `-z` output ends with a NUL, which would yield an empty name
+                continue
+            if line.startswith(b".") and not line.startswith(kept_hidden_prefixes):
                 continue
             file = line.decode("utf-8")
             path = os.path.join(dir, file)
@@ -159,9 +167,11 @@ def _get_files_with_git(dir: str, include_untracked: bool = True) -> Iterable[tu
                 yield (file, path)
 
 
-def _get_files_walk(dir: str) -> Iterable[tuple[str, str]]:
+def _get_files_walk(dir: str, *, include_hidden_dirs: Collection[str] = ()) -> Iterable[tuple[str, str]]:
     for dirpath, dirnames, filenames in os.walk(dir):
-        dirnames[:] = [dirname for dirname in dirnames if not dirname.startswith(".")]
+        dirnames[:] = [
+            dirname for dirname in dirnames if not dirname.startswith(".") or dirname in include_hidden_dirs
+        ]
         for filename in filenames:
             if filename.startswith("."):
                 continue
@@ -175,6 +185,8 @@ def _get_files_inner(
     dir: str,
     allow_git: bool = True,
     include_untracked: bool = True,
+    *,
+    include_hidden_dirs: Collection[str] = (),
 ) -> tuple[GitUsage, Iterable[tuple[str, str]]]:
     # Inner, pre-vhignore-supporting generator function...
     gitignore_path = os.path.join(dir, ".gitignore")
@@ -184,7 +196,14 @@ def _get_files_inner(
             # We have .git, so we can try to use Git to figure out a file list of nonignored files
             try:
                 # return the generator
-                return (GitUsage.GIT_LS_FILES, _get_files_with_git(dir, include_untracked=include_untracked))
+                return (
+                    GitUsage.GIT_LS_FILES,
+                    _get_files_with_git(
+                        dir,
+                        include_untracked=include_untracked,
+                        include_hidden_dirs=include_hidden_dirs,
+                    ),
+                )
             except subprocess.CalledProcessError as cpe:
                 warn(
                     f".git exists, but we could not use git ls-files (error {cpe.returncode}), falling back to non-git",
@@ -199,20 +218,27 @@ def _get_files_inner(
                     GitUsage.GITIGNORE_WITHOUT_GIT,
                     (
                         p
-                        for p in _get_files_walk(dir)
+                        for p in _get_files_walk(dir, include_hidden_dirs=include_hidden_dirs)
                         if not gitignorant.check_path_match(gitignore_rules, p[0])
                     ),
                 )
 
-    return (GitUsage.NONE, _get_files_walk(dir))  # return the generator
+    return (GitUsage.NONE, _get_files_walk(dir, include_hidden_dirs=include_hidden_dirs))
 
 
 def _get_files(
     dir: str,
     allow_git: bool = True,
     include_untracked: bool = True,
+    *,
+    include_hidden_dirs: Collection[str] = (),
 ) -> tuple[GitUsage, VhIgnoreUsage, Iterable[tuple[str, str]]]:
-    git_usage, ftup_gen = _get_files_inner(dir, allow_git=allow_git, include_untracked=include_untracked)
+    git_usage, ftup_gen = _get_files_inner(
+        dir,
+        allow_git=allow_git,
+        include_untracked=include_untracked,
+        include_hidden_dirs=include_hidden_dirs,
+    )
     vhignore_path = os.path.join(dir, ".vhignore")
 
     if os.path.isfile(vhignore_path):
@@ -240,6 +266,8 @@ def get_files_for_package(
     allow_git: bool = True,
     ignore_patterns: Iterable[str] = (),
     include_untracked: bool = True,
+    *,
+    include_hidden_dirs: Collection[str] = (),
 ) -> dict[str, PackageFileInfo]:
     """
     Get files to package for ad-hoc packaging from the file system.
@@ -248,6 +276,8 @@ def get_files_for_package(
     :param allow_git: Whether to allow usage of `git ls-files`, if available, for packaging.
     :param ignore_patterns: List of ignored patterns.
     :param include_untracked: Whether to include untracked (but not ignored) files when packaging with Git.
+    :param include_hidden_dirs: Names of hidden directories (e.g. `.ipynb_checkpoints`) not to skip.
+                                Files within them are still subject to ignore rules.
     :return:
     """
     files_and_paths = []
@@ -255,6 +285,7 @@ def get_files_for_package(
         dir,
         allow_git=allow_git,
         include_untracked=include_untracked,
+        include_hidden_dirs=include_hidden_dirs,
     )
 
     for ftup in ftup_generator:
