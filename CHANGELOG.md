@@ -1,5 +1,13 @@
 ### Changelog
 
+#### [v0.38.0](https://github.com/valohai/valohai-cli/compare/v0.37.0...v0.38.0)
+
+> 24 November 2026
+
+- Bugfix: Keep `--tag`s when the converted pipeline has YAML `tags` [`#388`](https://github.com/valohai/valohai-cli/pull/388)
+- Bugfix: Fix help text for `--environment-variable-groups` [`#381`](https://github.com/valohai/valohai-cli/pull/381)
+- New: Let `get_files_for_package` keep named hidden directories (`include_hidden_dirs`) [`#389`](https://github.com/valohai/valohai-cli/pull/389)
+
 #### [v0.37.0](https://github.com/valohai/valohai-cli/compare/v0.36.0...v0.37.0)
 
 > 13 July 2026
